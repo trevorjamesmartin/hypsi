@@ -10,6 +10,6 @@ buildGoModule rec {
   meta = with lib; {
     description = "Simple tool to set your hyprpaper, written in Go";
     mainProgram = "hyprPaperPlanes";
-    license = licenses.mit;
+    license = licenses.bsd3;
   };
 }
