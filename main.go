@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const VERSION = "0.2"
+const VERSION = "0.3"
 
 const MESSAGE = `
 hyprPaperPlanes %s
