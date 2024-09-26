@@ -5,9 +5,26 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"log"
 )
 
+
+// exists returns whether the given file or directory exists
+func exists(path string) (bool, error) {
+    _, err := os.Stat(path)
+    if err == nil { return true, nil }
+    if os.IsNotExist(err) { return false, nil }
+    return false, err
+}
+
 func api() {
+	UPLOADS := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+	// check for existing wallpaper folder
+	ok, _ := exists(UPLOADS)
+	if !ok {
+		errorMessage := fmt.Sprintf(`NOTE: this option requires writing uploaded images to "%s" please ensure the folder exists`, UPLOADS)
+		log.Fatal(errorMessage)
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
