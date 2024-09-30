@@ -1,2 +1,26 @@
 # hyprpaperplanes
 a simple tool to set your hyprpaper, written in Go
+
+
+This program started as a script to manage my desktop wallpaper between sway and hyprland. When I first started using [Hyprland](https://www.hyprland.org/), I was also jumping in and out of sway and using [swww](https://github.com/LGFae/swww) to set the wallpaper on both.
+
+When I found hypaper being developed by the author of Hyprland I had to give it a try... It lives up to it's claim of being 'blazing fast' perhaps in part by not overdoing it.
+- You can read this [important note to the inner workings (of hyprpaper)](https://github.com/hyprwm/hyprpaper#important-note-to-the-inner-workings) to unpack that.
+- TLDR; [Hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) gives you full control of wallpaper management
+
+Assuming you have Hyprland installed and you've enabled the hyprpaper plugin, you can use this app to
+- `hyprPaperPlanes /path/to/imagefile.jpg` to set your wallpaper from the command line and have it persist
+- `hyprPaperPlanes %f` create a custom action in Thunar (enabling you to right-click an image > set as wallpaper)
+
+If you have rofi istalled, try running
+- `PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs hyprPaperPlanes` from a folder containing images
+
+Now this little Go app provides a few additional crossover features for web devs to play with
+- `hyprPaperPlanes -listen` to start a local web server to remotely change your desktop wallpapers
+- `hyprPaperPlanes -json` to show your hyprpaper configuration in simple JSON format
+- `hyprPaperPlanes -html` to render the HTML without starting the server
+
+[on my NixOS configuration](https://github.com/trevorjamesmartin/nixos-config) I install this [along with hyprpaper](https://github.com/trevorjamesmartin/nixos-config/tree/main/nixos/modules/home-manager/hyprpaper) using a module system. Your system integration may differ from mine, of course these are all just suggestions. You can even build the app in one command with `nix build github:trevorjamesmartin/hyprpaperplanes`
+
+
+feel free to fork this and modify for your system or project
