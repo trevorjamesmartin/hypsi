@@ -8,8 +8,8 @@ When I found hypaper being developed by the author of Hyprland I had to give it 
 - You can read this [important note to the inner workings (of hyprpaper)](https://github.com/hyprwm/hyprpaper#important-note-to-the-inner-workings) to unpack that.
 - TLDR; [Hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) gives you full control of wallpaper management
 
-Assuming you have Hyprland installed and you've enabled the hyprpaper plugin, you can use this app to
-- `hyprPaperPlanes /path/to/imagefile.jpg` to set your wallpaper from the command line and have it persist
+Assuming you have Hyprland installed and you've enabled the hyprpaper plugin, you can
+- `hyprPaperPlanes /path/to/imagefile.jpg` set your wallpaper from the command line and have it persist
 - `hyprPaperPlanes %f` create a custom action in Thunar (enabling you to right-click an image > set as wallpaper)
 
 If you have rofi istalled, try running
