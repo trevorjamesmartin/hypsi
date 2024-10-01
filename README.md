@@ -16,9 +16,9 @@ If you have rofi istalled, try running
 - `PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs hyprPaperPlanes` from a folder containing images
 
 Now this little Go app provides a few additional crossover features for web devs to play with
-- `hyprPaperPlanes -listen` to start a local web server to remotely change your desktop wallpapers
+- `hyprPaperPlanes -listen` to start a local web server (change your desktop wallpaper over the network)
 - `hyprPaperPlanes -json` to show your hyprpaper configuration in simple JSON format
-- `hyprPaperPlanes -html` to render the HTML without starting the server
+- `hyprPaperPlanes -html` to render the HTML without starting a server
 
 [on my NixOS configuration](https://github.com/trevorjamesmartin/nixos-config) I install this [along with hyprpaper](https://github.com/trevorjamesmartin/nixos-config/tree/main/nixos/modules/home-manager/hyprpaper) using a module system. Your system integration may differ from mine, of course these are all just suggestions. You can even build the app in one command with `nix build github:trevorjamesmartin/hyprpaperplanes`
 
