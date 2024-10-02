@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 const VERSION = "0.4"
@@ -35,6 +36,17 @@ func main() {
 			fmt.Print(jsonText())
 		case "-html":
 			fmt.Print(hyperText())
+		case "-rewind":
+			if len(argsWithoutProg) > 1 {
+				i, err := strconv.Atoi(argsWithoutProg[1])
+				if err != nil {
+					fmt.Println("argument must be a number")
+					return
+				}
+				rewind(i)
+			} else {
+				rewind(1)
+			}
 		default:
 			readFromCLI(argsWithoutProg)
 		}

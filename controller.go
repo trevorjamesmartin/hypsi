@@ -222,7 +222,63 @@ func updateConfig() {
 
 	defer fmt.Println("ok")
 
-	fmt.Fprint(f, configText())
+	hist := configText()
+
+	// log changes
+	historyfile := fmt.Sprintf("%s/wallpaper/hyprpaperplanes.log", base)
+	file, err := os.OpenFile(historyfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	log.SetOutput(file)
+	log.Println(jsonText())
+	// -
+
+	fmt.Fprint(f, hist)
+}
+
+func rewind(n int) {
+	base := os.Getenv("HOME")
+	historyfile := fmt.Sprintf("%s/wallpaper/hyprpaperplanes.log", base)
+	file, err := os.Open(historyfile)
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+
+	var past []history
+	for scanner.Scan() {
+
+		line := scanner.Text()
+		if len(line) > 0 {
+			idx := strings.IndexRune(line, '[')
+			past = append(past, history{dt: line[:idx], data: line[idx:]})
+		}
+
+	}
+	current := len(past) - 1
+
+	var target int
+
+	if current > 0 {
+		if len(past)-n > 0 {
+			target = current - n
+
+		} else {
+			target = current
+		}
+	}
+
+	for i, v := range past[target].unfold() {
+		fmt.Println(i, v)
+		preloadWallpaper(v.paper)
+		setWallpaper(v.paper, v.monitor)
+		// note, the config file isn't being updated here
+	}
 }
 
 func activeMonitor() string {
