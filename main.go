@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-const VERSION = "0.4"
+const VERSION = "0.5"
 
 const MESSAGE = `
 hyprPaperPlanes %s
@@ -22,6 +22,8 @@ alternatively by sending <args>, you can:
    -json	Show the current configuration in JSON format
 
    -html	Render HTML without starting a web server
+
+   -rewind	rewind config via logfile 
 `
 
 func main() {
