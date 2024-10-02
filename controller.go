@@ -256,7 +256,14 @@ func rewind(n int) {
 		line := scanner.Text()
 		if len(line) > 0 {
 			idx := strings.IndexRune(line, '[')
-			past = append(past, history{dt: line[:idx], data: line[idx:]})
+			if idx == -1 {
+				// catch for single monitor
+				idx = strings.IndexRune(line, '{')
+			}
+
+			if idx >= 0 {
+				past = append(past, history{dt: line[:idx], data: line[idx:]})
+			}
 		}
 
 	}
@@ -264,7 +271,7 @@ func rewind(n int) {
 
 	var target int
 
-	if current > 0 {
+	if current >= 0 {
 		if len(past)-n > 0 {
 			target = current - n
 
@@ -272,8 +279,9 @@ func rewind(n int) {
 			target = current
 		}
 	}
+	hist := past[target]
 
-	for i, v := range past[target].unfold() {
+	for i, v := range hist.unfold() {
 		fmt.Println(i, v)
 		preloadWallpaper(v.paper)
 		setWallpaper(v.paper, v.monitor)

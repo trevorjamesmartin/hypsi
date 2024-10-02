@@ -21,6 +21,10 @@ type history struct {
 }
 
 func (h *history) unfold() []plane {
+	if h.data[0] == '{' {
+		// single monitor
+		h.data = fmt.Sprintf("[%s]", h.data)
+	}
 	var target []map[string]string
 	// basic
 	err := json.Unmarshal([]byte(h.data), &target)
