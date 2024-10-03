@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 )
@@ -28,6 +29,16 @@ alternatively by sending <args>, you can:
 `
 
 func main() {
+	paperPath := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+	// ensure the "upload" folder exists
+	if _, err := os.Stat(paperPath); os.IsNotExist(err) {
+		// create with 0755 permissions (read, write, and execute for owner, read and execute for group and others)
+		err := os.MkdirAll(paperPath, 0755)
+		if err != nil {
+			log.Fatal(err) // Handle the error appropriately
+		}
+	}
+
 	argsWithoutProg := os.Args[1:]
 
 	if len(argsWithoutProg) > 0 {
