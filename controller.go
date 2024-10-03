@@ -222,67 +222,34 @@ func writeConfig() {
 
 	defer fmt.Println("ok")
 
-	hist := configText()
+	fmt.Fprint(f, configText())
 
-	// log changes
-	historyfile := fmt.Sprintf("%s/wallpaper/hyprpaperplanes.log", base)
-	file, err := os.OpenFile(historyfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	log.SetOutput(file)
-	log.Println(jsonText())
-	// -
+	writeHistory()
 
-	fmt.Fprint(f, hist)
 }
 
 func rewind(n int) {
-	base := os.Getenv("HOME")
-	historyfile := fmt.Sprintf("%s/wallpaper/hyprpaperplanes.log", base)
-	file, err := os.Open(historyfile)
+	past, grief := readHistory()
 
-	if err != nil {
-		log.Fatal(err)
+	if grief != nil {
+		log.Fatal(grief)
 		return
 	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
 
-	var past []history
-	for scanner.Scan() {
-
-		line := scanner.Text()
-		if len(line) > 0 {
-			idx := strings.IndexRune(line, '[')
-			if idx == -1 {
-				// catch for single monitor
-				idx = strings.IndexRune(line, '{')
-			}
-
-			if idx >= 0 {
-				past = append(past, history{dt: line[:idx], data: line[idx:]})
-			}
-		}
-
-	}
 	current := len(past) - 1
 
-	var target int
+	var target history
 
 	if current >= 0 {
 		if len(past)-n > 0 {
-			target = current - n
+			target = past[current-n]
 
 		} else {
-			target = current
+			target = past[current]
 		}
 	}
-	hist := past[target]
 
-	for i, v := range hist.unfold() {
-		fmt.Println(i, v)
+	for _, v := range target.unfold() {
 		preloadWallpaper(v.paper)
 		setWallpaper(v.paper, v.monitor)
 		// note, the config file isn't being written here
