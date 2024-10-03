@@ -24,6 +24,7 @@ alternatively by sending <args>, you can:
    -html	Render HTML without starting a web server
 
    -rewind	rewind config via logfile 
+
 `
 
 func main() {
@@ -49,6 +50,10 @@ func main() {
 			} else {
 				rewind(1)
 			}
+		case "-write":
+			// log changes & write hyprpaper.config
+			// (undocumented dev feature atm)
+			writeConfig()
 		default:
 			readFromCLI(argsWithoutProg)
 		}

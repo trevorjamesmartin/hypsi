@@ -41,7 +41,7 @@ func readFromCLI(argsWithoutProg []string) {
 			unloadWallpaper(prevImage)
 			preloadWallpaper(nextImage)
 			setWallpaper(nextImage, monitor)
-			updateConfig()
+			writeConfig()
 		}
 	}
 
@@ -71,7 +71,7 @@ func readFromWeb(monitor string, filename string) {
 		unloadWallpaper(prevImage)
 		preloadWallpaper(nextImage)
 		setWallpaper(nextImage, monitor)
-		updateConfig()
+		writeConfig()
 	}
 
 }
@@ -201,12 +201,12 @@ func setWallpaper(image string, monitor string) {
 
 }
 
-func updateConfig() {
+func writeConfig() {
 	base := os.Getenv("HOME")
 
 	configfile := fmt.Sprintf("%s/.config/hypr/hyprpaper.conf", base)
 
-	fmt.Println("update config")
+	fmt.Printf("writing: %s\n\n", configfile)
 	// remove old file if it exists
 	if errRemoving := os.Remove(configfile); errRemoving != nil {
 		fmt.Println(errRemoving)
@@ -285,7 +285,7 @@ func rewind(n int) {
 		fmt.Println(i, v)
 		preloadWallpaper(v.paper)
 		setWallpaper(v.paper, v.monitor)
-		// note, the config file isn't being updated here
+		// note, the config file isn't being written here
 	}
 }
 
