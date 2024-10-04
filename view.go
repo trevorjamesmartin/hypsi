@@ -128,6 +128,31 @@ func hyperText() string {
 			font-size: 1.5rem;
 			letter-spacing: 1px;
 		}
+
+		div.gallery {
+		  border: 5px solid white;
+		  border-radius: 12px;
+		  margin-left: auto;
+		  margin-right: auto;
+		  margin-top: 80px;
+		  line-height: 8rem; 
+		  text-align:center; 
+		  color: white; 
+		  width: 640px; 
+		  height: 360px;
+  		  background-size: 640px 360px;
+		}
+
+		div.gallery:hover {
+		  border: 5px solid #777;
+		  border-radius: 12px;
+		}
+
+		div.desc {
+		  padding: 0.25rem;
+		  text-align: center;
+		  font-size: 2rem; 
+		}
 	</style>
 	%s
 	</head>
@@ -156,25 +181,17 @@ func hyperText() string {
 			</form>`, p.Monitor, p.Monitor, p.Monitor)
 
 		hypertext += fmt.Sprintf(`
-		<div class="%s" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
-			%s
+		<div class="%s gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
+			
+			<div class="desc">
+				%s
+			</div>
+
 			%s
 		</div>
 		<style>
 		.%s {
-			line-height: 8rem; 
-			text-align:center; 
-			font-size: 4rem; 
-			color: white; 
-			width: 1280px; 
-			height: 720px;
-			margin-left: auto;
-			margin-right: auto;
-			margin-top: 80px;
-			background-size: 1280px 720px; 
 			background-image: url(%s);
-			border: 4px solid white;
-			border-radius: 12px;
 		};
 		</style>`, p.Monitor, p.Monitor, form, p.Monitor, data)
 	}
