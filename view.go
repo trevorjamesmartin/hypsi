@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,32 +11,15 @@ import (
 
 func jsonText() string {
 	active, err := listActive()
-
+	if err != nil {
+		log.Fatal(err)
+	}
+	bs, err := json.Marshal(active)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	endComma := len(active) - 1
-	multimon := endComma > 0
-
-	var text string
-
-	if multimon {
-		text += `[`
-	}
-
-	for idx, p := range active {
-		text += p.json()
-		if multimon && idx < endComma {
-			text += `,`
-		}
-	}
-
-	if multimon {
-		text += `]`
-	}
-
-	return text
+	return string(bs)
 }
 
 func configText() string {
@@ -47,14 +31,14 @@ func configText() string {
 	}
 
 	for _, p := range activeplanes {
-		if preloaded, _ := sources[p.paper]; !preloaded {
-			text += fmt.Sprintf("preload = %s\n", p.paper)
-			sources[p.paper] = true
+		if preloaded, _ := sources[p.Paper]; !preloaded {
+			text += fmt.Sprintf("preload = %s\n", p.Paper)
+			sources[p.Paper] = true
 		}
 	}
 
 	for _, p := range activeplanes {
-		text += fmt.Sprintf("wallpaper = %s,%s\n", p.monitor, p.paper)
+		text += fmt.Sprintf("wallpaper = %s,%s\n", p.Monitor, p.Paper)
 	}
 	text += "splash = false\n"
 	return text
@@ -156,7 +140,7 @@ func hyperText() string {
 	`, VERSION, dropFileScript())
 
 	for _, p := range activeplanes {
-		bts, err := os.ReadFile(p.paper)
+		bts, err := os.ReadFile(p.Paper)
 
 		if err != nil {
 			log.Fatal(err)
@@ -169,7 +153,7 @@ func hyperText() string {
 		form := fmt.Sprintf(`<form id="form_%s" enctype="multipart/form-data" action="/upload/%s" method="post" hidden>
 			    <input type="file" name="imageFile" />
 		  	    <input id="send_%s" type="submit" value="upload" />
-			</form>`, p.monitor, p.monitor, p.monitor)
+			</form>`, p.Monitor, p.Monitor, p.Monitor)
 
 		hypertext += fmt.Sprintf(`
 		<div class="%s" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
@@ -192,7 +176,7 @@ func hyperText() string {
 			border: 4px solid white;
 			border-radius: 12px;
 		};
-		</style>`, p.monitor, p.monitor, form, p.monitor, data)
+		</style>`, p.Monitor, p.Monitor, form, p.Monitor, data)
 	}
 
 	hypertext += `</body></html>`

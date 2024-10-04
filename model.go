@@ -9,44 +9,42 @@ import (
 	"strings"
 )
 
-type plane struct {
-	monitor string
-	paper   string
+type Plane struct {
+	Monitor string
+	Paper   string
 }
 
-func (p *plane) json() string {
-	return fmt.Sprintf(`{ "monitor": "%s", "paper": "%s" }`, p.monitor, p.paper)
+func (p Plane) MarshallJSON() ([]byte, error) {
+	return json.Marshal(p)
 }
 
-type history struct {
+func (p *Plane) UnMarshallJSON(data []byte) error {
+	var pln Plane
+	if err := json.Unmarshal(data, &pln); err != nil {
+		return err
+	}
+	*p = pln
+	return nil
+}
+
+type History struct {
 	dt   string
 	data string
 }
 
-func (h *history) unfold() []plane {
+func (h *History) unfold() []Plane {
 	if h.data[0] == '{' {
 		// single monitor
 		h.data = fmt.Sprintf("[%s]", h.data)
 	}
-	var target []map[string]string
-	// basic
+	var target []Plane
+
 	grief := json.Unmarshal([]byte(h.data), &target)
 	if grief != nil {
 		log.Fatalf("Unable to marshal JSON due to %s", grief)
 	}
 
-	result := []plane{}
-
-	for _, data := range target {
-		paper := data["paper"]
-		monitor := data["monitor"]
-		if len(monitor) > 0 && len(paper) > 0 {
-			p := plane{monitor: monitor, paper: paper}
-			result = append(result, p)
-		}
-	}
-
-	return result
+	return target
 }
 
 func writeHistory() {
@@ -66,8 +64,8 @@ func writeHistory() {
 	log.Println(jsonText())
 }
 
-func readHistory() ([]history, error) {
-	var past []history
+func readHistory() ([]History, error) {
+	var past []History
 
 	historyfile := fmt.Sprintf("%s/wallpaper/hyprpaperplanes.log", os.Getenv("HOME"))
 	file, grief := os.Open(historyfile)
@@ -90,7 +88,7 @@ func readHistory() ([]history, error) {
 			}
 
 			if idx >= 0 {
-				past = append(past, history{dt: line[:idx], data: line[idx:]})
+				past = append(past, History{dt: line[:idx], data: line[idx:]})
 			}
 		}
 

@@ -31,8 +31,8 @@ func readFromCLI(argsWithoutProg []string) {
 		var prevImage string
 
 		for _, p := range activeplanes {
-			if p.monitor == monitor {
-				prevImage = p.paper
+			if p.Monitor == monitor {
+				prevImage = p.Paper
 				break
 			}
 		}
@@ -61,8 +61,8 @@ func readFromWeb(monitor string, filename string) {
 	var prevImage string
 
 	for _, p := range activeplanes {
-		if p.monitor == monitor {
-			prevImage = p.paper
+		if p.Monitor == monitor {
+			prevImage = p.Paper
 			break
 		}
 	}
@@ -76,7 +76,7 @@ func readFromWeb(monitor string, filename string) {
 
 }
 
-func listActive() ([]*plane, error) {
+func listActive() ([]*Plane, error) {
 	cmd := exec.Command("hyprctl", "hyprpaper", "listactive")
 	stdout, err := cmd.StdoutPipe()
 
@@ -91,12 +91,12 @@ func listActive() ([]*plane, error) {
 		return nil, err
 	}
 
-	var planes []*plane
+	var planes []*Plane
 
 	for scanner.Scan() {
 		kv := strings.Split(scanner.Text(), "=")
 		if len(kv) > 1 {
-			planes = append(planes, &plane{monitor: strings.TrimSpace(kv[0]), paper: strings.TrimSpace(kv[1])})
+			planes = append(planes, &Plane{Monitor: strings.TrimSpace(kv[0]), Paper: strings.TrimSpace(kv[1])})
 		}
 	}
 
@@ -238,7 +238,7 @@ func rewind(n int) {
 
 	current := len(past) - 1
 
-	var target history
+	var target History
 
 	if current >= 0 {
 		if len(past)-n > 0 {
@@ -250,8 +250,8 @@ func rewind(n int) {
 	}
 
 	for _, v := range target.unfold() {
-		preloadWallpaper(v.paper)
-		setWallpaper(v.paper, v.monitor)
+		preloadWallpaper(v.Paper)
+		setWallpaper(v.Paper, v.Monitor)
 		// note, the config file isn't being written here
 	}
 }
