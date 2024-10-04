@@ -2,7 +2,7 @@
 
 buildGoModule rec {
   pname = "hyprpaperplanes";
-  version = "0.3";
+  version = "0.8";
 
   src = ./.;
   vendorHash = null;
