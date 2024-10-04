@@ -127,15 +127,14 @@ func hyperText() string {
 			justify-content: space-evenly;
 			font-size: 1.5rem;
 			letter-spacing: 1px;
+			line-height: 4rem;
 		}
 
 		div.gallery {
 		  border: 5px solid white;
 		  border-radius: 12px;
-		  margin-left: auto;
-		  margin-right: auto;
-		  margin-top: 80px;
-		  line-height: 8rem; 
+		  margin: 5px;
+		  line-height: 4rem;
 		  text-align:center; 
 		  color: white; 
 		  width: 640px; 
@@ -153,6 +152,14 @@ func hyperText() string {
 		  text-align: center;
 		  font-size: 2rem; 
 		}
+
+		div.monitors {
+		  display: flex;
+		  justify-content: space-evenly;
+		  align-items: stretch;
+		  margin-top: 120px;
+		}
+
 	</style>
 	%s
 	</head>
@@ -162,6 +169,7 @@ func hyperText() string {
 		<a href="/hyprpaper.conf">hyprpaper.conf</a>
 		<a href="/json">JSON</a>
 		</div>
+		<div class="monitors">
 	`, VERSION, dropFileScript())
 
 	for _, p := range activeplanes {
@@ -196,6 +204,6 @@ func hyperText() string {
 		</style>`, p.Monitor, p.Monitor, form, p.Monitor, data)
 	}
 
-	hypertext += `</body></html>`
+	hypertext += `</div></body></html>`
 	return hypertext
 }
