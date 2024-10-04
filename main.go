@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-const VERSION = "0.8"
+const VERSION = "0.9"
 
 const MESSAGE = `
 hyprPaperPlanes %s
@@ -65,6 +65,12 @@ func main() {
 			// log changes & write hyprpaper.config
 			// (undocumented dev feature atm)
 			writeConfig()
+
+		case "-free":
+			// free memory
+			// (undocumented dev feature atm)
+			unloadWallpaper("all")
+
 		default:
 			readFromCLI(argsWithoutProg)
 		}
