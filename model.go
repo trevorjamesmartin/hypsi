@@ -180,26 +180,25 @@ func webInit() Webview {
 }
 
 func (w *Webview) _JS() template.JS {
-	bts, err := os.ReadFile("./web/script.js")
-	if err != nil {
-		return ""
+	script, scriptError := WEBFOLDER.ReadFile("web/script.js")
+	if scriptError != nil {
+		log.Fatal(scriptError)
 	}
-	return template.JS(bts)
+	return template.JS(script)
 }
 
 func (w *Webview) _CSS() template.CSS {
-	bts, err := os.ReadFile("./web/style.css")
-	if err != nil {
-		return ""
+	styleSheet, styleError := WEBFOLDER.ReadFile("web/style.css")
+	if styleError != nil {
+		log.Fatal(styleError)
 	}
-	return template.CSS(bts)
-
+	return template.CSS(styleSheet)
 }
 
 func (w Webview) _Template() string {
-	bts, err := os.ReadFile("./web/page.html.tmpl")
-	if err != nil {
-		return ""
+	tmpl, staticError := WEBFOLDER.ReadFile("web/page.html.tmpl")
+	if staticError != nil {
+		log.Fatal(staticError)
 	}
-	return string(bts)
+	return string(tmpl)
 }

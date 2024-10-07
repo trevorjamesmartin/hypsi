@@ -1,11 +1,15 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 )
+
+//go:embed web/*
+var WEBFOLDER embed.FS
 
 const VERSION = "0.9.2"
 
@@ -38,7 +42,6 @@ func main() {
 			log.Fatal(err) // Handle the error appropriately
 		}
 	}
-
 	argsWithoutProg := os.Args[1:]
 
 	if len(argsWithoutProg) > 0 {
