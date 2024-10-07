@@ -19,10 +19,7 @@
     };
   in
   {
-    defaultPackage.${system} = with pkgs; [
-        hyprPaperPlanes
-        imagemagick
-    ];
+    defaultPackage.${system} = pkgs.hyprPaperPlanes;
     
     devShells.${system}.default = let
       pkgs = import nixpkgs {
