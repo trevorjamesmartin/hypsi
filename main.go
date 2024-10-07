@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-const VERSION = "0.9"
+const VERSION = "0.9.2"
 
 const MESSAGE = `
 hyprPaperPlanes %s
