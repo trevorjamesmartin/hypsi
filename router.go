@@ -14,13 +14,11 @@ func api() {
 
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		t := r.URL.Query().Get("t")
-
-		rw, err := strconv.Atoi(t)
-
-		if err != nil {
-			rw = 0
+		if n, err := strconv.Atoi(t); err != nil {
+			page.Print(w, 0)
+		} else {
+			page.Print(w, n)
 		}
-		page.Print(w, rw)
 	})
 
 	handleConfig := func(w http.ResponseWriter, r *http.Request) {
@@ -79,28 +77,20 @@ func api() {
 		}
 	}
 	mux.HandleFunc("POST /upload", uploadFile)
-
 	mux.HandleFunc("GET /conf", handleConfig)
 	mux.HandleFunc("GET /config", handleConfig)
 	mux.HandleFunc("GET /configuration", handleConfig)
 	mux.HandleFunc("GET /hyprpaper.conf", handleConfig)
-
 	mux.HandleFunc("GET /json", handleJSON)
-
 	mux.HandleFunc("GET /rewind", func(w http.ResponseWriter, r *http.Request) {
 		t := r.URL.Query().Get("t")
-
-		i, err := strconv.Atoi(t)
-
+		n, err := strconv.Atoi(t)
 		if err != nil {
 			http.Redirect(w, r, "/rewind?t=0", http.StatusSeeOther)
 			return
 		}
-
-		rewind(i)
-
-		page.Print(w, i)
-
+		rewind(n)
+		page.Print(w, n)
 	})
 
 	server := http.Server{Addr: ":3000", Handler: mux}
