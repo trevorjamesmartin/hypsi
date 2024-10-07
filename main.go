@@ -49,7 +49,7 @@ func main() {
 		case "-json":
 			fmt.Print(jsonText())
 		case "-html":
-			fmt.Print(hyperText())
+			hyperText(os.Stdout, -1)
 		case "-rewind":
 			if len(argsWithoutProg) > 1 {
 				i, err := strconv.Atoi(argsWithoutProg[1])

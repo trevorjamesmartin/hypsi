@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -25,6 +27,17 @@ func (p *Plane) UnMarshallJSON(data []byte) error {
 	}
 	*p = pln
 	return nil
+}
+
+func (p *Plane) ToBase64() (string, error) {
+	bts, err := os.ReadFile(p.Paper)
+
+	if err != nil {
+		return "", err
+	}
+	result := fmt.Sprintf("data:%s;base64,%s", http.DetectContentType(bts), base64.StdEncoding.EncodeToString(bts))
+
+	return result, nil
 }
 
 type History struct {

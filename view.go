@@ -1,12 +1,11 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"io"
 	"log"
-	"net/http"
-	"os"
 )
 
 func jsonText() string {
@@ -44,79 +43,19 @@ func configText() string {
 	return text
 }
 
-func dropFileScript() string {
-	return fmt.Sprintf(`
-	<script type="text/javascript">
-
-	async function sendData(data, url) {
-		  try {
-		    const response = await fetch(url, {
-		      method: "POST",
-		      body: data,
-		    });
-		    console.log(await response.statusText);
-		    location.reload()
-		  } catch (e) {
-		    console.error(e);
-		  }
-	}
-
-	function handleDrop(event) {
-	  event.preventDefault();
-	  
-	  if (event.dataTransfer.items) {
-	    let filecount = 0;
-	    const fileLimit = 1;
-	    [...event.dataTransfer.items].forEach((item, i) => {
-	      // If dropped items aren't files, reject them
-	      if (item.kind === "file" && filecount < fileLimit) {
-		filecount++;
-		const file = item.getAsFile();
-		const sendTo = "/upload?monitor=" + event.target.className;
-		const formSelector = "#form_" + event.target.className;
-		const formElement = document.querySelector(formSelector)
-		
-		// Take over form submission
-		formElement.addEventListener("submit", (event) => {
-		  event.preventDefault();
-		  // Associate the FormData object with the form element
-		  const formData = new FormData(formElement);
-		  formData.set("imageFile", file);
-		  sendData(formData, sendTo);
-		});
-
-		let sendBtnSelector = "#send_" + event.target.className;
-		document.querySelector(sendBtnSelector).click()
-	      }
-	    });
-	  } else {
-	    [...event.dataTransfer.files].forEach((file, i) => { console.log('?', file, i); });
-	  }
-	}
-
-	function allowDrop(event) {
-	  event.preventDefault();
-	}
-
-
-	</script>
-	`)
-}
-
-func hyperText() string {
-	var hypertext string
+func hyperText(w io.Writer, i int) {
 	activeplanes, errListing := listActive()
 
 	if errListing != nil {
 		log.Fatal(errListing)
 	}
 
-	hypertext += fmt.Sprintf(`
+	tmpl := `
 	<!DOCTYPE html>
 	<html>
-	<head>
-	<title>HyprPaperPlanes API %s</title>
-	<style>
+	  <head>
+	    <title>HyprPaperPlanes API {{.Version}}</title>
+	      <style>
 		* {
 			background-color: black;
 			color: white;
@@ -155,55 +94,160 @@ func hyperText() string {
 
 		div.monitors {
 		  display: flex;
-		  justify-content: space-evenly;
+		  flex-direction: row;
+		  justify-content: space-around;
 		  align-items: stretch;
 		  margin-top: 120px;
 		}
 
-	</style>
-	%s
-	</head>
-	<body>
-
-		<div class="formats">
-		<a href="/hyprpaper.conf">hyprpaper.conf</a>
-		<a href="/json">JSON</a>
-		</div>
-		<div class="monitors">
-	`, VERSION, dropFileScript())
-
-	for _, p := range activeplanes {
-		bts, err := os.ReadFile(p.Paper)
-
-		if err != nil {
-			log.Fatal(err)
+		div.rewind {
+		  height: 150px;
+		  width: auto;
+		  padding: 60px;
+		  font-size: 2rem;
+		}
+		button {
+		  font-size: 2rem;
+		  border-radius: 5px;
 		}
 
-		data := fmt.Sprintf("data:%s;base64,%s",
-			http.DetectContentType(bts),
-			base64.StdEncoding.EncodeToString(bts))
-
-		form := fmt.Sprintf(`<form id="form_%s" enctype="multipart/form-data" action="/upload/%s" method="post" hidden>
-			    <input type="file" name="imageFile" />
-		  	    <input id="send_%s" type="submit" value="upload" />
-			</form>`, p.Monitor, p.Monitor, p.Monitor)
-
-		hypertext += fmt.Sprintf(`
-		<div class="%s gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
-			
+		.container {
+		  display: flex;
+		  flex-direction: column;
+		  justify-content: space-evenly;
+		  align-items: center;
+		}
+	      </style>
+	    </head>
+	  <body>
+	    {{ if .Ivalue }}
+		<div class="formats">
+		  <a href="/hyprpaper.conf">hyprpaper.conf</a>
+		  <a href="/json">JSON</a>
+		</div>
+	    {{ end }}
+	    <div class="container">
+	      <div class="monitors">
+		{{ range .Monitors}}
+		<div class="{{.Monitor}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
 			<div class="desc">
-				%s
+			{{.Monitor}}
 			</div>
 
-			%s
+			<form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload/{{.Monitor}}" method="post" hidden>
+			  <input type="file" name="imageFile" />
+			  <input id="send_{{.Monitor}}" type="submit" value="upload" />
+			</form>
 		</div>
 		<style>
-		.%s {
-			background-image: url(%s);
+		.{{.Monitor}} {
+			background-image: url({{.ToBase64|safeURL}});
 		};
-		</style>`, p.Monitor, p.Monitor, form, p.Monitor, data)
+		</style>
+		{{end}}
+	      </div>
+		{{ if .Ivalue }}
+		<div class="rewind">
+		  <button onclick="handleRewind(event)">⏮ Previous</button>
+		  {{.Rewind}}
+		  <button onclick="handleForward(event)">Next</button>
+		</div>
+		{{ else }}
+		<hr>
+		{{ end }}
+	    </div>
+	    <script type="text/javascript">
+		var countme = localStorage.getItem("rewind") || 0;
+		async function sendData(data, url) {
+			  try {
+			    const response = await fetch(url, {
+			      method: "POST",
+			      body: data,
+			    });
+			    console.log(await response.statusText);
+			    location.reload()
+			  } catch (e) {
+			    console.error(e);
+			  }
+		}
+		function handleDrop(event) {
+		  event.preventDefault();
+		  if (event.dataTransfer.items) {
+		    let filecount = 0;
+		    const fileLimit = 1;
+		    [...event.dataTransfer.items].forEach((item, i) => {
+		      // If dropped items aren't files, reject them
+		      if (item.kind === "file" && filecount < fileLimit) {
+			filecount++;
+			const file = item.getAsFile();
+			const firstClass = event.target.className.split(" ").shift();
+			const sendTo = "/upload?monitor=" + firstClass;
+			const formSelector = "#form_" + firstClass;
+			const formElement = document.querySelector(formSelector);
+			
+			// Take over form submission
+			formElement.addEventListener("submit", (event) => {
+			  event.preventDefault();
+			  // Associate the FormData object with the form element
+			  const formData = new FormData(formElement);
+			  formData.set("imageFile", file);
+			  sendData(formData, sendTo);
+			  localStorage.setItem("rewind", 0)
+			}, false);
+
+			let sendBtnSelector = "#send_" + firstClass;
+			document.querySelector(sendBtnSelector).click()
+		      }
+		    });
+		  } else {
+		    [...event.dataTransfer.files].forEach((file, i) => { console.log('?', file, i); });
+		  }
+		}
+		function allowDrop(event) {
+		  event.preventDefault();
+		}
+		function handleRewind(event) {
+		  countme++;
+		  event.preventDefault();
+		  localStorage.setItem("rewind", countme)
+		  console.log("⏮ Rewind", countme);
+		  const url = new URL(location);
+		  url.pathname = "/rewind";
+		  url.searchParams.set("t", String(countme));
+		  history.pushState( {}, "", url)
+		  setTimeout(() => history.go(), 300)
+		}
+		function handleForward(event) {
+		  if (countme <= 0) {
+		    countme = 0;
+		    return
+		  }
+		  countme--;
+		  event.preventDefault();
+		  localStorage.setItem("rewind", countme)
+		  console.log("⏮ Rewind", countme);
+		  const url = new URL(location);
+		  url.pathname = "/rewind";
+		  url.searchParams.set("t", String(countme));
+		  history.pushState( {}, "", url)
+		  setTimeout(() => history.go(), 300)
+		}
+	    </script>
+	  </body>
+	</html>`
+
+	funcMap := template.FuncMap{
+		"safeURL": func(s string) template.URL {
+			return template.URL(s)
+		},
 	}
 
-	hypertext += `</div></body></html>`
-	return hypertext
+	data := struct {
+		Version  string
+		Monitors []*Plane
+		Ivalue   bool
+		Rewind   int
+	}{VERSION, activeplanes, i >= 0, i}
+
+	template.Must(template.New("webpage").Funcs(funcMap).Parse(tmpl)).Execute(w, data)
 }

@@ -3,18 +3,22 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
-	"log"
+	"strconv"
 )
-
 
 // exists returns whether the given file or directory exists
 func exists(path string) (bool, error) {
-    _, err := os.Stat(path)
-    if err == nil { return true, nil }
-    if os.IsNotExist(err) { return false, nil }
-    return false, err
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
 
 func api() {
@@ -28,7 +32,15 @@ func api() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(hyperText()))
+		t := r.URL.Query().Get("t")
+
+		i, err := strconv.Atoi(t)
+
+		if err != nil {
+			hyperText(w, 0)
+			return
+		}
+		hyperText(w, i)
 	})
 
 	handleConfig := func(w http.ResponseWriter, r *http.Request) {
@@ -94,6 +106,21 @@ func api() {
 	mux.HandleFunc("GET /hyprpaper.conf", handleConfig)
 
 	mux.HandleFunc("GET /json", handleJSON)
+
+	mux.HandleFunc("GET /rewind", func(w http.ResponseWriter, r *http.Request) {
+		pages := r.URL.Query().Get("t")
+
+		i, err := strconv.Atoi(pages)
+
+		if err != nil {
+			http.Redirect(w, r, "/rewind?t=0", http.StatusSeeOther)
+			return
+		}
+
+		fmt.Println(pages)
+		rewind(i)
+		hyperText(w, i)
+	})
 
 	server := http.Server{Addr: ":3000", Handler: mux}
 	fmt.Println("Listening @ http://0.0.0.0:3000")
