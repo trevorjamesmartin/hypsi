@@ -145,19 +145,24 @@ func hyperText(w io.Writer, i int) {
 		};
 		</style>
 		{{end}}
+
+
 	      </div>
 		{{ if .Ivalue }}
 		<div class="rewind">
-		  <button onclick="handleRewind(event)">⏮ Previous</button>
+		  <button onclick="handleRewind(event)">⏮ </button>
 		  {{.Rewind}}
-		  <button onclick="handleForward(event)">Next</button>
+		  <button onclick="handleForward(event)"> ⏭︎ </button>
 		</div>
 		{{ else }}
 		<hr>
 		{{ end }}
 	    </div>
 	    <script type="text/javascript">
+
 		var countme = localStorage.getItem("rewind") || 0;
+	
+
 		async function sendData(data, url) {
 			  try {
 			    const response = await fetch(url, {
@@ -170,8 +175,10 @@ func hyperText(w io.Writer, i int) {
 			    console.error(e);
 			  }
 		}
+
 		function handleDrop(event) {
 		  event.preventDefault();
+		  
 		  if (event.dataTransfer.items) {
 		    let filecount = 0;
 		    const fileLimit = 1;
@@ -203,9 +210,11 @@ func hyperText(w io.Writer, i int) {
 		    [...event.dataTransfer.files].forEach((file, i) => { console.log('?', file, i); });
 		  }
 		}
+
 		function allowDrop(event) {
 		  event.preventDefault();
 		}
+
 		function handleRewind(event) {
 		  countme++;
 		  event.preventDefault();
@@ -217,6 +226,7 @@ func hyperText(w io.Writer, i int) {
 		  history.pushState( {}, "", url)
 		  setTimeout(() => history.go(), 300)
 		}
+		
 		function handleForward(event) {
 		  if (countme <= 0) {
 		    countme = 0;
@@ -232,6 +242,7 @@ func hyperText(w io.Writer, i int) {
 		  history.pushState( {}, "", url)
 		  setTimeout(() => history.go(), 300)
 		}
+
 	    </script>
 	  </body>
 	</html>`
@@ -250,4 +261,5 @@ func hyperText(w io.Writer, i int) {
 	}{VERSION, activeplanes, i >= 0, i}
 
 	template.Must(template.New("webpage").Funcs(funcMap).Parse(tmpl)).Execute(w, data)
+
 }
