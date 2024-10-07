@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -125,4 +126,28 @@ func api() {
 	server := http.Server{Addr: ":3000", Handler: mux}
 	fmt.Println("Listening @ http://0.0.0.0:3000")
 	server.ListenAndServe()
+}
+
+func LoadJS() template.JS {
+	bts, err := os.ReadFile("./web/script.js")
+	if err != nil {
+		return ""
+	}
+	return template.JS(bts)
+}
+
+func LoadCSS() template.CSS {
+	bts, err := os.ReadFile("./web/style.css")
+	if err != nil {
+		return ""
+	}
+	return template.CSS(bts)
+}
+
+func LoadTemplate() string {
+	bts, err := os.ReadFile("./web/page.html.tmpl")
+	if err != nil {
+		return ""
+	}
+	return string(bts)
 }

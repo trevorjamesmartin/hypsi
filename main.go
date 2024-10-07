@@ -71,6 +71,12 @@ func main() {
 			// (undocumented dev feature atm)
 			unloadWallpaper("all")
 
+		case "-js":
+			// javascript
+			// (undocumented dev feature atm)
+			jscript := LoadJS()
+			fmt.Println(jscript)
+
 		default:
 			readFromCLI(argsWithoutProg)
 		}

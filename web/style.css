@@ -1,0 +1,63 @@
+
+* {
+	background-color: black;
+	color: white;
+}
+
+.formats {
+	display: flex;
+	justify-content: space-evenly;
+	font-size: 1.5rem;
+	letter-spacing: 1px;
+	line-height: 4rem;
+}
+
+div.gallery {
+  border: 5px solid white;
+  border-radius: 12px;
+  margin: 5px;
+  line-height: 4rem;
+  text-align:center; 
+  color: white; 
+  width: 640px; 
+  height: 360px;
+  background-size: 640px 360px;
+}
+
+div.gallery:hover {
+  border: 5px solid #777;
+  border-radius: 12px;
+}
+
+div.desc {
+  padding: 0.25rem;
+  text-align: center;
+  font-size: 2rem; 
+}
+
+div.monitors {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: stretch;
+  margin-top: 120px;
+}
+
+div.rewind {
+  height: 150px;
+  width: auto;
+  padding: 60px;
+  font-size: 2rem;
+}
+button {
+  font-size: 2rem;
+  border-radius: 5px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+

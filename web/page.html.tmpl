@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HyprPaperPlanes API {{.Version}}</title>
+    <style>
+      {{ .Style }}
+    </style>
+  </head>
+  <body>
+    {{ if .Ivalue }}
+	<div class="formats">
+	  <a href="/hyprpaper.conf">hyprpaper.conf</a>
+	  <a href="/json">JSON</a>
+	</div>
+    {{ end }}
+    <div class="container">
+      <div class="monitors">	
+	{{ range .Monitors}}
+	<div class="{{.Monitor}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
+	  <div class="desc">
+	    {{.Monitor}}
+	  </div>
+	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload/{{.Monitor}}" method="post" hidden>
+	    <input type="file" name="imageFile" />
+	    <input id="send_{{.Monitor}}" type="submit" value="upload" />
+	  </form>
+	</div>
+	<style>
+	.{{.Monitor}} {
+		background-image: url({{.ToBase64|safeURL}});
+	};
+	</style>
+	{{end}}
+      </div>
+	{{ if .Ivalue }}
+	<div class="rewind">
+	  <button onclick="handleRewind(event)">⏮ </button>
+	  {{.Rewind}}
+	  <button onclick="handleForward(event)"> ⏭︎ </button>
+	</div>
+	{{ else }}
+	<hr>
+	{{ end }}
+    </div>
+    <script type="text/javascript">
+	{{ .Script }}
+    </script>
+  </body>
+</html>
