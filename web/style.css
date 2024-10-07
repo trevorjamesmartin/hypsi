@@ -30,7 +30,6 @@ div.gallery:hover {
 }
 
 div.desc {
-  padding: 0.25rem;
   text-align: center;
   font-size: 2rem; 
 }
@@ -38,10 +37,20 @@ div.desc {
 div.monitors {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
-  align-items: stretch;
-  margin-top: 120px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 4rem;
 }
+
+@media only screen and (max-width: 1281px) {
+  div.monitors {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+  }
+}
+
 
 div.rewind {
   height: 150px;
@@ -55,9 +64,7 @@ button {
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
+  display: block;
+  text-align: center;
 }
 

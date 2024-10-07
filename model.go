@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -33,6 +34,25 @@ func (p *Plane) UnMarshallJSON(data []byte) error {
 
 func (p *Plane) ToBase64() (string, error) {
 	bts, err := os.ReadFile(p.Paper)
+
+	if err != nil {
+		return "", err
+	}
+	result := fmt.Sprintf("data:%s;base64,%s", http.DetectContentType(bts), base64.StdEncoding.EncodeToString(bts))
+
+	return result, nil
+}
+
+func (p *Plane) Thumb64() (string, error) {
+	fileName := filepath.Base(p.Paper)
+	thumbFile := fmt.Sprintf("thumb__%s", fileName)
+	thumbPath := filepath.Join(os.Getenv("HOME"), "wallpaper", thumbFile)
+
+	if _, err := os.Stat(thumbPath); os.IsNotExist(err) {
+		makeThumbNail(p.Paper, thumbPath)
+	}
+
+	bts, err := os.ReadFile(thumbPath)
 
 	if err != nil {
 		return "", err

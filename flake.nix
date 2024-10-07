@@ -19,7 +19,10 @@
     };
   in
   {
-    defaultPackage.${system} = pkgs.hyprPaperPlanes;
+    defaultPackage.${system} = with pkgs; [
+        hyprPaperPlanes
+        imagemagick
+    ];
     
     devShells.${system}.default = let
       pkgs = import nixpkgs {
@@ -27,6 +30,7 @@
       };
     in pkgs.mkShell {
         packages = with pkgs;[
+          imagemagick
           gotools
           gopls
           go-outline
