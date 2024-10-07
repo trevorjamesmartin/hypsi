@@ -11,7 +11,7 @@ import (
 //go:embed web/*
 var WEBFOLDER embed.FS
 
-const VERSION = "0.9.2"
+const VERSION = "0.9.3"
 
 const MESSAGE = `
 hyprPaperPlanes %s
