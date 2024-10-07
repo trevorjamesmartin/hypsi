@@ -2,46 +2,25 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 )
 
-// exists returns whether the given file or directory exists
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
-}
-
 func api() {
-	UPLOADS := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
-	// check for existing wallpaper folder
-	ok, _ := exists(UPLOADS)
-	if !ok {
-		errorMessage := fmt.Sprintf(`NOTE: this option requires writing uploaded images to "%s" please ensure the folder exists`, UPLOADS)
-		log.Fatal(errorMessage)
-	}
-
 	mux := http.NewServeMux()
+	page := webInit()
+
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		t := r.URL.Query().Get("t")
 
-		i, err := strconv.Atoi(t)
+		rw, err := strconv.Atoi(t)
 
 		if err != nil {
-			hyperText(w, 0)
-			return
+			rw = 0
 		}
-		hyperText(w, i)
+		page.Print(w, rw)
 	})
 
 	handleConfig := func(w http.ResponseWriter, r *http.Request) {
@@ -109,45 +88,22 @@ func api() {
 	mux.HandleFunc("GET /json", handleJSON)
 
 	mux.HandleFunc("GET /rewind", func(w http.ResponseWriter, r *http.Request) {
-		pages := r.URL.Query().Get("t")
+		t := r.URL.Query().Get("t")
 
-		i, err := strconv.Atoi(pages)
+		i, err := strconv.Atoi(t)
 
 		if err != nil {
 			http.Redirect(w, r, "/rewind?t=0", http.StatusSeeOther)
 			return
 		}
 
-		fmt.Println(pages)
 		rewind(i)
-		hyperText(w, i)
+
+		page.Print(w, i)
+
 	})
 
 	server := http.Server{Addr: ":3000", Handler: mux}
 	fmt.Println("Listening @ http://0.0.0.0:3000")
 	server.ListenAndServe()
-}
-
-func LoadJS() template.JS {
-	bts, err := os.ReadFile("./web/script.js")
-	if err != nil {
-		return ""
-	}
-	return template.JS(bts)
-}
-
-func LoadCSS() template.CSS {
-	bts, err := os.ReadFile("./web/style.css")
-	if err != nil {
-		return ""
-	}
-	return template.CSS(bts)
-}
-
-func LoadTemplate() string {
-	bts, err := os.ReadFile("./web/page.html.tmpl")
-	if err != nil {
-		return ""
-	}
-	return string(bts)
 }

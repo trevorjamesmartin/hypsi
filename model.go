@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -107,4 +109,77 @@ func readHistory() ([]History, error) {
 
 	}
 	return past, nil
+}
+
+type Webview struct {
+	template string
+
+	data struct {
+		Version  string
+		Style    template.CSS
+		Monitors []*Plane
+		Ivalue   bool
+		Rewind   int
+		Script   template.JS
+	}
+
+	funcMap template.FuncMap
+}
+
+func (w *Webview) Print(out io.Writer, i int) {
+	monitors, errListing := listActive()
+	if errListing != nil {
+		log.Fatal(errListing)
+	}
+
+	// these values change
+	w.data.Rewind = i
+	w.data.Ivalue = i >= 0
+	w.data.Monitors = monitors
+
+	// 'write => out' the resulting template.HTML
+	template.Must(template.New("webpage").Funcs(w.funcMap).Parse(w.template)).Execute(out, w.data)
+}
+
+func webInit() Webview {
+	page := Webview{}
+
+	funcMap := template.FuncMap{
+		"safeURL": func(s string) template.URL {
+			return template.URL(s)
+		},
+	}
+	// load once, these values never change at runtime
+	page.template = page._Template()
+	page.funcMap = funcMap
+	page.data.Version = VERSION
+	page.data.Style = page._CSS()
+	page.data.Script = page._JS()
+
+	return page
+}
+
+func (w *Webview) _JS() template.JS {
+	bts, err := os.ReadFile("./web/script.js")
+	if err != nil {
+		return ""
+	}
+	return template.JS(bts)
+}
+
+func (w *Webview) _CSS() template.CSS {
+	bts, err := os.ReadFile("./web/style.css")
+	if err != nil {
+		return ""
+	}
+	return template.CSS(bts)
+
+}
+
+func (w Webview) _Template() string {
+	bts, err := os.ReadFile("./web/page.html.tmpl")
+	if err != nil {
+		return ""
+	}
+	return string(bts)
 }

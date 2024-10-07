@@ -29,11 +29,11 @@ alternatively by sending <args>, you can:
 `
 
 func main() {
-	paperPath := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+	UPLOADS := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
 	// ensure the "upload" folder exists
-	if _, err := os.Stat(paperPath); os.IsNotExist(err) {
+	if _, err := os.Stat(UPLOADS); os.IsNotExist(err) {
 		// create with 0755 permissions (read, write, and execute for owner, read and execute for group and others)
-		err := os.MkdirAll(paperPath, 0755)
+		err := os.MkdirAll(UPLOADS, 0755)
 		if err != nil {
 			log.Fatal(err) // Handle the error appropriately
 		}
@@ -49,7 +49,8 @@ func main() {
 		case "-json":
 			fmt.Print(jsonText())
 		case "-html":
-			hyperText(os.Stdout, -1)
+			page := webInit()
+			page.Print(os.Stdout, -1)
 		case "-rewind":
 			if len(argsWithoutProg) > 1 {
 				i, err := strconv.Atoi(argsWithoutProg[1])
@@ -70,12 +71,6 @@ func main() {
 			// free memory
 			// (undocumented dev feature atm)
 			unloadWallpaper("all")
-
-		case "-js":
-			// javascript
-			// (undocumented dev feature atm)
-			jscript := LoadJS()
-			fmt.Println(jscript)
 
 		default:
 			readFromCLI(argsWithoutProg)
