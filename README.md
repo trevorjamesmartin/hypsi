@@ -1,4 +1,4 @@
-# hyprpaperplanes
+# hypsi
 a simple tool to set your hyprpaper, written in Go
 
 
@@ -9,18 +9,18 @@ When I found hypaper being developed by the author of Hyprland I had to give it 
 - TLDR; [Hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) gives you full control of wallpaper management
 
 Assuming you have Hyprland installed and you've enabled the hyprpaper plugin, you can
-- `hyprPaperPlanes /path/to/imagefile.jpg` set your wallpaper from the command line and have it persist
-- `hyprPaperPlanes %f` create a custom action in Thunar (enabling you to right-click an image > set as wallpaper)
+- `hypsi /path/to/imagefile.jpg` set your wallpaper from the command line and have it persist
+- `hypsi %f` create a custom action in Thunar (enabling you to right-click an image > set as wallpaper)
 
 If you have rofi istalled, try running
-- `PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs hyprPaperPlanes` from a folder containing images
+- `PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs hypsi` from a folder containing images
 
 Now this little Go app provides a few additional crossover features for web devs to play with
-- `hyprPaperPlanes -listen` to start a local web server (change your desktop wallpaper over the network)
-- `hyprPaperPlanes -json` to show your hyprpaper configuration in simple JSON format
-- `hyprPaperPlanes -html` to render the HTML without starting a server
+- `hypsi -listen` to start a local web server (change your desktop wallpaper over the network)
+- `hypsi -json` to show your hyprpaper configuration in simple JSON format
+- `hypsi -html` to render the HTML without starting a server
 
-[on my NixOS configuration](https://github.com/trevorjamesmartin/nixos-config) I install this [along with hyprpaper](https://github.com/trevorjamesmartin/nixos-config/tree/main/nixos/modules/home-manager/hyprpaper) using a module system. Your system integration may differ from mine, of course these are all just suggestions. You can even build the app in one command with `nix build github:trevorjamesmartin/hyprpaperplanes`
+[on my NixOS configuration](https://github.com/trevorjamesmartin/nixos-config) I install this [along with hyprpaper](https://github.com/trevorjamesmartin/nixos-config/tree/main/nixos/modules/home-manager/hyprpaper) using a module system. Your system integration may differ from mine, of course these are all just suggestions. You can even build the app in one command with `nix build github:trevorjamesmartin/hypsi`
 
 
 feel free to fork this and modify for your system or project
