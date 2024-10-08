@@ -11,12 +11,12 @@ import (
 //go:embed web/*
 var WEBFOLDER embed.FS
 
-const VERSION = "0.9.3"
+const VERSION = "0.9.4"
 
 const MESSAGE = `
-hyprPaperPlanes %s
+hypsi %s
 
-usage: hyprPaperPlanes [ <file> | <args> ]
+usage: hypsi [ <file> | <args> ]
 
    <file>	To set the desktop wallpaper of your focused monitor, simply provide the absolute path to your desired image file.
 

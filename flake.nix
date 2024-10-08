@@ -13,13 +13,13 @@
       config = {}; 
       overlays = [
         (self: super: {
-          hyprPaperPlanes = super.callPackage ./default.nix {};
+          hypsi = super.callPackage ./default.nix {};
         })
       ];
     };
   in
   {
-    defaultPackage.${system} = pkgs.hyprPaperPlanes;
+    defaultPackage.${system} = pkgs.hypsi;
     
     devShells.${system}.default = let
       pkgs = import nixpkgs {
