@@ -51,7 +51,7 @@ func api() {
 
 		tempFolder := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
 
-		tempFile, err := os.CreateTemp(tempFolder, "hyprPaperPlane_*-"+handler.Filename)
+		tempFile, err := os.CreateTemp(tempFolder, "*__"+handler.Filename)
 
 		if err != nil {
 			fmt.Println(err)
