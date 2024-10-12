@@ -161,8 +161,21 @@ func (w *Webpage) Print(out io.Writer, i int) {
 	template.Must(template.New("webpage").Funcs(w.funcMap).Parse(w.template)).Execute(out, w.data)
 }
 
+func (w Webpage) _Template() string {
+	tmpl, staticError := WEBFOLDER.ReadFile("web/page.html.tmpl")
+	if staticError != nil {
+		log.Fatal(staticError)
+	}
+	return string(tmpl)
+}
+
 func webInit() Webpage {
 	page := Webpage{}
+
+	hist, err := readHistory()
+
+	if err != nil {
+	}
 
 	funcMap := template.FuncMap{
 		"safeURL": func(s string) template.URL {
@@ -174,37 +187,16 @@ func webInit() Webpage {
 		"lessOne": func(n int) int {
 			return n - 1
 		},
+		"canRewind": func(n int) bool {
+			return n < len(hist)
+		},
+		"gtZero": func(n int) bool {
+			return n > 0
+		},
 	}
 	// load once, these values never change at runtime
 	page.template = page._Template()
 	page.funcMap = funcMap
 	page.data.Version = VERSION
-	page.data.Style = page._CSS()
-	page.data.Script = page._JS()
-
 	return page
-}
-
-func (w *Webpage) _JS() template.JS {
-	script, scriptError := WEBFOLDER.ReadFile("web/script.js")
-	if scriptError != nil {
-		log.Fatal(scriptError)
-	}
-	return template.JS(script)
-}
-
-func (w *Webpage) _CSS() template.CSS {
-	styleSheet, styleError := WEBFOLDER.ReadFile("web/style.css")
-	if styleError != nil {
-		log.Fatal(styleError)
-	}
-	return template.CSS(styleSheet)
-}
-
-func (w Webpage) _Template() string {
-	tmpl, staticError := WEBFOLDER.ReadFile("web/page.html.tmpl")
-	if staticError != nil {
-		log.Fatal(staticError)
-	}
-	return string(tmpl)
 }

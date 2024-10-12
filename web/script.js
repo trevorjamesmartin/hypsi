@@ -1,6 +1,3 @@
- 
-var countme = localStorage.getItem("rewind") || 0;
-
 async function sendData(data, url) {
   try {
     const response = await fetch(url, {
@@ -38,8 +35,8 @@ function handleDrop(event) {
             // Associate the FormData object with the form element
             const formData = new FormData(formElement);
             formData.set("imageFile", file);
+            //localStorage.setItem("rewind", 0);
             sendData(formData, sendTo);
-            localStorage.setItem("rewind", 0);
           },
           false,
         );
@@ -66,7 +63,6 @@ function handleRewind(event, idx) {
     return;
   }
 
-  localStorage.setItem("rewind", idx);
   const url = new URL(location);
   url.pathname = "/rewind";
   url.searchParams.set("t", String(idx));

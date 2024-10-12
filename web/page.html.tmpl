@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>HyprPaperPlanes API {{.Version}}</title>
+    <title>Hypsi {{.Version}}</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
   </head>
   <body>
     {{ if .Ivalue }}
-	<div class="formats">
-	  <a href="/hyprpaper.conf">hyprpaper.conf</a>
-	  <a href="/json">JSON</a>
-	</div>
+    <div class="formats">
+      <a href="/hyprpaper.conf">hyprpaper.conf</a>
+      <a href="/json">JSON</a>
+    </div>
     {{ end }}
     <div class="container">
       <div class="monitors">	
@@ -18,8 +18,9 @@
 	  <div class="desc">
 	    {{.Monitor}}
 	  </div>
-	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload/{{.Monitor}}" method="post" hidden>
+	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post" hidden>
 	    <input type="file" name="imageFile" />
+	    <input type="text" name="monitor" value="{{.Monitor}}" />
 	    <input id="send_{{.Monitor}}" type="submit" value="upload" />
 	  </form>
 	</div>
@@ -32,9 +33,17 @@
       </div>
 	{{ if .Ivalue }}
 	<div class="rewind">
-	  <button onclick="handleRewind(event, {{.Rewind|plusOne}})">⏮ </button>
-	  {{.Rewind}}
+	  {{ if .Rewind|plusOne|canRewind }}
+	    <button onclick="handleRewind(event, {{.Rewind|plusOne}})">⏮ </button>
+	  {{ else }}
+	    <button disabled> ⏮ </button>
+	  {{ end }}
+	{{.Rewind}}
+	  {{ if .Rewind|gtZero }}
 	  <button onclick="handleRewind(event, {{.Rewind|lessOne}})"> ⏭︎ </button>
+	  {{ else }}
+	  <button disabled> ⏭︎ </button>
+	  {{ end }}
 	</div>
 	{{ else }}
 	<hr>

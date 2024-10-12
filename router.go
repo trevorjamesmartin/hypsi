@@ -23,12 +23,21 @@ func api() {
 
 	mux.HandleFunc("GET /static/", func(w http.ResponseWriter, r *http.Request) {
 		filename := fmt.Sprintf("web%s", r.URL.Path[7:])
+
+		if len(filename) < 0 {
+			http.Error(w, "no", http.StatusForbidden)
+			return
+		}
+
 		file, err := WEBFOLDER.Open(filename)
+
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
+
 		defer file.Close()
+
 		http.ServeFile(w, r, filename)
 	})
 
@@ -43,6 +52,9 @@ func api() {
 
 	uploadFile := func(w http.ResponseWriter, r *http.Request) {
 		r.ParseMultipartForm(10 << 20)
+
+		monitor := r.FormValue("monitor")
+
 		file, handler, err := r.FormFile("imageFile")
 
 		if err != nil {
@@ -55,8 +67,6 @@ func api() {
 		fmt.Printf("Uploaded File: %+v\n", handler.Filename)
 		fmt.Printf("File Size: %+v\n", handler.Size)
 		fmt.Printf("MIME Header: %+v\n", handler.Header)
-
-		monitor := r.URL.Query().Get("monitor")
 
 		fmt.Printf("Monitor: %s\n", monitor)
 
