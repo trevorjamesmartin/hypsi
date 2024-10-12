@@ -2,9 +2,7 @@
 <html>
   <head>
     <title>HyprPaperPlanes API {{.Version}}</title>
-    <style>
-      {{ .Style }}
-    </style>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
   </head>
   <body>
     {{ if .Ivalue }}
@@ -34,16 +32,14 @@
       </div>
 	{{ if .Ivalue }}
 	<div class="rewind">
-	  <button onclick="handleRewind(event)">⏮ </button>
+	  <button onclick="handleRewind(event, {{.Rewind|plusOne}})">⏮ </button>
 	  {{.Rewind}}
-	  <button onclick="handleForward(event)"> ⏭︎ </button>
+	  <button onclick="handleRewind(event, {{.Rewind|lessOne}})"> ⏭︎ </button>
 	</div>
 	{{ else }}
 	<hr>
 	{{ end }}
     </div>
-    <script type="text/javascript">
-	{{ .Script }}
-    </script>
+    <script type="text/javascript" src="/static/script.js"></script>
   </body>
 </html>

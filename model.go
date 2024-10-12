@@ -131,7 +131,7 @@ func readHistory() ([]History, error) {
 	return past, nil
 }
 
-type Webview struct {
+type Webpage struct {
 	template string
 
 	data struct {
@@ -146,7 +146,7 @@ type Webview struct {
 	funcMap template.FuncMap
 }
 
-func (w *Webview) Print(out io.Writer, i int) {
+func (w *Webpage) Print(out io.Writer, i int) {
 	monitors, errListing := listActive()
 	if errListing != nil {
 		log.Fatal(errListing)
@@ -161,12 +161,18 @@ func (w *Webview) Print(out io.Writer, i int) {
 	template.Must(template.New("webpage").Funcs(w.funcMap).Parse(w.template)).Execute(out, w.data)
 }
 
-func webInit() Webview {
-	page := Webview{}
+func webInit() Webpage {
+	page := Webpage{}
 
 	funcMap := template.FuncMap{
 		"safeURL": func(s string) template.URL {
 			return template.URL(s)
+		},
+		"plusOne": func(n int) int {
+			return n + 1
+		},
+		"lessOne": func(n int) int {
+			return n - 1
 		},
 	}
 	// load once, these values never change at runtime
@@ -179,7 +185,7 @@ func webInit() Webview {
 	return page
 }
 
-func (w *Webview) _JS() template.JS {
+func (w *Webpage) _JS() template.JS {
 	script, scriptError := WEBFOLDER.ReadFile("web/script.js")
 	if scriptError != nil {
 		log.Fatal(scriptError)
@@ -187,7 +193,7 @@ func (w *Webview) _JS() template.JS {
 	return template.JS(script)
 }
 
-func (w *Webview) _CSS() template.CSS {
+func (w *Webpage) _CSS() template.CSS {
 	styleSheet, styleError := WEBFOLDER.ReadFile("web/style.css")
 	if styleError != nil {
 		log.Fatal(styleError)
@@ -195,7 +201,7 @@ func (w *Webview) _CSS() template.CSS {
 	return template.CSS(styleSheet)
 }
 
-func (w Webview) _Template() string {
+func (w Webpage) _Template() string {
 	tmpl, staticError := WEBFOLDER.ReadFile("web/page.html.tmpl")
 	if staticError != nil {
 		log.Fatal(staticError)

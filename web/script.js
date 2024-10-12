@@ -59,30 +59,18 @@ function allowDrop(event) {
   event.preventDefault();
 }
 
-function handleRewind(event) {
-  countme++;
+function handleRewind(event, idx) {
   event.preventDefault();
-  localStorage.setItem("rewind", countme);
-  console.log("⏮ Rewind", countme);
+
+  if (idx < 0) {
+    return;
+  }
+
+  localStorage.setItem("rewind", idx);
   const url = new URL(location);
   url.pathname = "/rewind";
-  url.searchParams.set("t", String(countme));
+  url.searchParams.set("t", String(idx));
   history.pushState({}, "", url);
   setTimeout(() => history.go(), 300);
 }
 
-function handleForward(event) {
-  if (countme <= 0) {
-    countme = 0;
-    return;
-  }
-  countme--;
-  event.preventDefault();
-  localStorage.setItem("rewind", countme);
-  console.log("⏮ Rewind", countme);
-  const url = new URL(location);
-  url.pathname = "/rewind";
-  url.searchParams.set("t", String(countme));
-  history.pushState({}, "", url);
-  setTimeout(() => history.go(), 300);
-}
