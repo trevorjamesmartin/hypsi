@@ -21,6 +21,17 @@ func api() {
 		}
 	})
 
+	mux.HandleFunc("GET /static/", func(w http.ResponseWriter, r *http.Request) {
+		filename := fmt.Sprintf("web%s", r.URL.Path[7:])
+		file, err := WEBFOLDER.Open(filename)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		defer file.Close()
+		http.ServeFile(w, r, filename)
+	})
+
 	handleConfig := func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(configText()))
 	}
