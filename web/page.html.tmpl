@@ -19,7 +19,7 @@
 	    {{.Monitor}}
 	  </div>
 	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post" hidden>
-	    <input type="file" name="imageFile" />
+	    <input id="imageFile" type="file" name="imageFile" />
 	    <input type="text" name="monitor" value="{{.Monitor}}" />
 	    <input id="send_{{.Monitor}}" type="submit" value="upload" />
 	  </form>
@@ -33,10 +33,10 @@
       </div>
 	{{ if .Ivalue }}
 	<div class="rewind">
-	  {{ if .Rewind|plusOne|canRewind }}
-	    <button onclick="handleRewind(event, {{.Rewind|plusOne}})">⏮ </button>
+	  {{ if .Rewind|plusOne|inHistory }}
+	    <button id="roll_back" onclick="handleRewind(event, {{.Rewind|plusOne}})">⏮ </button>
 	  {{ else }}
-	    <button disabled> ⏮ </button>
+	    <button id="roll_forth" disabled> ⏮ </button>
 	  {{ end }}
 	{{.Rewind}}
 	  {{ if .Rewind|gtZero }}
