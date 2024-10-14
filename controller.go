@@ -228,12 +228,16 @@ func writeConfig() {
 
 }
 
-func rewind(n int) {
+func rewind(n int) (bool, int) {
 	past, grief := readHistory()
+
+	if n > len(past) {
+		return false, 0
+	}
 
 	if grief != nil {
 		log.Fatal(grief)
-		return
+		return false, 0
 	}
 
 	current := len(past) - 1
@@ -254,6 +258,7 @@ func rewind(n int) {
 		setWallpaper(v.Paper, v.Monitor)
 		// note, the config file isn't being written here
 	}
+	return true, len(past)
 }
 
 func activeMonitor() string {

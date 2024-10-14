@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hypsi {{.Version}}</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="monitors">	
+	{{ range .Monitors}}
+	<div class="{{.Monitor}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
+	  <div class="desc">
+	    {{.Monitor}}
+	  </div>
+	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post" hidden>
+	    <input id="imageFile" type="file" name="imageFile" />
+	    <input type="text" name="monitor" value="{{.Monitor}}" />
+	    <input id="send_{{.Monitor}}" type="submit" value="upload" />
+	  </form>
+	</div>
+	<style id="style_{{.Monitor}}" >
+	.{{.Monitor}} {
+		background-image: url({{.Thumb64|safeURL}});
+	};
+	</style>
+	{{end}}
+      </div>
+	{{ if .Ivalue }}
+	<div class="rewind">
+	
+	  {{ if .Rewind|plusOne|inHistory }}
+	    <button id="roll_back" onclick="handleGoRewind(event, {{.Rewind|plusOne}})">⏮ </button>
+	  {{ else }}
+	    <button id="roll_back" disabled>⏮ </button>
+	  {{ end }}
+	  
+	  <span id="rewindtext">{{.Rewind}}</span>
+	  
+	  {{ if .Rewind|gtZero }}
+	  <button id="roll_forth" onclick="handleGoRewind(event, {{.Rewind|lessOne}})"> ⏭︎ </button>
+	  {{ else }}
+	  <button id="roll_forth" disabled> ⏭︎ </button>
+	  {{ end }}
+	
+	</div>
+	{{ else }}
+	<hr>
+	{{ end }}
+    </div>
+    <script type="text/javascript" src="/static/script.js"></script>
+  </body>
+</html>

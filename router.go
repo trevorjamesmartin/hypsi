@@ -13,6 +13,17 @@ func api() {
 	page := webInit()
 
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		page.template = page._Template()
+		t := r.URL.Query().Get("t")
+		if n, err := strconv.Atoi(t); err != nil {
+			page.Print(w, 0)
+		} else {
+			page.Print(w, n)
+		}
+	})
+
+	mux.HandleFunc("GET /webview", func(w http.ResponseWriter, r *http.Request) {
+		page.template = page._Webview()
 		t := r.URL.Query().Get("t")
 		if n, err := strconv.Atoi(t); err != nil {
 			page.Print(w, 0)

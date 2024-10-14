@@ -168,7 +168,13 @@ func (w Webpage) _Template() string {
 	}
 	return string(tmpl)
 }
-
+func (w Webpage) _Webview() string {
+	tmpl, staticError := WEBFOLDER.ReadFile("web/webview.html.tmpl")
+	if staticError != nil {
+		log.Fatal(staticError)
+	}
+	return string(tmpl)
+}
 func webInit() Webpage {
 	page := Webpage{}
 
@@ -187,7 +193,7 @@ func webInit() Webpage {
 		"lessOne": func(n int) int {
 			return n - 1
 		},
-		"canRewind": func(n int) bool {
+		"inHistory": func(n int) bool {
 			return n < len(hist)
 		},
 		"gtZero": func(n int) bool {
