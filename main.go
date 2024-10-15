@@ -11,7 +11,7 @@ import (
 //go:embed web/*
 var WEBFOLDER embed.FS
 
-const VERSION = "0.9.4"
+const VERSION = "0.9.5"
 
 const MESSAGE = `
 hypsi %s
@@ -28,8 +28,9 @@ alternatively by sending <args>, you can:
 
    -html	Render HTML without starting a web server
 
-   -rewind	rewind config via logfile 
+   -rewind	rewind config via logfile
 
+   -webview	open the WebKitGTK interface
 `
 
 func main() {

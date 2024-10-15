@@ -2,7 +2,7 @@
 
 buildGoModule rec {
   pname = "hypsi";
-  version = "0.9.4";
+  version = "0.9.5";
 
   src = ./.;
   vendorHash = null;
