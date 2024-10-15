@@ -27,12 +27,6 @@
       };
     in pkgs.mkShell {
         packages = with pkgs;[
-          pcre2.dev
-          gst_all_1.gst-plugins-bad
-          webkitgtk.dev
-          gtk3.dev
-          pkg-config
-
           imagemagick
           gotools
           gopls

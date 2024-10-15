@@ -4,6 +4,12 @@
 	color: white;
 }
 
+body {
+    width: 100vw;
+    height: 100vh;
+}
+
+
 .formats {
 	display: flex;
 	justify-content: space-evenly;

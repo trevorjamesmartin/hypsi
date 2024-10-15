@@ -59,7 +59,7 @@ func gtkView() {
 	w := webview.New(true)
 	defer w.Destroy()
 	w.SetTitle("Hypsi")
-	w.SetSize(1280, 640, webview.HintNone)
+	w.SetSize(0, 0, webview.HintNone)
 
 	w.Bind("RollBack", func(n int) eventResp {
 

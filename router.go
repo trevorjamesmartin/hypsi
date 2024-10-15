@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,9 +9,13 @@ import (
 	"strconv"
 )
 
+//go:embed web/*
+var WEBFOLDER embed.FS
+
 func api() {
 	mux := http.NewServeMux()
 	page := webInit()
+	WEBVIEW_TEMPLATE, _ := WEBFOLDER.ReadFile("web/webview.html.tmpl")
 
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		page.template = page._Template()
@@ -23,7 +28,7 @@ func api() {
 	})
 
 	mux.HandleFunc("GET /webview", func(w http.ResponseWriter, r *http.Request) {
-		page.template = page._Webview()
+		page.template = string(WEBVIEW_TEMPLATE)
 		t := r.URL.Query().Get("t")
 		if n, err := strconv.Atoi(t); err != nil {
 			page.Print(w, 0)
@@ -32,24 +37,8 @@ func api() {
 		}
 	})
 
-	mux.HandleFunc("GET /static/", func(w http.ResponseWriter, r *http.Request) {
-		filename := fmt.Sprintf("web%s", r.URL.Path[7:])
-
-		if len(filename) < 0 {
-			http.Error(w, "no", http.StatusForbidden)
-			return
-		}
-
-		file, err := WEBFOLDER.Open(filename)
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-
-		defer file.Close()
-
-		http.ServeFile(w, r, filename)
+	mux.HandleFunc("GET /static/{filename}", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFileFS(w, r, WEBFOLDER, fmt.Sprintf("web/%s", r.PathValue("filename")))
 	})
 
 	handleConfig := func(w http.ResponseWriter, r *http.Request) {

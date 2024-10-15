@@ -1,17 +1,13 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 )
 
-//go:embed web/*
-var WEBFOLDER embed.FS
-
-const VERSION = "0.9.5"
+const VERSION = "0.9.6"
 
 const MESSAGE = `
 hypsi %s
@@ -30,7 +26,6 @@ alternatively by sending <args>, you can:
 
    -rewind	rewind config via logfile
 
-   -webview	open the WebKitGTK interface
 `
 
 func main() {
