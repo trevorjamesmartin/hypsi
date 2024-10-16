@@ -56,7 +56,7 @@ type eventResp struct {
 }
 
 func gtkView() {
-	w := webview.New(true)
+	w := webview.New(false)
 	defer w.Destroy()
 	w.SetTitle("Hypsi")
 	w.SetSize(0, 0, webview.HintNone)

@@ -13,7 +13,7 @@
       config = {}; 
       overlays = [
         (self: super: {
-          hypsi = super.callPackage ./default.nix {};
+          hypsi = super.callPackage ./derivation.nix {};
         })
       ];
     };
