@@ -38,6 +38,7 @@
           golint
         ];
         shellHook = ''
+          export SHELL=/run/current-system/sw/bin/zsh
           ${pkgs.go_1_22}/bin/go version;
         '';
       };
