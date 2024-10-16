@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	webview "github.com/webview/webview_go"
 )
@@ -56,6 +57,14 @@ type eventResp struct {
 }
 
 func gtkView() {
+	var port string
+	port = os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "3000"
+	}
+
+	gtkViewHome := fmt.Sprintf("http://localhost:%s/webview", port)
+
 	w := webview.New(false)
 	defer w.Destroy()
 	w.SetTitle("Hypsi")
@@ -88,6 +97,6 @@ func gtkView() {
 		return eventResp{Rewind: n, Message: "ok", Monitors: thumbs, Limit: limit}
 	})
 
-	w.Navigate("http://localhost:3000/webview")
+	w.Navigate(gtkViewHome)
 	w.Run()
 }

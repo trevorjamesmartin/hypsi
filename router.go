@@ -13,6 +13,14 @@ import (
 var WEBFOLDER embed.FS
 
 func api() {
+	var port string
+	port = os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "3000"
+	}
+
+	serverAddress := fmt.Sprintf("0.0.0.0:%s", port)
+
 	mux := http.NewServeMux()
 	page := webInit()
 	WEBVIEW_TEMPLATE, _ := WEBFOLDER.ReadFile("web/webview.html.tmpl")
@@ -114,7 +122,8 @@ func api() {
 		page.Print(w, n)
 	})
 
-	server := http.Server{Addr: ":3000", Handler: mux}
-	fmt.Println("Listening @ http://0.0.0.0:3000")
+	server := http.Server{Addr: serverAddress, Handler: mux}
+	fmt.Printf("[ listening @ http://%s ] ", serverAddress)
+	fmt.Println("...")
 	server.ListenAndServe()
 }
