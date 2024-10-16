@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-const VERSION = "0.9.6"
+const VERSION = "0.9.7"
 
 const MESSAGE = `
 hypsi %s
@@ -26,6 +26,7 @@ alternatively by sending <args>, you can:
 
    -rewind	rewind config via logfile
 
+   -webview	open with webkitgtk
 `
 
 func main() {
