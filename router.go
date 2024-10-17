@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -14,6 +15,8 @@ var WEBFOLDER embed.FS
 
 func api() {
 	var port string
+	var webview_template string
+	var webpage_template string
 	port = os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "3000"
@@ -23,10 +26,36 @@ func api() {
 
 	mux := http.NewServeMux()
 	page := webInit()
-	WEBVIEW_TEMPLATE, _ := WEBFOLDER.ReadFile("web/webview.html.tmpl")
+
+	user_template := os.Getenv("HYPSI_WEBVIEW")
+
+	if len(user_template) > 0 {
+		f, err := os.ReadFile(user_template)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		webview_template = string(f)
+	} else {
+		default_template, _ := WEBFOLDER.ReadFile("web/webview.html.tmpl")
+		webview_template = string(default_template)
+	}
+
+	user_html_template := os.Getenv("HYPSI_WEBPAGE")
+
+	if len(user_html_template) > 0 {
+		f, err := os.ReadFile(user_html_template)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		webpage_template = string(f)
+	} else {
+		webpage_template = page._Template()
+	}
 
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		page.template = page._Template()
+		page.template = webpage_template
 		t := r.URL.Query().Get("t")
 		if n, err := strconv.Atoi(t); err != nil {
 			page.Print(w, 0)
@@ -36,7 +65,7 @@ func api() {
 	})
 
 	mux.HandleFunc("GET /webview", func(w http.ResponseWriter, r *http.Request) {
-		page.template = string(WEBVIEW_TEMPLATE)
+		page.template = webview_template
 		t := r.URL.Query().Get("t")
 		if n, err := strconv.Atoi(t); err != nil {
 			page.Print(w, 0)

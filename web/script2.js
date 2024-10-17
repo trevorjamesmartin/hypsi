@@ -52,13 +52,9 @@ function handleGoRewind(event, idx) {
         prev = limit - 1;
       }
 
-      //backbtn?.setAttribute("onclick", `handleGoRewind(event, ${prev})`);
-
       if (prev - next === 1) {
         backbtn.setAttribute("disabled", true);
       }
-
-      //forthbtn?.setAttribute("onclick", `handleGoRewind(event, ${next})`);
 
       if (next < 0) {
         forthbtn.setAttribute("disabled", true);

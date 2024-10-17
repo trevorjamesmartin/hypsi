@@ -58,6 +58,7 @@ type eventResp struct {
 
 func gtkView() {
 	var port string
+	var w webview.WebView
 	port = os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "3000"
@@ -65,7 +66,14 @@ func gtkView() {
 
 	gtkViewHome := fmt.Sprintf("http://localhost:%s/webview", port)
 
-	w := webview.New(false)
+	allowInspector := os.Getenv("DEBUG")
+	if len(allowInspector) > 0 {
+		w = webview.New(true)
+	} else {
+
+		w = webview.New(false)
+	}
+
 	defer w.Destroy()
 	w.SetTitle("Hypsi")
 	w.SetSize(0, 0, webview.HintNone)
