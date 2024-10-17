@@ -1,12 +1,14 @@
 
-* {
-	background-color: black;
-	color: white;
-}
 
 body {
-    width: 100vw;
-    height: 100vh;
+    background-color: black;
+    color: white;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    width: auto;
 }
 
 
@@ -19,9 +21,8 @@ body {
 }
 
 div.gallery {
-  border: 5px solid white;
+  border: 2px solid white;
   border-radius: 12px;
-  margin: 5px;
   line-height: 4rem;
   text-align:center; 
   color: white; 
@@ -31,46 +32,52 @@ div.gallery {
 }
 
 div.gallery:hover {
-  border: 5px solid #777;
+  border: 2px solid #777;
   border-radius: 12px;
 }
 
 div.desc {
   text-align: center;
-  font-size: 2rem; 
 }
 
 div.monitors {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
-  margin-top: 4rem;
 }
 
 @media only screen and (max-width: 1281px) {
   div.monitors {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: min-content;
   }
 }
 
 
 div.rewind {
+  text-align: center;
   height: 150px;
   width: auto;
   padding: 60px;
   font-size: 2rem;
 }
 button {
+  border: none;
+  background-color: black;
+  transform: scale(1.25);
   font-size: 2rem;
+}
+button:hover {
+  background-color: grey;
   border-radius: 5px;
 }
 
-.container {
-  display: block;
-  text-align: center;
+
+input[type="radio"],
+input[type="checkbox"] {
+  height: 3rem;
+  accent-color: green;
+  transform:scale(2);
 }
 
