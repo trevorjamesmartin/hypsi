@@ -62,5 +62,29 @@
     </div>
     <script type="text/javascript" src="/static/script.js"></script>
     <script type="text/javascript" src="/static/script2.js"></script>
+    <script type="text/javascript">
+    document.addEventListener('keydown', function(event) {
+      let selector;
+      switch (event.key) {
+      case "h":
+	selector = "#roll_back";
+	break;
+      case "ArrowLeft":
+	selector = "#roll_back";
+	break;
+      case "l":
+	selector = "#roll_forth";
+	break;
+      case "ArrowRight":
+	selector = "#roll_forth";
+	break;
+      default:
+	break;
+      }
+      if (selector) {
+	document.querySelector(selector).click();
+      }
+    });
+    </script>
   </body>
 </html>
