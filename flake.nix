@@ -38,7 +38,8 @@
           golint
         ];
         shellHook = ''
-          export SHELL=zsh
+	  export SHELL=zsh;
+          export PS1="\[\e[01;36m\][dev🐚Go]\[\e[0m\] \[\e[01;37m\]\w\[\e[0m\] $ ";
           ${pkgs.go_1_22}/bin/go version;
         '';
       };
