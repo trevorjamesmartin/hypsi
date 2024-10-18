@@ -31,6 +31,16 @@
           godef
           golint
         ];
+        nativeBuildInputs = with pkgs; [
+          git
+          pkg-config
+          imagemagick
+        ];
+        buildInputs = with pkgs; [
+          pcre2
+          webkitgtk
+          gtk3
+        ];
         shellHook = ''
 	  export SHELL=zsh;
           export PS1="\[\e[01;36m\][dev🐚Go]\[\e[0m\] \[\e[01;37m\]\w\[\e[0m\] $ ";
