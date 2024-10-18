@@ -10,16 +10,10 @@
     system = "x86_64-linux";
     pkgs = import nixpkgs {
       inherit system;
-      config = {}; 
-      overlays = [
-        (self: super: {
-          hypsi = super.callPackage ./derivation.nix {};
-        })
-      ];
     };
   in
   {
-    defaultPackage.${system} = pkgs.hypsi;
+    defaultPackage.${system} = pkgs.callPackage ./derivation.nix {};
     
     devShells.${system}.default = let
       pkgs = import nixpkgs {
