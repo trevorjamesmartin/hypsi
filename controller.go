@@ -305,3 +305,28 @@ func makeThumbNail(image string, thumb string) {
 		return
 	}
 }
+
+type HyprCtlVersion struct {
+	Branch          string   `json:"branch"`
+	Commit          string   `json:"commit"`
+	CommitMessage   string   `json:"commit_message"`
+	CommitDate      string   `json:"commit_date"`
+	Tag             string   `json:"tag"`
+	Commits         string   `json:"commits"`
+	BuildAquamarine string   `json:"buildAquamarine"`
+	Flags           []string `json:"flags,omitempty"`
+	Dirty           bool     `json:"dirty"`
+}
+
+func hyprCtlVersion() (HyprCtlVersion, error) {
+	var hyprCtlVersiion HyprCtlVersion
+	buf, err := exec.Command("hyprctl", "version", "-j").CombinedOutput()
+
+	if err != nil {
+		fmt.Println(err)
+		return hyprCtlVersiion, err
+	}
+
+	err = json.Unmarshal(buf, &hyprCtlVersiion)
+	return hyprCtlVersiion, nil
+}

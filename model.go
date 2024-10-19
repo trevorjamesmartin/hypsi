@@ -141,6 +141,7 @@ type Webpage struct {
 		Ivalue   bool
 		Rewind   int
 		Script   template.JS
+		Core     HyprCtlVersion
 	}
 
 	funcMap template.FuncMap
@@ -178,10 +179,15 @@ func (w Webpage) _Webview() string {
 func webInit() Webpage {
 	page := Webpage{}
 
-	hist, err := readHistory()
+	core, err := hyprCtlVersion()
 
 	if err != nil {
+		log.Fatal(err)
 	}
+
+	page.data.Core = core
+
+	hist, _ := readHistory()
 
 	funcMap := template.FuncMap{
 		"safeURL": func(s string) template.URL {
@@ -200,7 +206,7 @@ func webInit() Webpage {
 			return n > 0
 		},
 	}
-	// load once, these values never change at runtime
+	// default page values
 	page.template = page._Template()
 	page.funcMap = funcMap
 	page.data.Version = VERSION
