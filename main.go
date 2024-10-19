@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-const VERSION = "0.9.8"
+const VERSION = "0.9.9"
 
 const MESSAGE = `
 hypsi %s
