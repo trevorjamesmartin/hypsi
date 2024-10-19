@@ -90,8 +90,11 @@ func gtkView() {
 			return eventResp{Message: "upper limit reached", Limit: limit}
 		}
 
+		HYPSI_STATE.Rewind = n
+
 		monitors, errListing := listActive()
 		if errListing != nil {
+			HYPSI_STATE.Message = errListing.Error()
 			log.Fatal(errListing)
 		}
 

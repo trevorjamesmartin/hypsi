@@ -58,7 +58,7 @@ func api() {
 		page.template = webpage_template
 		t := r.URL.Query().Get("t")
 		if n, err := strconv.Atoi(t); err != nil {
-			page.Print(w, 0)
+			page.Print(w, HYPSI_STATE.Rewind)
 		} else {
 			page.Print(w, n)
 		}
@@ -66,12 +66,8 @@ func api() {
 
 	mux.HandleFunc("GET /webview", func(w http.ResponseWriter, r *http.Request) {
 		page.template = webview_template
-		t := r.URL.Query().Get("t")
-		if n, err := strconv.Atoi(t); err != nil {
-			page.Print(w, 0)
-		} else {
-			page.Print(w, n)
-		}
+		page.data.Rewind = HYPSI_STATE.Rewind
+		page.Print(w, HYPSI_STATE.Rewind)
 	})
 
 	mux.HandleFunc("GET /static/{filename}", func(w http.ResponseWriter, r *http.Request) {

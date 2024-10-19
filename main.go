@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
 )
 
@@ -29,7 +32,52 @@ alternatively by sending <args>, you can:
    -webview	open with webkitgtk
 `
 
+type APPLICATION_STATE struct {
+	Rewind  int    `json:"rewind"`
+	Message string `json:"message,omitempty"`
+}
+
+var HYPSI_STATE APPLICATION_STATE
+
 func main() {
+	HYPSI_FILE := fmt.Sprintf("%s/.hypsi", os.Getenv("HOME"))
+	HYPSI_STATE.Message = "ok"
+
+	data, err := os.ReadFile(HYPSI_FILE)
+	if err == nil {
+		json.Unmarshal(data, &HYPSI_STATE)
+	} else {
+		HYPSI_STATE.Message = err.Error()
+	}
+
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	c := make(chan os.Signal, 1)
+
+	signal.Notify(c, os.Interrupt)
+
+	defer func() {
+		f, err := os.Create(HYPSI_FILE)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer f.Close()
+		app_state, _ := json.Marshal(HYPSI_STATE)
+		fmt.Fprintf(f, string(app_state))
+		signal.Stop(c) // stop the channel
+		cancel()       // cancel the context
+		fmt.Println(HYPSI_STATE.Message)
+	}()
+
+	go func() {
+		select {
+		case <-c:
+			cancel()
+		case <-ctx.Done():
+		}
+	}()
+
 	UPLOADS := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
 	// ensure the "upload" folder exists
 	if _, err := os.Stat(UPLOADS); os.IsNotExist(err) {
@@ -75,6 +123,8 @@ func main() {
 		case "-webview":
 			go api()
 			gtkView()
+		case "-last":
+			rewind(HYPSI_STATE.Rewind)
 		default:
 			readFromCLI(argsWithoutProg)
 		}
