@@ -64,9 +64,10 @@ func main() {
 
 		defer f.Close()
 		app_state, _ := json.Marshal(HYPSI_STATE)
-		fmt.Fprintf(f, string(app_state))
-		signal.Stop(c) // stop the channel
-		cancel()       // cancel the context
+		fmt.Fprintf(f, string(app_state)) // save hypsi state
+		writeConfig(false)                // save hyprpaper state
+		signal.Stop(c)                    // stop the channel
+		cancel()                          // cancel the context
 		fmt.Println(HYPSI_STATE.Message)
 	}()
 
@@ -113,7 +114,7 @@ func main() {
 		case "-write":
 			// log changes & write hyprpaper.config
 			// (undocumented dev feature atm)
-			writeConfig()
+			writeConfig(true)
 
 		case "-free":
 			// free memory
