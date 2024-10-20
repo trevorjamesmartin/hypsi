@@ -1,9 +1,9 @@
 # hypsi
 a simple [hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) management tool, written in Go
-
+![screenshot 3](./screenshot3.jpg)
+![screenshot 2](./screenshot2.jpg)
 ![screenshot 1](./screenshot1.jpg)
 
-![screenshot 2](./screenshot2.jpg)
 
 This program started as a script to manage my desktop wallpaper between sway and hyprland. When I first started using [Hyprland](https://www.hyprland.org/), I was also jumping in and out of sway and using [swww](https://github.com/LGFae/swww) to set the wallpaper on both.
 
