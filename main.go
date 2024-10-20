@@ -128,7 +128,7 @@ func main() {
 
 		case "-develop":
 			CWD, _ := os.Getwd()
-			files := []string{"webview.html.tmpl", "webpage.html.tmpl"}
+			files := []string{"webview.html.tmpl", "page.html.tmpl"}
 			for _, filename := range files {
 				localFile := filepath.Join(CWD, filename)
 				if _, err := os.Stat(localFile); os.IsNotExist(err) {
