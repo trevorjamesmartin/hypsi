@@ -1,12 +1,15 @@
 # hypsi
-a simple tool to set your hyprpaper, written in Go
+a simple [hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) management tool, written in Go
 
+![screenshot 1](./screenshot1.jpg)
+
+![screenshot 2](./screenshot2.jpg)
 
 This program started as a script to manage my desktop wallpaper between sway and hyprland. When I first started using [Hyprland](https://www.hyprland.org/), I was also jumping in and out of sway and using [swww](https://github.com/LGFae/swww) to set the wallpaper on both.
 
 When I found hypaper being developed by the author of Hyprland I had to give it a try... It lives up to it's claim of being 'blazing fast' perhaps in part by not overdoing it.
 - You can read this [important note to the inner workings (of hyprpaper)](https://github.com/hyprwm/hyprpaper#important-note-to-the-inner-workings) to unpack that.
-- TLDR; [Hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) gives you full control of wallpaper management
+- TLDR; hyprpaper gives you full control of wallpaper management
 
 Assuming you have Hyprland installed and you've enabled the hyprpaper plugin, you can
 - `hypsi /path/to/imagefile.jpg` set your wallpaper from the command line and have it persist
