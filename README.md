@@ -25,7 +25,9 @@ Now this little Go app provides a few additional crossover features for web devs
 - `hypsi -webview` open the optional webview interface
 
 ![screenshot 3](./screenshot3.jpg)
+your changes are automatically saved, rollback to a previously set wallpaper
 ![screenshot 2](./screenshot2.jpg)
+take control of your hyprpaper
 ![screenshot 1](./screenshot1.jpg)
 
 # templating
