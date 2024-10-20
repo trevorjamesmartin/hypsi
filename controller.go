@@ -206,7 +206,6 @@ func writeConfig(historical bool) {
 
 	configfile := fmt.Sprintf("%s/.config/hypr/hyprpaper.conf", base)
 
-	fmt.Printf("writing: %s\n\n", configfile)
 	// remove old file if it exists
 	if errRemoving := os.Remove(configfile); errRemoving != nil {
 		fmt.Println(errRemoving)
@@ -219,8 +218,6 @@ func writeConfig(historical bool) {
 	}
 
 	defer f.Close()
-
-	defer fmt.Println("ok")
 
 	fmt.Fprint(f, configText())
 

@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 )
 
@@ -124,8 +125,24 @@ func main() {
 		case "-webview":
 			go api()
 			gtkView()
-		case "-last":
-			rewind(HYPSI_STATE.Rewind)
+
+		case "-develop":
+			CWD, _ := os.Getwd()
+			files := []string{"webview.html.tmpl", "webpage.html.tmpl"}
+			for _, filename := range files {
+				localFile := filepath.Join(CWD, filename)
+				if _, err := os.Stat(localFile); os.IsNotExist(err) {
+					data, _ := WEBFOLDER.ReadFile(fmt.Sprintf("web/%s", filename))
+					f, err := os.Create(localFile)
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer f.Close()
+					fmt.Fprintf(f, string(data))
+					fmt.Println(localFile)
+				}
+			}
+
 		default:
 			readFromCLI(argsWithoutProg)
 		}
