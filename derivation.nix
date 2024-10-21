@@ -5,7 +5,7 @@ buildGoModule rec {
   version = "0.9.9";
 
   src = ./.;
-  vendorHash = "sha256-uBpnnb7C2KOraXl/axTpKD1v7voEMSNCUGDdAHTzE8g=";
+  vendorHash = "sha256-K1pfhBTKF12oPPHvHJQ5DYxyF2w4YRIVC3dSYw0PbiA=";
   nativeBuildInputs = with pkgs; [
     git
     pkg-config
