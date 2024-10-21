@@ -33,15 +33,10 @@ Now this little Go app provides a few additional crossover features for web devs
 In spirit with Hyprland, hypsi strives to be highly configuable & you're encouraged to override the defaults
 
 To get started customizing the UX,
-- create & enter a work folder, `mkdir -p ~/Templates;cd ~/Templates`
+- create & enter a work folder, `mkdir -p /path/to/templates;cd /path/to/templates`
 - run `hypsi -develop` to write the base template files into your current working directory (if they do not already exist)
 - to override a linked style or script file, remove the tag and replace it with inline style or script
-- finally, point to your template file when launching the program:
-
-            DEBUG=OK \
-            HYPSI_WEBVIEW=~/Templates/webview.html.tmpl \
-            HYPSI_WEBPAGE=~/Templates/page.html.tmpl \
-            hypsi -webview
+- run `hypsi -watch` from your template folder or run `hypsi -watch /path/to/templates`
 
 [on my NixOS configuration](https://github.com/trevorjamesmartin/nixos-config) I install this [along with hyprpaper](https://github.com/trevorjamesmartin/nixos-config/tree/main/nixos/modules/home-manager/hyprpaper) using a module system. Your system integration may differ from mine, of course these are all just suggestions. You can even build the app in one command with `nix build github:trevorjamesmartin/hypsi`
 
