@@ -32,7 +32,7 @@ Now this little Go app provides a few additional crossover features for web devs
 
 In spirit with Hyprland, hypsi strives to be highly configuable & you're encouraged to override the defaults
 
-To get started customizing the UX,
+To get started customizing the appearance,
 - create & enter a work folder, `mkdir -p /path/to/templates;cd /path/to/templates`
 - run `hypsi -develop` to write the base template files into your current working directory (if they do not already exist)
 - to override a linked style or script file, remove the tag and replace it with inline style or script
