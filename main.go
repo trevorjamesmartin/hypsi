@@ -41,6 +41,7 @@ type APPLICATION_STATE struct {
 var HYPSI_STATE APPLICATION_STATE
 
 func main() {
+	var watcher Publisher
 	HYPSI_FILE := fmt.Sprintf("%s/.hypsi", os.Getenv("HOME"))
 	HYPSI_STATE.Message = "ok"
 
@@ -62,7 +63,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
 		defer f.Close()
 		app_state, _ := json.Marshal(HYPSI_STATE)
 		fmt.Fprintf(f, string(app_state)) // save hypsi state
@@ -124,7 +124,7 @@ func main() {
 
 		case "-webview":
 			go api()
-			gtkView()
+			gtkView(watcher)
 
 		case "-develop":
 			CWD, _ := os.Getwd()
@@ -142,6 +142,26 @@ func main() {
 					fmt.Println(localFile)
 				}
 			}
+
+		case "-watch":
+			var watchfolder string
+
+			if len(argsWithoutProg) > 1 {
+				watchfolder = argsWithoutProg[1]
+				if _, err := os.Stat(watchfolder); os.IsNotExist(err) {
+					log.Fatalf("Cannot watch %s, the path does not exist", watchfolder)
+				}
+			} else {
+				fmt.Println("... no folder specified, watch working directory")
+				watchfolder, _ = os.Getwd()
+			}
+			os.Setenv("HYPSI_WEBVIEW", filepath.Join(watchfolder, "webview.html.tmpl"))
+			os.Setenv("HYPSI_WEBPAGE", filepath.Join(watchfolder, "page.html.tmpl"))
+			fmt.Printf("\n\n[ 👀 watching %s]\n", watchfolder)
+			watcher = NewPathWatcher(watchfolder)
+			go api()
+			go watcher.observe()
+			gtkView(watcher)
 
 		default:
 			readFromCLI(argsWithoutProg)

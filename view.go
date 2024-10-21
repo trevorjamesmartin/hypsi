@@ -56,7 +56,21 @@ type eventResp struct {
 	Monitors []thumbnail `json:"monitors,omitempty"`
 }
 
-func gtkView() {
+type WebviewSubcriber struct {
+	view webview.WebView
+	home string
+}
+
+func (ws *WebviewSubcriber) receive(path, event string) {
+	switch event {
+	case "WRITE":
+		ws.view.Navigate(ws.home)
+	default:
+		return
+	}
+}
+
+func gtkView(pub Publisher) {
 	var port string
 	var w webview.WebView
 	port = os.Getenv("PORT")
@@ -64,7 +78,7 @@ func gtkView() {
 		port = "3000"
 	}
 
-	gtkViewHome := fmt.Sprintf("http://localhost:%s/webview", port)
+	webviewHome := fmt.Sprintf("http://127.0.0.1:%s/webview", port)
 
 	allowInspector := os.Getenv("DEBUG")
 	if len(allowInspector) > 0 {
@@ -77,6 +91,13 @@ func gtkView() {
 	defer w.Destroy()
 	w.SetTitle("Hypsi")
 	w.SetSize(0, 0, webview.HintNone)
+
+	if pub != nil {
+		webviewSub := &WebviewSubcriber{view: w, home: webviewHome}
+		var sub Subscriber = webviewSub
+		pub.register(&sub)
+		fmt.Print("\n[ 👀 webview ]\n")
+	}
 
 	w.Bind("RollBack", func(n int) eventResp {
 
@@ -108,6 +129,6 @@ func gtkView() {
 		return eventResp{Rewind: n, Message: "ok", Monitors: thumbs, Limit: limit}
 	})
 
-	w.Navigate(gtkViewHome)
+	w.Navigate(webviewHome)
 	w.Run()
 }
