@@ -69,7 +69,11 @@ func main() {
 		writeConfig(false)                // save hyprpaper state
 		signal.Stop(c)                    // stop the channel
 		cancel()                          // cancel the context
-		fmt.Println(HYPSI_STATE.Message)
+		if HYPSI_STATE.Message != "ok" {
+			// show any unexpected messages
+			fmt.Println(HYPSI_STATE.Message)
+		}
+		unloadWallpaper("all")		  // free memory
 	}()
 
 	go func() {
