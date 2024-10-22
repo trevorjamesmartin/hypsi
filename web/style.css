@@ -7,8 +7,7 @@ body {
     flex-flow: column;
     justify-content: center;
     align-items: center;
-    height: auto;
-    width: auto;
+    overflow: hidden;
 }
 
 
