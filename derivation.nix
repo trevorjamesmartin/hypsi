@@ -1,6 +1,6 @@
 { pkgs, buildGoModule, lib, ... }:
 
-buildGoModule rec {
+buildGoModule {
   pname = "hypsi";
   version = "0.9.9";
 
