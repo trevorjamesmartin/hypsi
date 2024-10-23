@@ -110,7 +110,6 @@ func listActive() ([]*Plane, error) {
 }
 
 func unloadWallpaper(image string) {
-	fmt.Printf("unload: %s\n", image)
 	cmd := exec.Command("hyprctl", "hyprpaper", "unload", image)
 	stdout, err := cmd.StdoutPipe()
 
@@ -126,8 +125,10 @@ func unloadWallpaper(image string) {
 		log.Fatal(err)
 	}
 
+	var textLog string
+
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+		textLog += scanner.Text()
 	}
 
 	if scanner.Err() != nil {
@@ -135,6 +136,10 @@ func unloadWallpaper(image string) {
 		cmd.Wait()
 		log.Fatal(scanner.Err())
 		return
+	}
+
+	if textLog != "ok" {
+		fmt.Println(textLog)
 	}
 
 }

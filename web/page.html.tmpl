@@ -2,7 +2,70 @@
 <html>
   <head>
     <title>Hypsi {{.Version}}</title>
-    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <style type="text/css">
+    body {
+      background-color: #232634;
+      color: #c6d0f5;
+      overflow: hidden;
+    }
+
+    button {
+      background-color: #292c3c;
+      transform: scale(1.25);
+      border-radius: 10px;
+    }
+
+    button:hover {
+      background-color: #626880;
+    }
+
+    .gallery {
+      width: 640px;
+      height: 360px;
+      margin: 3px;
+      background-color: #303446;
+      background-size: 640px 360px;
+    }
+
+    .monitors {
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+    }
+
+    .monitors.flip {
+      flex-flow: row-reverse;
+    }
+
+    .desc {
+      text-align: center;
+      background-color: #000;
+    }
+
+    .rewind {
+      text-align: center;
+      height: 150px;
+      width: auto;
+    }
+    
+    @media only screen and (max-width: 1281px) {
+      .monitors {
+	flex-flow: column;
+      }
+      .monitors.flip {
+	flex-flow: column-reverse;
+      }
+
+    }
+    input[type="radio"],
+    input[type="checkbox"] {
+      height: 3rem;
+      accent-color: green;
+      transform:scale(2);
+    }
+    </style>
+
+    </style>
   </head>
   <body>
     {{ if .Ivalue }}
@@ -65,6 +128,76 @@
 	{{ end }}
     </div>
     <div class="about-text">hypsi-{{.Version}}: a simple hyprpaper management tool.</div>
-    <script type="text/javascript" src="/static/script.js"></script>
+    <script type="text/javascript">
+      async function sendData(data, url) {
+	try {
+	  const response = await fetch(url, {
+	    method: "POST",
+	    body: data,
+	  });
+	  console.log(await response.statusText);
+	  location.reload();
+	} catch (e) {
+	  console.error(e);
+	}
+      }
+      function handleDrop(event) {
+	event.preventDefault();
+	if (event.dataTransfer.items) {
+	  let filecount = 0;
+	  const fileLimit = 1;
+	  [...event.dataTransfer.items].forEach((item, i) => {
+	    // If dropped items aren't files, reject them
+	    if (item.kind === "file" && filecount < fileLimit) {
+	      filecount++;
+	      const file = item.getAsFile();
+	      const firstClass = event.target.className.split(" ").shift();
+	      const sendTo = "/upload?monitor=" + firstClass;
+	      const formSelector = "#form_" + firstClass;
+	      const formElement = document.querySelector(formSelector);
+
+	      // Take over form submission
+	      formElement.addEventListener(
+		"submit",
+		(event) => {
+		  event.preventDefault();
+		  // Associate the FormData object with the form element
+		  const formData = new FormData(formElement);
+		  formData.set("imageFile", file);
+		  //localStorage.setItem("rewind", 0);
+		  sendData(formData, sendTo);
+		},
+		false,
+	      );
+
+	      let sendBtnSelector = "#send_" + firstClass;
+	      document.querySelector(sendBtnSelector).click();
+	    }
+	  });
+	} else {
+	  [...event.dataTransfer.files].forEach((file, i) => {
+	    console.log("?", file, i);
+	  });
+	}
+      }
+      function allowDrop(event) {
+	event.preventDefault();
+      }
+      function handleRewind(event, idx) {
+	event.preventDefault();
+	if (idx < 0) {
+	  return;
+	}
+	const url = new URL(location);
+	url.pathname = "/rewind";
+	url.searchParams.set("t", String(idx));
+	history.pushState({}, "", url);
+	setTimeout(() => history.go(), 300);
+      }
+      function openFileChooser(monitor) {
+	let selector = "#imageFile_" + monitor;
+	document.querySelector(selector)?.click();
+      }
+    </script>
   </body>
 </html>
