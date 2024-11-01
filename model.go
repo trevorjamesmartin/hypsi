@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -11,8 +11,48 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
+
+	_ "github.com/mattn/go-sqlite3"
 )
+
+type APPLICATION_STATE struct {
+	Rewind  int    `json:"rewind"`
+	Message string `json:"message,omitempty"`
+}
+
+func loadState() {
+	var id, rewind int
+	var message string
+
+	sqlData := openDatabase()
+	defer sqlData.Close()
+
+	row := sqlData.QueryRow(`select * from state order by id desc limit 1`)
+	if row.Scan(&id, &rewind, &message) != nil {
+		HYPSI_STATE.Rewind = 0
+	} else {
+		HYPSI_STATE.Rewind = rewind
+		HYPSI_STATE.Message = message
+	}
+}
+
+func saveState() {
+	sqlData := openDatabase()
+	defer sqlData.Close()
+	var id, rewind int
+	var message, stmt string
+
+	row := sqlData.QueryRow(`select * from state order by id desc limit 1`)
+	if row.Scan(&id, &rewind, &message) != nil {
+		stmt = fmt.Sprintf(`insert into state(id, rewind, message) values(%d, %d, '%s');`, 0, HYPSI_STATE.Rewind, HYPSI_STATE.Message)
+	} else {
+		stmt = fmt.Sprintf(`update state set rewind=%d, message='%s' where id=%d;`, HYPSI_STATE.Rewind, HYPSI_STATE.Message, id)
+	}
+	_, err := sqlData.Exec(stmt)
+	if err != nil {
+		fmt.Printf("%q: %s\n", err, stmt)
+	}
+}
 
 type Plane struct {
 	Monitor string
@@ -82,51 +122,72 @@ func (h *History) unfold() []Plane {
 	return target
 }
 
-func writeHistory() {
-	// log the current wallpaper(s)
-	historyfile := fmt.Sprintf("%s/wallpaper/hyprpaperplanes.log", os.Getenv("HOME"))
-	file, grief := os.OpenFile(historyfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-
-	if grief != nil {
-		log.Fatal(grief)
+func openDatabase() *sql.DB {
+	dbfile := filepath.Join(os.Getenv("HOME"), "wallpaper", "hypsi.db")
+	sqlDB, err := sql.Open("sqlite3", dbfile)
+	if err != nil {
+		log.Fatal(err)
+		defer sqlDB.Close()
 	}
 
-	defer file.Close()
-	defer fmt.Println("logged")
+	sqlStmt := `
+	create table if not exists history (
+	id integer not null primary key,
+	data text);
+	create table if not exists state (
+	id integer not null primary key,
+	rewind integer,
+	message text);
+	`
+	_, err = sqlDB.Exec(sqlStmt)
+	if err != nil {
+		log.Fatal(err, sqlStmt)
+	}
 
-	log.SetOutput(file)
+	return sqlDB
+}
 
-	log.Println(jsonText())
+func writeHistory() {
+	var id int
+	var data string
+
+	sqlData := openDatabase()
+	defer sqlData.Close()
+
+	row := sqlData.QueryRow(`select * from history order by id desc limit 1`)
+
+	if row.Scan(&id, &data) != nil {
+		id = 0
+	}
+	data = jsonText()
+
+	stmt := fmt.Sprintf(`insert into history(id, data) values(%d, '%s');`, id+1, data)
+	_, err := sqlData.Exec(stmt)
+	if err != nil {
+		fmt.Printf("%q: %s\n", err, stmt)
+	}
 }
 
 func readHistory() ([]History, error) {
+	var id int
+	var data string
 	var past []History
 
-	historyfile := fmt.Sprintf("%s/wallpaper/hyprpaperplanes.log", os.Getenv("HOME"))
-	file, grief := os.Open(historyfile)
+	sqlData := openDatabase()
+	defer sqlData.Close()
 
-	if grief != nil {
-		return past, grief
+	rows, err := sqlData.Query(`select * from history order by id asc`)
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer rows.Close()
 
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-
-		line := scanner.Text()
-		if len(line) > 0 {
-			idx := strings.IndexRune(line, '[')
-			if idx == -1 {
-				// catch for single monitor
-				idx = strings.IndexRune(line, '{')
-			}
-
-			if idx >= 0 {
-				past = append(past, History{dt: line[:idx], data: line[idx:]})
-			}
+	for rows.Next() {
+		err = rows.Scan(&id, &data)
+		if err != nil {
+			log.Fatal(err)
 		}
-
+		past = append(past, History{dt: string(id), data: data})
 	}
 	return past, nil
 }

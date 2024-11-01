@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -33,24 +32,11 @@ alternatively by sending <args>, you can:
    -webview	open with webkitgtk
 `
 
-type APPLICATION_STATE struct {
-	Rewind  int    `json:"rewind"`
-	Message string `json:"message,omitempty"`
-}
-
 var HYPSI_STATE APPLICATION_STATE
 
 func main() {
 	var watcher Publisher
-	HYPSI_FILE := fmt.Sprintf("%s/.hypsi", os.Getenv("HOME"))
-	HYPSI_STATE.Message = "ok"
-
-	data, err := os.ReadFile(HYPSI_FILE)
-	if err == nil {
-		json.Unmarshal(data, &HYPSI_STATE)
-	} else {
-		HYPSI_STATE.Message = err.Error()
-	}
+	loadState() // last application state
 
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
@@ -59,21 +45,15 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 
 	defer func() {
-		f, err := os.Create(HYPSI_FILE)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer f.Close()
-		app_state, _ := json.Marshal(HYPSI_STATE)
-		fmt.Fprintf(f, string(app_state)) // save hypsi state
-		writeConfig(false)                // save hyprpaper state
-		signal.Stop(c)                    // stop the channel
-		cancel()                          // cancel the context
+		saveState()        // save application state
+		writeConfig(false) // write config file
+		signal.Stop(c)     // stop the channel
+		cancel()           // cancel the context
 		if HYPSI_STATE.Message != "ok" {
 			// show any unexpected messages
 			fmt.Println(HYPSI_STATE.Message)
 		}
-		unloadWallpaper("all")		  // free memory
+		unloadWallpaper("all") // free memory
 	}()
 
 	go func() {
