@@ -157,7 +157,7 @@ func writeHistory() {
 	row := sqlData.QueryRow(`select * from history order by id desc limit 1`)
 
 	if row.Scan(&id, &data) != nil {
-		id = 0
+		id = -1
 	}
 	data = jsonText()
 
