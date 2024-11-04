@@ -142,6 +142,10 @@ func api() {
 		page.Print(w, n)
 	})
 
+	mux.HandleFunc("GET /interrupt", func(w http.ResponseWriter, r *http.Request) {
+		os.Exit(0)
+	})
+
 	server := http.Server{Addr: serverAddress, Handler: mux}
 	fmt.Printf("[ listening @ http://%s ] ", serverAddress)
 	fmt.Println("...")
