@@ -47,6 +47,12 @@
       height: 150px;
       width: auto;
     }
+
+    #rewindtext {
+      font-size: 32px;
+      letter-spacing: 1px;
+      margin: 10px;
+    }
     
     @media only screen and (max-width: 1281px) {
       .monitors {
@@ -71,9 +77,7 @@
 	{{ range .Monitors}}
 	<div class="{{.Monitor}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
 	  <div class="desc">
-	   <svg viewBox="0 0 60 40" width="60" xmlns="http://www.w3.org/2000/svg">
-	    <text x="20" y="30" font-size="18" fill="#fff" font-family="monospace">{{.Monitor}}</text>
-	  </svg>
+	   {{.Monitor}}
 	  </div>
 	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post" hidden>
 	    <input id="imageFile" type="file" name="imageFile" />
@@ -92,14 +96,16 @@
 
       <div id="rewind" class="rewind" hidden>
 	{{ if .Rewind|plusOne|inHistory }}
-	  <button id="roll_back" title="previous"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 24 0)"/></svg></button>
+	  <button id="roll_back" title="previous">
+	    <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 24 0)"/></svg>
+	  </button>
 	{{ else }}
-	  <button id="roll_back" title="previous" disabled><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 24 0)"/></button>
+	  <button id="roll_back" title="previous" disabled>
+	    <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 24 0)"/>
+	  </button>
 	{{ end }}
-	<span id="rewindtext">	  
-	  <svg viewBox="0 0 60 30" width="60" xmlns="http://www.w3.org/2000/svg">
-	  <text id="svgtext" x="20" y="30" font-size="32" fill="#fff" font-family="monospace">{{.Rewind}}</text>
-	  </svg>
+	<span id="rewindtext">
+	  {{.Rewind}}	
 	</span>
 	{{ if .Rewind|gtZero }}
 	<button id="roll_forth" title="next"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3"/></svg></button>
@@ -107,9 +113,6 @@
 	<button id="roll_forth" title="next" disabled><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3"/></svg></button>
 	{{ end }}
       </div>
-
-
-
     </div>
     <script type="text/javascript">
 
@@ -194,7 +197,7 @@
 	let selector = "#imageFile_" + monitor;
 	document.querySelector(selector)?.click();
       }
-      const countElement = () => document.querySelector("#svgtext");
+      const countElement = () => document.querySelector("#rewindtext");
       const rewindBtn = () => document.querySelector("#roll_back");
       const forwardBtn = () => document.querySelector("#roll_forth");
       function handleGoRewind(event, idx) {
@@ -211,25 +214,13 @@
 	if (typeof RollBack == "function") {
 
 	  RollBack(idx).then((result) => {
-	    switch (String(idx).length) {
-		case 1:
-		  countElement().setAttribute("x", "20");
-		  break;
-		case 2:
-		  countElement().setAttribute("x", "10");
-		  break;
-		default:
-		  countElement().setAttribute("x", "0");
-		  break;
-	    }
-
 	    const limit = Number(result.limit);
 
 	    result.monitors?.forEach(i => {
 	      let styleElement = document.querySelector("#style_" + i.monitor);
 	      styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); }";
 	    });
-	    const textElement = document.querySelector("#svgtext");
+	    const textElement = document.querySelector("#rewindtext");
 	    const backbtn = document.querySelector("#roll_back")
 	    const forthbtn = document.querySelector("#roll_forth");
 	    
