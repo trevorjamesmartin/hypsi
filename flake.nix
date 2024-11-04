@@ -19,6 +19,13 @@
       pkgs = import nixpkgs {
         inherit system;
       };
+
+      # GTK app environment settings necessary for normal font rendering. 
+      #     note: at build time, this is covered by `wrapGApps` (see derivation.nix)
+      unwrappedGApp = with pkgs; ''
+        export XDG_DATA_DIRS=${gsettings-desktop-schemas}/share/gsettings-schemas/${gsettings-desktop-schemas.name}:${gtk3}/share/gsettings-schemas/${gtk3.name}:$XDG_DATA_DIRS;
+        export GIO_MODULE_DIR="${glib-networking}/lib/gio/modules/";
+      '';
     in pkgs.mkShell {
         packages = with pkgs;[
           imagemagick
@@ -35,6 +42,8 @@
           git
           pkg-config
           imagemagick
+          glib-networking # tls/ssl
+          gsettings-desktop-schemas # viewport, fonts
         ];
         buildInputs = with pkgs; [
           pcre2
@@ -42,7 +51,8 @@
           gtk3
         ];
         shellHook = ''
-	  export SHELL=zsh;
+          ${unwrappedGApp}
+          export SHELL=zsh;
           export PS1="\[\e[01;36m\][dev🐚Go]\[\e[0m\] \[\e[01;37m\]\w\[\e[0m\] $ ";
           ${pkgs.go_1_22}/bin/go version;
         '';
