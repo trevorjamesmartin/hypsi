@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-const VERSION = "0.9.9"
+const VERSION = "1.0"
 
 const MESSAGE = `
 hypsi %s
@@ -21,11 +21,7 @@ usage: hypsi [ <file> | <args> ]
 
 alternatively by sending <args>, you can:
 
-   -listen	Start a local web server, listening on port 3000
-   
    -json	Show the current configuration in JSON format
-
-   -html	Render HTML without starting a web server
 
    -rewind	rewind config via logfile
 
@@ -78,13 +74,9 @@ func main() {
 	if len(argsWithoutProg) > 0 {
 
 		switch argsWithoutProg[0] {
-		case "-listen":
-			api()
 		case "-json":
 			fmt.Print(jsonText())
-		case "-html":
-			page := webInit()
-			page.Print(os.Stdout, -1)
+
 		case "-rewind":
 			if len(argsWithoutProg) > 1 {
 				i, err := strconv.Atoi(argsWithoutProg[1])
