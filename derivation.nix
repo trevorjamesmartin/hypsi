@@ -10,8 +10,9 @@ buildGoModule {
     git
     pkg-config
     imagemagick
+    wrapGAppsHook3
+    gobject-introspection
   ];
-
 
   buildInputs = with pkgs; [
     pcre2
@@ -23,4 +24,11 @@ buildGoModule {
     mainProgram = "hypsi";
     license = licenses.bsd3;
   };
+
+  # f around and find out
+  preFixup = with pkgs; ''
+    for f in $(find $out/bin/ -type f -executable); do
+      wrapGApp $f
+    done
+  '';
 }
