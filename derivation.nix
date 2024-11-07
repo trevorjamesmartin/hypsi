@@ -26,7 +26,7 @@ buildGoModule {
   };
 
   # f around and find out
-  preFixup = with pkgs; ''
+  preFixup = ''
     for f in $(find $out/bin/ -type f -executable); do
       wrapGApp $f
     done
