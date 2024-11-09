@@ -11,8 +11,18 @@ import (
 )
 
 func readFromCLI(argsWithoutProg []string) {
+	// mode ?
+	var fname string
+	x := strings.Split(argsWithoutProg[0], `:`)
+
+	if len(x) == 2 {
+		fname = x[1]
+	} else {
+		fname = argsWithoutProg[0]
+	}
+
 	// path to wallpaper ?
-	_, err := os.Stat(argsWithoutProg[0])
+	_, err := os.Stat(fname)
 	if os.IsNotExist(err) {
 		fmt.Println("not a valid background image")
 	} else {
@@ -39,7 +49,7 @@ func readFromCLI(argsWithoutProg []string) {
 
 		if prevImage != nextImage {
 			unloadWallpaper(prevImage)
-			preloadWallpaper(nextImage)
+			preloadWallpaper(fname)
 			setWallpaper(nextImage, monitor)
 			writeConfig(true)
 		}
