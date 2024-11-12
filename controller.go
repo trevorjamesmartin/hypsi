@@ -119,6 +119,8 @@ func listActive() ([]*Plane, error) {
 	return planes, nil
 }
 
+// unloadWallpaper Function
+// $ hyprctl hyprpaper unload {image}
 func unloadWallpaper(image string) {
 	cmd := exec.Command("hyprctl", "hyprpaper", "unload", image)
 	stdout, err := cmd.StdoutPipe()
@@ -154,6 +156,8 @@ func unloadWallpaper(image string) {
 
 }
 
+// preloadWallpaper Function
+// $ hyprctl hypaper preload {image}
 func preloadWallpaper(image string) {
 	fmt.Printf("preload: %s\n", image)
 
@@ -185,8 +189,10 @@ func preloadWallpaper(image string) {
 
 }
 
+// setWallpaper Function
+// $ hyprctrl hyprpaper wallpaper {monitor},{image}
 func setWallpaper(image string, monitor string) {
-	fmt.Printf("set wallpaper: %s,'%s'\n", monitor, image)
+	fmt.Printf("set wallpaper: %s,%s\n", monitor, image)
 
 	cmd := exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s", monitor, image))
 	stdout, err := cmd.StdoutPipe()

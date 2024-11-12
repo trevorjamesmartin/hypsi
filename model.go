@@ -57,6 +57,7 @@ func saveState() {
 type Plane struct {
 	Monitor string
 	Paper   string
+	Mode    string `json:"Mode,omitempty"`
 }
 
 func (p Plane) MarshallJSON() ([]byte, error) {

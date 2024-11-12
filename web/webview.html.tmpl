@@ -10,6 +10,28 @@
     }
 
     button {
+      border: none;
+    }
+
+    select {
+      padding: 0.2em 0.5em;
+      margin-left: 0.5em;
+      position: fixed;
+      top: 11px;      
+      border: none;
+      &.different {
+	appearance: none;
+	background-origin: content-box;
+	background-repeat: no-repeat;
+	background-size: auto;
+	box-sizing: border-box;
+	padding-right: 1.5em;
+	background-color: black;
+	color: #c6d0f5;
+      }
+    }
+
+    button {
       background-color: #292c3c;
       transform: scale(1.25);
       border-radius: 10px;
@@ -61,6 +83,11 @@
       .monitors.flip {
 	flex-flow: column-reverse;
       }
+      select {
+        position: relative;
+	top: -23px;
+	border: none;
+      }
 
     }
     input[type="radio"],
@@ -79,11 +106,27 @@
 	  <div class="desc">
 	   {{.Monitor}}
 	  </div>
-	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post" hidden>
-	    <input id="imageFile" type="file" name="imageFile" />
-	    <input type="text" name="monitor" value="{{.Monitor}}" />
-	    <input id="send_{{.Monitor}}" type="submit" value="upload" />
+	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post">
+	    <input id="imageFile" type="file" name="imageFile" hidden />
+	    <input type="text" name="monitor" value="{{.Monitor}}" hidden />
+	    <select id="mode" class="different" name="mode">
+	      <option value="0">≡</option>
+	      <option value="cover">cover</option>
+	      <option value="contain">contain</option>
+	    </select>
+	    <input id="send_{{.Monitor}}" type="submit" value="upload" hidden />
 	  </form>
+	  <script type="text/javascript">
+	    document.addEventListener("DOMContentLoaded", () => {
+		document.querySelector("#form_{{.Monitor}} > #mode").addEventListener("change", (event) => {
+		    if (event.target.value != "0") {
+		      SetWallpaperMode("{{.Monitor}}", event.target.value);
+		      event.target.selectedIndex = 0;
+		      event.target.blur();
+		    }
+		});
+	    });
+	  </script>
 	</div>
 	<style id="style_{{.Monitor}}" >
 	.{{.Monitor}} {
@@ -296,7 +339,7 @@
       case "ArrowRight":
 	selector = "#roll_forth";
 	break;
-      case " ":
+      case "=":
 	toggleRewind();
 	break;
       case "j":

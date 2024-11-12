@@ -47,6 +47,7 @@ func configText() string {
 type thumbnail struct {
 	Monitor string `json:"monitor"`
 	Image   string `json:"image"`
+	Mode    string `json:"mode,omitempty"`
 }
 
 type eventResp struct {
@@ -99,6 +100,30 @@ func gtkView(pub Publisher) {
 		fmt.Print("\n[ 👀 webview ]\n")
 	}
 
+	w.Bind("SetWallpaperMode", func(monitor, mode string) {
+		monitors, err := listActive()
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		for _, p := range monitors {
+			if p.Monitor == monitor && p.Mode != mode {
+				unloadWallpaper(p.Paper)
+				preloadWallpaper(p.Paper)
+				if mode == "cover" {
+					// default mode
+					setWallpaper(p.Paper, p.Monitor)
+				} else {
+					setWallpaper(fmt.Sprintf("%s:%s", mode, p.Paper), p.Monitor)
+				}
+				break
+			}
+		}
+
+	})
+
 	w.Bind("RollBack", func(n int) eventResp {
 
 		if n < 0 {
@@ -123,7 +148,7 @@ func gtkView(pub Publisher) {
 
 		for _, mon := range monitors {
 			img, _ := mon.Thumb64()
-			thumbs = append(thumbs, thumbnail{Monitor: mon.Monitor, Image: img})
+			thumbs = append(thumbs, thumbnail{Monitor: mon.Monitor, Image: img, Mode: mon.Mode})
 		}
 
 		return eventResp{Rewind: n, Message: "ok", Monitors: thumbs, Limit: limit}
