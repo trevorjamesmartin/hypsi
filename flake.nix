@@ -1,9 +1,7 @@
 {
   description = "Simple tool to set your hyprpaper, written in Go";
 
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-  };
+  inputs.nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
   outputs = {
     self,
@@ -33,19 +31,17 @@
           gocode-gomod
           godef
           golint
-        ];
-        nativeBuildInputs = with pkgs; [
-          git
-          pkg-config
+          pcre2
+          webkitgtk
+          gtk3
+
           imagemagick
           glib-networking # tls/ssl
           gsettings-desktop-schemas # viewport, fonts
         ];
-        buildInputs = with pkgs; [
-          pcre2
-          webkitgtk
-          gtk3
-        ];
+
+        nativeBuildInputs = [pkgs.pkg-config];
+
         shellHook = ''
           ${unwrappedGApp}
           export SHELL=zsh;
