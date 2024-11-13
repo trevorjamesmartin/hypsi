@@ -10,17 +10,11 @@
     nixpkgs,
   }: let
     system = "x86_64-linux";
-    pkgs = import nixpkgs {
-      inherit system;
-    };
+    pkgs = nixpkgs.legacyPackages.${system};
   in {
-    defaultPackage.${system} = pkgs.callPackage ./derivation.nix {};
+    packages.${system}.default = pkgs.callPackage ./derivation.nix {};
 
     devShells.${system}.default = let
-      pkgs = import nixpkgs {
-        inherit system;
-      };
-
       # GTK app environment settings necessary for normal font rendering.
       #     note: at build time, this is covered by `wrapGApps` (see derivation.nix)
       unwrappedGApp = with pkgs; ''
