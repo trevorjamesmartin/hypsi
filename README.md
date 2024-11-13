@@ -19,9 +19,8 @@ If you have rofi istalled, try running
 ![rofi integration](./rofi-integration.jpg)
 
 Now this little Go app provides a few additional crossover features for web devs to play with
-- `hypsi -listen` to start a local web server (change your desktop wallpaper over the network)
 - `hypsi -json` to show your hyprpaper configuration in simple JSON format
-- `hypsi -html` to render the HTML without starting a server
+- `hypsi -rewind` reset to previous image(s)
 - `hypsi -webview` open the optional webview interface
 
 ![screenshot 3](./screenshot3.jpg)
@@ -31,6 +30,16 @@ take control of your hyprpaper
 ![screenshot 1](./screenshot1.jpg)
 
 # templating
+
+![screenshot 4](./screenshot4.jpg)
+
+    windowrulev2= [
+        ...
+        "float,class:(hypsi)" # wallpaper history
+        "size 1305 435,class:(hypsi)" # (two monitors)
+        ...
+
+The current default template, along with hyprland rulesv2 should provide a good starting point
 
 In spirit with Hyprland, hypsi strives to be highly configuable & you're encouraged to override the defaults
 
@@ -42,5 +51,6 @@ To get started customizing the appearance,
 
 [on my NixOS configuration](https://github.com/trevorjamesmartin/nixos-config) I install this [along with hyprpaper](https://github.com/trevorjamesmartin/nixos-config/tree/main/nixos/modules/home-manager/hyprpaper) using a module system. Your system integration may differ from mine, of course these are all just suggestions. You can even build the app in one command with `nix build github:trevorjamesmartin/hypsi`
 
-
 feel free to fork this and modify for your system or project
+
+template contributions are welcome, creativity is encouraged!
