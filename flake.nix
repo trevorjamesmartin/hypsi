@@ -5,29 +5,31 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
   };
 
-  outputs = { self, nixpkgs }: 
-  let
+  outputs = {
+    self,
+    nixpkgs,
+  }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
       inherit system;
     };
-  in
-  {
+  in {
     defaultPackage.${system} = pkgs.callPackage ./derivation.nix {};
-    
+
     devShells.${system}.default = let
       pkgs = import nixpkgs {
         inherit system;
       };
 
-      # GTK app environment settings necessary for normal font rendering. 
+      # GTK app environment settings necessary for normal font rendering.
       #     note: at build time, this is covered by `wrapGApps` (see derivation.nix)
       unwrappedGApp = with pkgs; ''
         export XDG_DATA_DIRS=${gsettings-desktop-schemas}/share/gsettings-schemas/${gsettings-desktop-schemas.name}:${gtk3}/share/gsettings-schemas/${gtk3.name}:$XDG_DATA_DIRS;
         export GIO_MODULE_DIR="${glib-networking}/lib/gio/modules/";
       '';
-    in pkgs.mkShell {
-        packages = with pkgs;[
+    in
+      pkgs.mkShell {
+        packages = with pkgs; [
           imagemagick
           gotools
           gopls
@@ -59,4 +61,3 @@
       };
   };
 }
-
