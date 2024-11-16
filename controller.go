@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -349,4 +351,43 @@ func hyprCtlVersion() (HyprCtlVersion, error) {
 
 	err = json.Unmarshal(buf, &hyprCtlVersiion)
 	return hyprCtlVersiion, nil
+}
+
+func downloadImage(validURL string) {
+	resp, err := http.Get(validURL)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+	arr := strings.Split(validURL, "/")
+	fname := arr[len(arr)-1]
+
+	fmt.Println("Status Code: ", resp.StatusCode)
+	fmt.Println("Content Length: ", resp.ContentLength)
+
+	tempFolder := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+	tempFile, err := os.CreateTemp(tempFolder, "*__"+fname)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	filename := tempFile.Name()
+	fmt.Println("Saving to : ", filename)
+
+	defer tempFile.Close()
+
+	fileBytes, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		fmt.Println("ERROR")
+		fmt.Println(err)
+	} else {
+		tempFile.Write(fileBytes)
+		fmt.Println("Successfully Downloaded File")
+		monitor := activeMonitor()
+		defer readFromWeb(monitor, filename)
+	}
 }

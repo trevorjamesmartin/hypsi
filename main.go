@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-const VERSION = "1.0"
+const VERSION = "1.1"
 
 const MESSAGE = `
 hypsi %s
@@ -158,7 +158,11 @@ func main() {
 			gtkView(watcher)
 
 		default:
-			readFromCLI(argsWithoutProg)
+			if argsWithoutProg[0][:4] == `http` {
+				downloadImage(argsWithoutProg[0])
+			} else {
+				readFromCLI(argsWithoutProg)
+			}
 		}
 
 	} else {

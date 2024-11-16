@@ -10,7 +10,7 @@
   gobject-introspection,
 }: let
   pname = "hypsi";
-  version = "1.0";
+  version = "1.1";
 in
   buildGoModule {
     inherit pname version;
