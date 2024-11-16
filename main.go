@@ -118,11 +118,6 @@ func main() {
 			// (undocumented dev feature atm)
 			writeConfig(true)
 
-		case "-free":
-			// free memory
-			// (undocumented dev feature atm)
-			unloadWallpaper("all")
-
 		case "-webview":
 			go api()
 			gtkView(watcher)
