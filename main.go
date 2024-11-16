@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 const VERSION = "1.1"
@@ -24,9 +25,12 @@ alternatively by sending <args>, you can:
 
    -json	Show the current configuration in JSON format
 
-   -rewind	rewind config via logfile
+   -rewind  	rewind config via logfile
+   
+   -mode	set the hyprpaper display mode (cover, contain, ...) on your focused monitor
 
    -webview	open with webkitgtk
+
 `
 
 var HYPSI_STATE APPLICATION_STATE
@@ -67,6 +71,9 @@ func main() {
 			// show any unexpected messages
 			fmt.Println(HYPSI_STATE.Message)
 		}
+
+		time.Sleep(300 * time.Millisecond) // delay freeing memory
+
 		unloadWallpaper("all") // free memory
 	}()
 
@@ -119,6 +126,13 @@ func main() {
 		case "-webview":
 			go api()
 			gtkView(watcher)
+
+		case "-mode":
+			if len(argsWithoutProg) < 2 {
+				setWallpaperMode(activeMonitor(), "cover")
+			} else {
+				setWallpaperMode(activeMonitor(), argsWithoutProg[1])
+			}
 
 		case "-develop":
 			CWD, _ := os.Getwd()

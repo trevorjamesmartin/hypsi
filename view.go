@@ -100,29 +100,7 @@ func gtkView(pub Publisher) {
 		fmt.Print("\n[ 👀 webview ]\n")
 	}
 
-	w.Bind("SetWallpaperMode", func(monitor, mode string) {
-		monitors, err := listActive()
-
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		for _, p := range monitors {
-			if p.Monitor == monitor && p.Mode != mode {
-				unloadWallpaper(p.Paper)
-				preloadWallpaper(p.Paper)
-				if mode == "cover" {
-					// default mode
-					setWallpaper(p.Paper, p.Monitor)
-				} else {
-					setWallpaper(fmt.Sprintf("%s:%s", mode, p.Paper), p.Monitor)
-				}
-				break
-			}
-		}
-
-	})
+	w.Bind("SetWallpaperMode", setWallpaperMode)
 
 	w.Bind("RollBack", func(n int) eventResp {
 

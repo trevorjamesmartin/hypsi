@@ -224,6 +224,31 @@ func setWallpaper(image string, monitor string) {
 
 }
 
+func setWallpaperMode(monitor, mode string) {
+	monitors, err := listActive()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, p := range monitors {
+		if p.Monitor == monitor && p.Mode != mode {
+			unloadWallpaper(p.Paper)
+
+			preloadWallpaper(p.Paper)
+			if mode == "cover" {
+				// default mode
+				setWallpaper(p.Paper, p.Monitor)
+			} else {
+				setWallpaper(fmt.Sprintf("%s:%s", mode, p.Paper), p.Monitor)
+			}
+
+			break
+		}
+	}
+}
+
 func writeConfig(historical bool) {
 	base := os.Getenv("HOME")
 
