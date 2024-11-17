@@ -37,6 +37,17 @@ var HYPSI_STATE APPLICATION_STATE
 
 func main() {
 	var port string
+	var watcher Publisher
+
+	UPLOADS := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+	// ensure the "upload" folder exists
+	if _, err := os.Stat(UPLOADS); os.IsNotExist(err) {
+		// create with 0755 permissions (read, write, and execute for owner, read and execute for group and others)
+		err := os.MkdirAll(UPLOADS, 0755)
+		if err != nil {
+			log.Fatal(err) // Handle the error appropriately
+		}
+	}
 
 	port = os.Getenv("PORT")
 
@@ -53,7 +64,6 @@ func main() {
 		// probably not running
 	}
 
-	var watcher Publisher
 	loadState() // last application state
 
 	ctx := context.Background()
@@ -85,15 +95,6 @@ func main() {
 		}
 	}()
 
-	UPLOADS := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
-	// ensure the "upload" folder exists
-	if _, err := os.Stat(UPLOADS); os.IsNotExist(err) {
-		// create with 0755 permissions (read, write, and execute for owner, read and execute for group and others)
-		err := os.MkdirAll(UPLOADS, 0755)
-		if err != nil {
-			log.Fatal(err) // Handle the error appropriately
-		}
-	}
 	argsWithoutProg := os.Args[1:]
 
 	if len(argsWithoutProg) > 0 {
