@@ -1,13 +1,16 @@
 package main
 
 import (
+	"crypto/sha256"
 	"embed"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 //go:embed web/*
@@ -95,24 +98,34 @@ func api() {
 		fmt.Printf("Uploaded File: %+v\n", handler.Filename)
 		fmt.Printf("File Size: %+v\n", handler.Size)
 		fmt.Printf("MIME Header: %+v\n", handler.Header)
-
 		fmt.Printf("Monitor: %s\n", monitor)
 
-		tempFolder := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+		fileBytes, err := io.ReadAll(file)
 
-		tempFile, err := os.CreateTemp(tempFolder, "*__"+handler.Filename)
+		h := sha256.New()
+		h.Write(fileBytes)
+		bs := h.Sum(nil)
+		fmt.Printf("sha256: %x\n", bs)
 
 		if err != nil {
 			fmt.Println(err)
 		}
 
+		arr := strings.Split(handler.Filename, ".")
+		ext := arr[len(arr)-1]
+		fname := fmt.Sprintf("%x", bs)
+
+		if len(ext) > 0 {
+			fname += fmt.Sprintf(".%s", ext)
+		}
+
+		tempFolder := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+		tempFile, err := os.Create(filepath.Join(tempFolder, fname))
+
 		filename := tempFile.Name()
 		fmt.Println(filename)
 
 		defer tempFile.Close()
-		// read all of the contents of our uploaded file into a
-		// byte array
-		fileBytes, err := io.ReadAll(file)
 
 		if err != nil {
 			fmt.Println("ERROR")

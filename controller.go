@@ -2,13 +2,16 @@ package main
 
 import (
 	"bufio"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -378,6 +381,13 @@ func hyprCtlVersion() (HyprCtlVersion, error) {
 	return hyprCtlVersiion, nil
 }
 
+func fileExtensionFromURL(validURL string) string {
+	u, _ := url.Parse(validURL)
+	_, fname := filepath.Split(u.Path)
+	arr := strings.Split(fname, ".")
+	return arr[len(arr)-1]
+}
+
 func downloadImage(validURL string) {
 	resp, err := http.Get(validURL)
 
@@ -385,15 +395,28 @@ func downloadImage(validURL string) {
 		log.Fatal(err)
 	}
 
-	defer resp.Body.Close()
-	arr := strings.Split(validURL, "/")
-	fname := arr[len(arr)-1]
+	ext := fileExtensionFromURL(validURL)
 
+	defer resp.Body.Close()
+	fileBytes, err := io.ReadAll(resp.Body)
+
+	h := sha256.New()
+	h.Write(fileBytes)
+	bs := h.Sum(nil)
+
+	fmt.Printf("sha256: %x\n", bs)
 	fmt.Println("Status Code: ", resp.StatusCode)
 	fmt.Println("Content Length: ", resp.ContentLength)
 
 	tempFolder := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
-	tempFile, err := os.CreateTemp(tempFolder, "*__"+fname)
+
+	fname := fmt.Sprintf("%x", bs)
+
+	if len(ext) > 0 {
+		fname += fmt.Sprintf(".%s", ext)
+	}
+
+	tempFile, err := os.Create(filepath.Join(tempFolder, fname))
 
 	if err != nil {
 		fmt.Println(err)
@@ -403,8 +426,6 @@ func downloadImage(validURL string) {
 	fmt.Println("Saving to : ", filename)
 
 	defer tempFile.Close()
-
-	fileBytes, err := io.ReadAll(resp.Body)
 
 	if err != nil {
 		fmt.Println("ERROR")
