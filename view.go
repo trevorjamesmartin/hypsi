@@ -100,6 +100,51 @@ func gtkView(pub Publisher) {
 		fmt.Print("\n[ 👀 webview ]\n")
 	}
 
+	w.Bind("SaveLocalJSON", func(localStorage json.RawMessage) {
+		var id int
+
+		sqlData := openDatabase()
+		defer sqlData.Close()
+
+		var stmt string
+		var data []byte
+		row := sqlData.QueryRow(`select * from localstorage order by id desc limit 1`)
+
+		if row.Scan(&id, &data) != nil {
+			stmt = fmt.Sprintf(`insert into localstorage(id, data) values(%d, '%s');`, 0, localStorage)
+		} else {
+			stmt = fmt.Sprintf(`update localstorage set data='%s' where id=%d;`, localStorage, 0)
+		}
+
+		_, err := sqlData.Exec(stmt)
+		if err != nil {
+			fmt.Printf("%q: %s\n", err, stmt)
+		}
+	})
+
+	w.Bind("GetLocalJSON", func() json.RawMessage {
+		var data interface{}
+		var id int
+
+		sqlData := openDatabase()
+		defer sqlData.Close()
+
+		row := sqlData.QueryRow(`select * from localstorage order by id desc limit 1`)
+		if row.Scan(&id, &data) != nil {
+			fmt.Println("nothing stored")
+			return nil
+		}
+
+		x, err := json.Marshal(data)
+
+		if err != nil {
+			fmt.Println("error reading JSON database record")
+			fmt.Println(err)
+		}
+
+		return x
+	})
+
 	w.Bind("SetWallpaperMode", setWallpaperMode)
 
 	w.Bind("RollBack", func(n int) eventResp {

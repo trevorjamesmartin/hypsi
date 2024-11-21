@@ -311,20 +311,39 @@
 	    handleGoRewind(event, idx - 1);
 	  });
 
-      });
+	  // setup frontend persistence
+	  GetLocalJSON().then((result) => {
+	    localStorage.clear();
+	    const value = JSON.parse(result)
+	    for (let key of Object.keys(value)) {
+	      // write to localStorage
+	      localStorage.setItem(key, value[key]);
+	    }
+	  }).finally(() => {
+	    const monitors = document.querySelector("#monitors");
+	    // read from localStorage
+	    const className = localStorage.getItem("monitors");
+	    if (className?.length > 0 ) {
+	      // then set classname to persisted value
+	      monitors.setAttribute("class", className);
+	    }
+	  });
+    });
 
-
-
-
-     function toggleRewind() {
+    function toggleRewind() {
       rw = document.querySelector("#rewind");
       if (rw.getAttribute("hidden")) {
-	rw.removeAttribute("hidden");
+        rw.removeAttribute("hidden");
       } else {
-	rw.setAttribute("hidden", true);
+        rw.setAttribute("hidden", true);
       }
     }
 
+    function persistLocalStorage() {
+      setTimeout(() => {
+        SaveLocalJSON(localStorage);
+      }, 300)
+    }
 
     document.addEventListener('keydown', function(event) {
       let selector;
@@ -348,12 +367,11 @@
       case "k":
       case "ArrowUp":
       case "ArrowDown":
-	let monitors = document.querySelector("#monitors");
-	if (monitors?.getAttribute("class").includes("flip")) {
-	  monitors.setAttribute("class", "monitors");
-	} else {
-	  monitors.setAttribute("class", "monitors flip");
-	}
+	const monitors = document.querySelector("#monitors");
+	const className = monitors?.getAttribute("class").includes("flip") ? "monitors" : "monitors flip";
+	monitors.setAttribute("class", className);
+        localStorage.setItem("monitors", className);
+	persistLocalStorage()
 	break;
       default:
 	//console.log(event.key);

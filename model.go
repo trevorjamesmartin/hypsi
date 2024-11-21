@@ -139,6 +139,9 @@ func openDatabase() *sql.DB {
 	id integer not null primary key,
 	rewind integer,
 	message text);
+	create table if not exists localstorage (
+	id integer not null primary key,
+	data jsonb);
 	`
 	_, err = sqlDB.Exec(sqlStmt)
 	if err != nil {
