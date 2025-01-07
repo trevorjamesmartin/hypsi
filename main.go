@@ -100,6 +100,16 @@ func main() {
 	if len(argsWithoutProg) > 0 {
 
 		switch argsWithoutProg[0] {
+
+		case "-unassigned":
+			if result, err := listUnassigned(); err != nil {
+				log.Fatal(err)
+			} else {
+				for _, m := range result {
+					fmt.Println(m.Name)
+				}
+			}
+
 		case "-json":
 			fmt.Print(jsonText())
 
@@ -142,7 +152,7 @@ func main() {
 						log.Fatal(err)
 					}
 					defer f.Close()
-					fmt.Fprintf(f, string(data))
+					f.Write(data)
 					fmt.Println(localFile)
 				}
 			}

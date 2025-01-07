@@ -91,7 +91,7 @@ func gtkView(pub Publisher) {
 
 	defer w.Destroy()
 	w.SetTitle("Hypsi")
-	w.SetSize(0, 0, webview.HintNone)
+	w.SetSize(0, 0, webview.Hint(webview.HintNone))
 
 	if pub != nil {
 		webviewSub := &WebviewSubcriber{view: w, home: webviewHome}

@@ -62,32 +62,67 @@ func readFromCLI(argsWithoutProg []string) {
 
 }
 
+// readFromWeb Function (webview) - read from webview
 func readFromWeb(monitor string, filename string) {
-	activeplanes, err := listActive()
+	if activeplanes, err := listActive(); err != nil {
+		log.Fatal(err)
+	} else {
+		var prevImage string
+		nextImage := filename
+		for _, p := range activeplanes {
+			if p.Monitor == monitor {
+				prevImage = p.Paper
+				break
+			}
+		}
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// file exists
-	nextImage := filename
-
-	var prevImage string
-
-	for _, p := range activeplanes {
-		if p.Monitor == monitor {
-			prevImage = p.Paper
-			break
+		if prevImage != nextImage {
+			unloadWallpaper(prevImage)
+			preloadWallpaper(nextImage)
+			setWallpaper(nextImage, monitor)
+			writeConfig(true)
 		}
 	}
+}
 
-	if prevImage != nextImage {
-		unloadWallpaper(prevImage)
-		preloadWallpaper(nextImage)
-		setWallpaper(nextImage, monitor)
-		writeConfig(true)
+func listMonitors() ([]*HyprMonitor, error) {
+
+	cmd := exec.Command("hyprctl", "monitors", "-j")
+	stdout, err := cmd.StdoutPipe()
+
+	if err != nil {
+		return nil, err
 	}
+
+	scanner := bufio.NewScanner(stdout)
+	err = cmd.Start()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var mons []*HyprMonitor
+
+	var rawjson string
+
+	for scanner.Scan() {
+		rawjson += scanner.Text()
+	}
+
+	if scanner.Err() != nil {
+		cmd.Process.Kill()
+		cmd.Wait()
+		return nil, scanner.Err()
+	}
+
+	err = json.Unmarshal([]byte(rawjson), &mons)
+
+	if err != nil {
+		fmt.Println("ERROR", err)
+		return mons, err
+	}
+
+	return mons, nil
 
 }
 
@@ -122,6 +157,40 @@ func listActive() ([]*Plane, error) {
 	}
 
 	return planes, nil
+}
+
+func listUnassigned() ([]*HyprMonitor, error) {
+	var m, result []*HyprMonitor
+
+	active, err := listActive()
+	available := make(map[string]*HyprMonitor)
+
+	if err != nil {
+		return m, err
+	}
+
+	m, err = listMonitors()
+
+	if err != nil {
+		return m, err
+	}
+
+	for _, m := range m {
+		available[m.Name] = m
+	}
+
+	for _, a := range active {
+		_, ok := available[a.Monitor]
+		if ok {
+			available[a.Monitor] = nil
+			delete(available, a.Monitor)
+		}
+	}
+
+	for k := range available {
+		result = append(result, available[k])
+	}
+	return result, nil
 }
 
 // unloadWallpaper Function
@@ -320,7 +389,9 @@ func activeMonitor() string {
 	}
 
 	Map := make(map[string]string)
-	err = json.Unmarshal(buf, &Map)
+	if err = json.Unmarshal(buf, &Map); err != nil {
+		log.Fatal(err)
+	}
 	monitor := Map["monitor"]
 	return string(monitor)
 }
@@ -378,6 +449,9 @@ func hyprCtlVersion() (HyprCtlVersion, error) {
 	}
 
 	err = json.Unmarshal(buf, &hyprCtlVersiion)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return hyprCtlVersiion, nil
 }
 
@@ -400,6 +474,10 @@ func downloadImage(validURL string) {
 	defer resp.Body.Close()
 	fileBytes, err := io.ReadAll(resp.Body)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	h := sha256.New()
 	h.Write(fileBytes)
 	bs := h.Sum(nil)
@@ -416,21 +494,13 @@ func downloadImage(validURL string) {
 		fname += fmt.Sprintf(".%s", ext)
 	}
 
-	tempFile, err := os.Create(filepath.Join(tempFolder, fname))
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	filename := tempFile.Name()
-	fmt.Println("Saving to : ", filename)
-
-	defer tempFile.Close()
-
-	if err != nil {
-		fmt.Println("ERROR")
-		fmt.Println(err)
+	if tempFile, err := os.Create(filepath.Join(tempFolder, fname)); err != nil {
+		log.Fatal(err)
 	} else {
+		filename := tempFile.Name()
+		fmt.Println("Saving to : ", filename)
+
+		defer tempFile.Close()
 		tempFile.Write(fileBytes)
 		fmt.Println("Successfully Downloaded File")
 		monitor := activeMonitor()

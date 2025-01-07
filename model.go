@@ -54,6 +54,54 @@ func saveState() {
 	}
 }
 
+type WorkspaceActor struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// monitor as defined by hyprctl
+type HyprMonitor struct {
+	Id               int            `json:"id,omitempty"`
+	Name             string         `json:"name"`
+	Description      string         `json:",omitempty"`
+	Make             string         `json:",omitempty"`
+	Model            string         `json:",omitempty"`
+	Serial           string         `json:",omitempty"`
+	Width            float64        `json:",omitempty"`
+	Height           float64        `json:",omitempty"`
+	RefreshRate      float64        `json:",omitempty"`
+	X                int            `json:"x"`
+	Y                int            `json:"y"`
+	ActiveWorkspace  WorkspaceActor `json:"activeWorkspace"`
+	SpecialWorkspace WorkspaceActor `json:"specialWorkspace"`
+	Reserved         []int          `json:"reserved"`
+	Scale            float64        `json:"scale"`
+	Transform        int
+	Focused          bool
+	DpmsStatus       bool
+	Vrr              bool
+	Solitary         string
+	ActivelyTearing  bool
+	DirectScanTo     string
+	Disabled         bool
+	CurrentFormat    string
+	MirrorOf         string
+	AvailableModes   []string
+}
+
+func (hm HyprMonitor) MarshallJSON() ([]byte, error) {
+	return json.Marshal(hm)
+}
+
+func (hm *HyprMonitor) UnMarshallJSON(data []byte) error {
+	var mon HyprMonitor
+	if err := json.Unmarshal(data, &mon); err != nil {
+		return err
+	}
+	*hm = mon
+	return nil
+}
+
 type Plane struct {
 	Monitor string
 	Paper   string
