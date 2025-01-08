@@ -250,7 +250,8 @@ type Webpage struct {
 	data struct {
 		Version  string
 		Style    template.CSS
-		Monitors []*Plane
+		Monitors []*Plane       // active
+		Hardware []*HyprMonitor // available
 		Ivalue   bool
 		Rewind   int
 		Script   template.JS
@@ -282,13 +283,6 @@ func (w Webpage) _Template() string {
 	}
 	return string(tmpl)
 }
-func (w Webpage) _Webview() string {
-	tmpl, staticError := WEBFOLDER.ReadFile("web/webview.html.tmpl")
-	if staticError != nil {
-		log.Fatal(staticError)
-	}
-	return string(tmpl)
-}
 func webInit() Webpage {
 	page := Webpage{}
 
@@ -299,6 +293,13 @@ func webInit() Webpage {
 	}
 
 	page.data.Core = core
+
+	if hw, err := listMonitors(); err != nil {
+		log.Fatal(err)
+	} else {
+		// static value for now
+		page.data.Hardware = hw
+	}
 
 	hist, _ := readHistory()
 

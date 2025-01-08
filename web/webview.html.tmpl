@@ -29,6 +29,10 @@
 	background-color: black;
 	color: #c6d0f5;
       }
+	  &.desc {
+		top: 0;
+	  }
+
     }
 
     button {
@@ -64,6 +68,11 @@
       background-color: #000;
     }
 
+	.desc.hwflag {
+		text-decoration: line-through;
+		color: red;
+	}
+
     .rewind {
       text-align: center;
       height: 150px;
@@ -98,289 +107,281 @@
       transform:scale(2);
     }
     </style>
+	<script type="text/javascript">
+		async function sendData(data, url) {
+				try {
+					const response = await fetch(url, {
+						method: "POST",
+						body: data,
+					});
+					console.log(await response.statusText);
+					location.reload();
+				} catch (e) {
+					console.error(e);
+				}
+			}
+	
+		function handleDrop(event) {
+			event.preventDefault();
+			if (event.dataTransfer.items) {
+			let filecount = 0;
+			const fileLimit = 1;
+			[...event.dataTransfer.items].forEach((item, i) => {
+				// If dropped items aren't files, reject them
+				if (item.kind === "file" && filecount < fileLimit) {
+				filecount++;
+				const file = item.getAsFile();
+				const firstClass = event.target.className.split(" ").shift();
+				const sendTo = "/upload?monitor=" + firstClass;
+				const formSelector = "#form_" + firstClass;
+				const formElement = document.querySelector(formSelector);
+	
+				// Take over form submission
+				formElement.addEventListener(
+				"submit",
+				(event) => {
+				event.preventDefault();
+				// Associate the FormData object with the form element
+				const formData = new FormData(formElement);
+				formData.set("imageFile", file);
+				//localStorage.setItem("rewind", 0);
+				sendData(formData, sendTo);
+				},
+				false,
+				);
+	
+				let sendBtnSelector = "#send_" + firstClass;
+				document.querySelector(sendBtnSelector).click();
+				}
+			});
+			} else {
+			[...event.dataTransfer.files].forEach((file, i) => {
+				console.log("?", file, i);
+			});
+			}
+		}
+	
+		function allowDrop(event) {
+			event.preventDefault();
+		}
+	
+		function handleRewind(event, idx) {
+			event.preventDefault();
+	
+			if (idx < 0) {
+				return;
+			}
+	
+			const url = new URL(location);
+			url.pathname = "/rewind";
+			url.searchParams.set("t", String(idx));
+			history.pushState({}, "", url);
+			setTimeout(() => history.go(), 300);
+		}
+	
+
+		function openFileChooser(monitor) {
+			let selector = "#imageFile_" + monitor;
+			document.querySelector(selector)?.click();
+		}
+		
+		const countElement = () => document.querySelector("#rewindtext");
+		const rewindBtn = () => document.querySelector("#roll_back");
+		const forwardBtn = () => document.querySelector("#roll_forth");
+		
+		function handleGoRewind(event, idx) {
+			if (typeof event?.preventDefault != "function") {
+			console.error("don't call this function directly");
+			return
+			}
+			event.preventDefault();
+	
+			if (idx < 0) {
+			return;
+			}
+	
+			if (typeof RollBack == "function") {
+	
+			RollBack(idx).then((result) => {
+				const limit = Number(result.limit);
+	
+				result.monitors?.forEach(i => {
+				let styleElement = document.querySelector("#style_" + i.monitor);
+				styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); }";
+				});
+				const textElement = document.querySelector("#rewindtext");
+				const backbtn = document.querySelector("#roll_back")
+				const forthbtn = document.querySelector("#roll_forth");
+				
+				backbtn?.removeAttribute("disabled");
+				forthbtn?.removeAttribute("disabled");
+	
+				if (idx >= 0) {
+				textElement.textContent = idx; 
+				}
+	
+				let curr = Number(result.rewind || idx);
+				let next = curr - 1;
+				let prev = curr + 1;
+	
+				if (prev >= limit) {
+				prev = limit - 1;
+				}
+	
+				if (prev - next === 1) {
+				backbtn.setAttribute("disabled", true);
+				}
+	
+				if (next < 0) {
+				forthbtn.setAttribute("disabled", true);
+				}
+	
+			});
+			} else {
+			console.error("missing RollBack() code");
+			}
+		}
+	
+		document.addEventListener("DOMContentLoaded", () => {
+	
+		rewindBtn().addEventListener("click", (event) => {
+			const idx = Number(countElement().innerHTML);
+			handleGoRewind(event, idx + 1);
+		});
+	
+		forwardBtn().addEventListener("click", (event) => {
+			const idx = Number(countElement().innerHTML);
+			handleGoRewind(event, idx - 1);
+		});
+	
+		// setup frontend persistence
+		GetLocalJSON().then((result) => {
+			localStorage.clear();
+			const value = JSON.parse(result)
+			for (let key of Object.keys(value || {})) {
+			// write to localStorage
+			localStorage.setItem(key, value[key]);
+			}
+		}).finally(() => {
+			const monitors = document.querySelector("#monitors");
+			// read from localStorage
+			const className = localStorage.getItem("monitors");
+			if (className?.length > 0 ) {
+			// then set classname to persisted value
+			monitors.setAttribute("class", className);
+			}
+		});
+		});
+	
+		function toggleRewind() {
+		rw = document.querySelector("#rewind");
+		if (rw.getAttribute("hidden")) {
+			rw.removeAttribute("hidden");
+		} else {
+			rw.setAttribute("hidden", true);
+		}
+		}
+	
+		function persistLocalStorage() {
+		setTimeout(() => {
+			SaveLocalJSON(localStorage);
+		}, 300)
+		}
+	
+		document.addEventListener('keydown', function(event) {
+		let selector;
+		switch (event.key) {
+		case "h":
+		selector = "#roll_back";
+		break;
+		case "ArrowLeft":
+		selector = "#roll_back";
+		break;
+		case "l":
+		selector = "#roll_forth";
+		break;
+		case "ArrowRight":
+		selector = "#roll_forth";
+		break;
+		case "=":
+		toggleRewind();
+		break;
+		case "j":
+		case "k":
+		case "ArrowUp":
+		case "ArrowDown":
+		const monitors = document.querySelector("#monitors");
+		const className = monitors?.getAttribute("class").includes("flip") ? "monitors" : "monitors flip";
+		monitors.setAttribute("class", className);
+			localStorage.setItem("monitors", className);
+		persistLocalStorage()
+		break;
+		default:
+		//console.log(event.key);
+		break;
+		}
+		if (selector) {
+		document.querySelector(selector).click();
+		}
+		});
+	</script>
   </head>
   <body>
     <div class="container">
-      <div id="monitors" class="monitors">	
-	{{ range $i, $value := .Monitors}}
-	<div class="{{.Monitor}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
-	  <div class="desc">
-	   {{.Monitor}}
-	  </div>
-	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post">
-	    <input id="imageFile" type="file" name="imageFile" hidden />
-	    <input type="text" name="monitor" value="{{.Monitor}}" hidden />
-	    <select id="mode" class="different" name="mode" tabindex="{{$i}}" >
-	      <option value="0">≡</option>
-	      <option value="cover">cover</option>
-	      <option value="contain">contain</option>
-	    </select>
-	    <input id="send_{{.Monitor}}" type="submit" value="upload" hidden />
-	  </form>
-	  <script type="text/javascript">
-	    document.addEventListener("DOMContentLoaded", () => {
-		document.querySelector("#form_{{.Monitor}} > #mode").addEventListener("change", (event) => {
-		    if (event.target.value != "0") {
-		      console.log(event.target);
-		      SetWallpaperMode("{{.Monitor}}", event.target.value);
-		      event.target.selectedIndex = 0;
-		      event.target.blur();
-		    }
-		});
-	    });
-	  </script>
-	</div>
-	<style id="style_{{.Monitor}}" >
-	.{{.Monitor}} {
-		background-image: url({{.Thumb64|safeURL}});
-	};
-	</style>
-	{{end}}
-      </div>
-      <hr />
+      	<div id="monitors" class="monitors">
+			{{range .Hardware}}
+				<div class="{{.Name}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
+					<div class="desc">{{.Name}}</div>
+					<form id="form_{{.Name}}" enctype="multipart/form-data" action="/upload" method="post">
+						<input id="imageFile" type="file" name="imageFile" hidden />
+						<input type="text" name="monitor" value="{{.Name}}" hidden />
+						<select id="mode" class="different" name="mode" >
+							<option value="0">≡</option>
+							<option value="cover">cover</option>
+							<option value="contain">contain</option>
+						</select>
+						<input id="send_{{.Name}}" type="submit" value="upload" hidden />
+					</form>
+					<script type="text/javascript">
+						document.addEventListener("DOMContentLoaded", () => {
+							document.querySelector("#form_{{.Name}} > #mode").addEventListener("change", (event) => {
+								if (event.target.value != "0") {
+									console.log(event.target);
+									SetWallpaperMode("{{.Name}}", event.target.value);
+									event.target.selectedIndex = 0;
+									event.target.blur();
+								}
+							});
+							
+						});
+					</script>
+				</div>
+			{{end}}
 
-      <div id="rewind" class="rewind" hidden>
-	{{ if .Rewind|plusOne|inHistory }}
-	  <button id="roll_back" title="previous" tabindex="-1">
-	    <svg height="20" viewBox="0 0 20 20" width="18" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 20 0)"/></svg>
-	  </button>
-	{{ else }}
-	  <button id="roll_back" title="previous" tabindex="-1" disabled>
-	    <svg height="20" viewBox="0 0 20 20" width="18" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 20 0)"/>
-	  </button>
-	{{ end }}
-	<span id="rewindtext">
-	  {{.Rewind}}	
-	</span>
-	{{ if .Rewind|gtZero }}
-	<button id="roll_forth" title="next" tabindex="-1"><svg height="18" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3"/></svg></button>
-	{{ else }}
-	<button id="roll_forth" title="next" tabindex="-1" disabled><svg height="18" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3"/></svg></button>
-	{{ end }}
-      </div>
+			{{range .Monitors}}
+				<style id="style_{{.Monitor}}" type="text/css">
+					.{{.Monitor}} { background-image: url({{.Thumb64|safeURL}}); }
+				</style>
+			{{end}}
+			
+		</div>
+      	<hr />
+		<div id="rewind" class="rewind" hidden>
+			{{ if .Rewind|plusOne|inHistory }}
+				<button id="roll_back" title="previous" tabindex="-1"><svg height="20" viewBox="0 0 20 20" width="18" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 20 0)"/></svg></button>
+			{{ else }}
+				<button id="roll_back" title="previous" tabindex="-1" disabled><svg height="20" viewBox="0 0 20 20" width="18" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 20 0)"/></svg></button>
+			{{ end }}
+			
+			<span id="rewindtext">{{.Rewind}}</span>
+
+			{{ if .Rewind|gtZero }}
+			<button id="roll_forth" title="next" tabindex="-1"><svg height="18" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3"/></svg></button>
+			{{ else }}
+			<button id="roll_forth" title="next" tabindex="-1" disabled><svg height="18" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3"/></svg></button>
+			{{ end }}
+		</div>
     </div>
-    <script type="text/javascript">
 
-
-    </script>
-
-    <script type="text/javascript">
-      async function sendData(data, url) {
-	try {
-	  const response = await fetch(url, {
-	    method: "POST",
-	    body: data,
-	  });
-	  console.log(await response.statusText);
-	  location.reload();
-	} catch (e) {
-	  console.error(e);
-	}
-      }
-
-      function handleDrop(event) {
-	event.preventDefault();
-
-	if (event.dataTransfer.items) {
-	  let filecount = 0;
-	  const fileLimit = 1;
-	  [...event.dataTransfer.items].forEach((item, i) => {
-	    // If dropped items aren't files, reject them
-	    if (item.kind === "file" && filecount < fileLimit) {
-	      filecount++;
-	      const file = item.getAsFile();
-	      const firstClass = event.target.className.split(" ").shift();
-	      const sendTo = "/upload?monitor=" + firstClass;
-	      const formSelector = "#form_" + firstClass;
-	      const formElement = document.querySelector(formSelector);
-
-	      // Take over form submission
-	      formElement.addEventListener(
-		"submit",
-		(event) => {
-		  event.preventDefault();
-		  // Associate the FormData object with the form element
-		  const formData = new FormData(formElement);
-		  formData.set("imageFile", file);
-		  //localStorage.setItem("rewind", 0);
-		  sendData(formData, sendTo);
-		},
-		false,
-	      );
-
-	      let sendBtnSelector = "#send_" + firstClass;
-	      document.querySelector(sendBtnSelector).click();
-	    }
-	  });
-	} else {
-	  [...event.dataTransfer.files].forEach((file, i) => {
-	    console.log("?", file, i);
-	  });
-	}
-      }
-
-      function allowDrop(event) {
-	event.preventDefault();
-      }
-
-      function handleRewind(event, idx) {
-	event.preventDefault();
-
-	if (idx < 0) {
-	  return;
-	}
-
-	const url = new URL(location);
-	url.pathname = "/rewind";
-	url.searchParams.set("t", String(idx));
-	history.pushState({}, "", url);
-	setTimeout(() => history.go(), 300);
-      }
-
-
-      function openFileChooser(monitor) {
-	let selector = "#imageFile_" + monitor;
-	document.querySelector(selector)?.click();
-      }
-      const countElement = () => document.querySelector("#rewindtext");
-      const rewindBtn = () => document.querySelector("#roll_back");
-      const forwardBtn = () => document.querySelector("#roll_forth");
-      function handleGoRewind(event, idx) {
-	if (typeof event?.preventDefault != "function") {
-	  console.error("don't call this function directly");
-	  return
-	}
-	event.preventDefault();
-
-	if (idx < 0) {
-	  return;
-	}
-
-	if (typeof RollBack == "function") {
-
-	  RollBack(idx).then((result) => {
-	    const limit = Number(result.limit);
-
-	    result.monitors?.forEach(i => {
-	      let styleElement = document.querySelector("#style_" + i.monitor);
-	      styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); }";
-	    });
-	    const textElement = document.querySelector("#rewindtext");
-	    const backbtn = document.querySelector("#roll_back")
-	    const forthbtn = document.querySelector("#roll_forth");
-	    
-	    backbtn?.removeAttribute("disabled");
-	    forthbtn?.removeAttribute("disabled");
-
-	    if (idx >= 0) {
-	      textElement.textContent = idx; 
-	    }
-
-	    let curr = Number(result.rewind || idx);
-	    let next = curr - 1;
-	    let prev = curr + 1;
-
-	    if (prev >= limit) {
-	      prev = limit - 1;
-	    }
-
-	    if (prev - next === 1) {
-	      backbtn.setAttribute("disabled", true);
-	    }
-
-	    if (next < 0) {
-	      forthbtn.setAttribute("disabled", true);
-	    }
-
-	  });
-	} else {
-	  console.error("missing RollBack() code");
-	}
-      }
-
-
-      document.addEventListener("DOMContentLoaded", () => {
-
-	  rewindBtn().addEventListener("click", (event) => {
-	    const idx = Number(countElement().innerHTML);
-	    handleGoRewind(event, idx + 1);
-	  });
-
-	  forwardBtn().addEventListener("click", (event) => {
-	    const idx = Number(countElement().innerHTML);
-	    handleGoRewind(event, idx - 1);
-	  });
-
-	  // setup frontend persistence
-	  GetLocalJSON().then((result) => {
-	    localStorage.clear();
-	    const value = JSON.parse(result)
-	    for (let key of Object.keys(value)) {
-	      // write to localStorage
-	      localStorage.setItem(key, value[key]);
-	    }
-	  }).finally(() => {
-	    const monitors = document.querySelector("#monitors");
-	    // read from localStorage
-	    const className = localStorage.getItem("monitors");
-	    if (className?.length > 0 ) {
-	      // then set classname to persisted value
-	      monitors.setAttribute("class", className);
-	    }
-	  });
-    });
-
-    function toggleRewind() {
-      rw = document.querySelector("#rewind");
-      if (rw.getAttribute("hidden")) {
-        rw.removeAttribute("hidden");
-      } else {
-        rw.setAttribute("hidden", true);
-      }
-    }
-
-    function persistLocalStorage() {
-      setTimeout(() => {
-        SaveLocalJSON(localStorage);
-      }, 300)
-    }
-
-    document.addEventListener('keydown', function(event) {
-      let selector;
-      switch (event.key) {
-      case "h":
-	selector = "#roll_back";
-	break;
-      case "ArrowLeft":
-	selector = "#roll_back";
-	break;
-      case "l":
-	selector = "#roll_forth";
-	break;
-      case "ArrowRight":
-	selector = "#roll_forth";
-	break;
-      case "=":
-	toggleRewind();
-	break;
-      case "j":
-      case "k":
-      case "ArrowUp":
-      case "ArrowDown":
-	const monitors = document.querySelector("#monitors");
-	const className = monitors?.getAttribute("class").includes("flip") ? "monitors" : "monitors flip";
-	monitors.setAttribute("class", className);
-        localStorage.setItem("monitors", className);
-	persistLocalStorage()
-	break;
-      default:
-	//console.log(event.key);
-	break;
-      }
-      if (selector) {
-	document.querySelector(selector).click();
-      }
-    });
-    </script>
   </body>
 </html>
