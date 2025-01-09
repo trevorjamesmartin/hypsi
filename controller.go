@@ -9,6 +9,7 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+
 	"io"
 	"log"
 	"net/http"
@@ -69,7 +70,7 @@ func readFromCLI(argsWithoutProg []string) {
 }
 
 // readFromWeb Function (webview) - read from webview
-func readFromWeb(monitor string, filename string) {
+func readFromWeb(monitor, filename string) {
 	if activeplanes, err := listActive(); err != nil {
 		log.Fatal(err)
 	} else {
@@ -271,7 +272,7 @@ func preloadWallpaper(image string) {
 
 // setWallpaper Function
 // $ hyprctrl hyprpaper wallpaper {monitor},{image}
-func setWallpaper(image string, monitor string) {
+func setWallpaper(image, monitor string) {
 	fmt.Printf("set wallpaper: %s,%s\n", monitor, image)
 
 	cmd := exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s", monitor, image))
@@ -402,7 +403,7 @@ func activeMonitor() string {
 	return string(monitor)
 }
 
-func makeThumbNail(inputPath string, thumb string) {
+func makeThumbNail(inputPath, thumb string) {
 	var err error
 
 	file, err := os.Open(inputPath)
