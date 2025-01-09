@@ -5,6 +5,10 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"log"
 	"net/http"
@@ -13,6 +17,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/trevorjamesmartin/resize"
 )
 
 func readFromCLI(argsWithoutProg []string) {
@@ -396,36 +402,91 @@ func activeMonitor() string {
 	return string(monitor)
 }
 
-func makeThumbNail(image string, thumb string) {
-	cmd := exec.Command("magick", "-define", "jpeg:size=640x360",
-		image, "-thumbnail", "230400@", "-gravity", "center",
-		"-background", "black", "-extent", "640x360", thumb)
+func makeThumbNail(inputPath string, thumb string) {
+	var err error
 
-	stdout, err := cmd.StdoutPipe()
-
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	scanner := bufio.NewScanner(stdout)
-	err = cmd.Start()
+	file, err := os.Open(inputPath)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+	defer file.Close()
+
+	var img image.Image
+
+	switch filepath.Ext(inputPath) {
+	case ".jpg", ".jpeg":
+		img, err = jpeg.Decode(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case ".png":
+		img, err = png.Decode(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case ".gif":
+		img, err = gif.Decode(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case ".bmp":
+		// img, err := bmp.Decode(file)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+	default:
+		log.Fatal("Unsupported file type")
 	}
 
-	if scanner.Err() != nil {
-		cmd.Process.Kill()
-		cmd.Wait()
-		log.Fatal(scanner.Err())
-		return
+	m := resize.Thumbnail(640, 360, img, resize.Lanczos3)
+
+	out, err := os.Create(thumb)
+
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer out.Close()
+
+	err = jpeg.Encode(out, m, nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
+
+// func makeThumbNail(image string, thumb string) {
+// 	cmd := exec.Command("magick", "-define", "jpeg:size=640x360",
+// 		image, "-thumbnail", "230400@", "-gravity", "center",
+// 		"-background", "black", "-extent", "640x360", thumb)
+
+// 	stdout, err := cmd.StdoutPipe()
+
+// 	if err != nil {
+// 		log.Fatal(err)
+// 		return
+// 	}
+
+// 	scanner := bufio.NewScanner(stdout)
+// 	err = cmd.Start()
+
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	for scanner.Scan() {
+// 		fmt.Println(scanner.Text())
+// 	}
+
+// 	if scanner.Err() != nil {
+// 		cmd.Process.Kill()
+// 		cmd.Wait()
+// 		log.Fatal(scanner.Err())
+// 		return
+// 	}
+// }
 
 type HyprCtlVersion struct {
 	Branch          string   `json:"branch"`

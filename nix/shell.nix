@@ -1,7 +1,7 @@
 {
   mkShell,
   pkg-config,
-  imagemagick,
+  # imagemagick,
   gotools,
   gopls,
   go-outline,
@@ -21,7 +21,7 @@ mkShell {
   name = "hyprsi";
   nativeBuildInputs = [pkg-config];
   packages = [
-    imagemagick
+    # imagemagick
     gotools
     gopls
     go-outline
@@ -34,7 +34,7 @@ mkShell {
     webkitgtk
     gtk3
 
-    imagemagick
+    # imagemagick
     glib-networking # tls/ssl
     gsettings-desktop-schemas # viewport, fonts
   ];

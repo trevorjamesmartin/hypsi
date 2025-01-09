@@ -5,12 +5,12 @@
   pcre2,
   webkitgtk,
   gtk3,
-  imagemagick,
+  # imagemagick,
   wrapGAppsHook3,
   gobject-introspection,
 }: let
   pname = "hypsi";
-  version = "1.1";
+  version = "1.2";
 in
   buildGoModule {
     inherit pname version;
@@ -21,7 +21,7 @@ in
       name = "${pname}-${version}";
     };
 
-    vendorHash = "sha256-mI9vu+UBOTGdPZkpovXg1ogDnBJSUv8HDsCyd+UVlH8=";
+    vendorHash = "sha256-gtH+RGM2CCKQO1Bz5M9twW+gIWCAmZ4gLDCq0KcQ7/I=";
 
     strictDeps = true;
     nativeBuildInputs = [pkg-config];
@@ -29,7 +29,7 @@ in
       pcre2
       webkitgtk
       gtk3
-      imagemagick
+      # imagemagick
       wrapGAppsHook3
       gobject-introspection
     ];
