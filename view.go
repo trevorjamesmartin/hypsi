@@ -31,7 +31,7 @@ func configText() string {
 	}
 
 	for _, p := range activeplanes {
-		if preloaded, _ := sources[p.Paper]; !preloaded {
+		if preloaded := sources[p.Paper]; !preloaded {
 			text += fmt.Sprintf("preload = %s\n", p.Paper)
 			sources[p.Paper] = true
 		}

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -76,17 +77,17 @@ type HyprMonitor struct {
 	SpecialWorkspace WorkspaceActor `json:"specialWorkspace"`
 	Reserved         []int          `json:"reserved"`
 	Scale            float64        `json:"scale"`
-	Transform        int
-	Focused          bool
-	DpmsStatus       bool
-	Vrr              bool
-	Solitary         string
-	ActivelyTearing  bool
-	DirectScanTo     string
-	Disabled         bool
-	CurrentFormat    string
-	MirrorOf         string
-	AvailableModes   []string
+	Transform        int            `json:",omitempty"`
+	Focused          bool           `json:",omitempty"`
+	DpmsStatus       bool           `json:",omitempty"`
+	Vrr              bool           `json:",omitempty"`
+	Solitary         string         `json:",omitempty"`
+	ActivelyTearing  bool           `json:",omitempty"`
+	DirectScanTo     string         `json:",omitempty"`
+	Disabled         bool           `json:",omitempty"`
+	CurrentFormat    string         `json:",omitempty"`
+	MirrorOf         string         `json:",omitempty"`
+	AvailableModes   []string       `json:",omitempty"`
 }
 
 func (hm HyprMonitor) MarshallJSON() ([]byte, error) {
@@ -103,8 +104,8 @@ func (hm *HyprMonitor) UnMarshallJSON(data []byte) error {
 }
 
 type Plane struct {
-	Monitor string
-	Paper   string
+	Monitor string `json:",omitempty"`
+	Paper   string `json:",omitempty"`
 	Mode    string `json:"Mode,omitempty"`
 }
 
@@ -152,8 +153,8 @@ func (p *Plane) Thumb64() (string, error) {
 }
 
 type History struct {
-	dt   string
-	data string
+	dt   string // timestamp
+	data string // json data
 }
 
 func (h *History) unfold() []Plane {
@@ -239,7 +240,7 @@ func readHistory() ([]History, error) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		past = append(past, History{dt: string(id), data: data})
+		past = append(past, History{dt: strconv.Itoa(id), data: data})
 	}
 	return past, nil
 }
