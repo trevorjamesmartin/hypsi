@@ -395,12 +395,15 @@ func activeMonitor() string {
 		return ""
 	}
 
-	Map := make(map[string]string)
-	if err = json.Unmarshal(buf, &Map); err != nil {
+	var ws HyprCtlActiveWorkspace
+
+	if err = json.Unmarshal(buf, &ws); err != nil {
+		fmt.Println("ERROR:")
+		fmt.Println(buf)
 		log.Fatal(err)
 	}
-	monitor := Map["monitor"]
-	return string(monitor)
+
+	return ws.Monitor
 }
 
 func makeThumbNail(inputPath, thumb string) {

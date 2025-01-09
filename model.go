@@ -55,6 +55,17 @@ func saveState() {
 	}
 }
 
+type HyprCtlActiveWorkspace struct {
+	Id              int    `json:"id"`
+	Name            string `json:"name"`
+	Monitor         string `json:"monitor"`
+	MonitorID       int    `json:"monitorID"`
+	Windows         int    `json:"windows"`
+	HasFullScreen   bool   `json:"hasFullScreen"`
+	LastWindow      string `json:"lastWindow"`
+	LastWindowTitle string `json:"lastWindowTitle"`
+}
+
 type WorkspaceActor struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
