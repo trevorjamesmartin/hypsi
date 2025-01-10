@@ -22,10 +22,12 @@ not overdoing it.
 Assuming you have Hyprland installed and you've enabled the hyprpaper plugin,
 you can
 
-- `hypsi /path/to/imagefile.jpg` set your wallpaper from the command line and
+- `hypsi "/path/to/Your Wallpaper Image.jpg"` set your wallpaper from the command line and
   have it persist
-- `hypsi %f` create a custom action in Thunar (enabling you to right-click an
-  image > set as wallpaper)
+- `echo %f | xargs -I {} hypsi "{}"` create a custom action in Thunar (enabling you to right-click an
+  image > Set Hyprpaper)
+
+![thunar custom action](./assets/thunar-custom-action.jpg)
 
 If you have rofi istalled, try running
 
