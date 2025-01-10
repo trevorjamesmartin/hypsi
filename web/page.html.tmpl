@@ -1,203 +1,218 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Hypsi {{.Version}}</title>
-    <style type="text/css">
-    body {
-      background-color: #232634;
-      color: #c6d0f5;
-      overflow: hidden;
-    }
 
-    button {
-      background-color: #292c3c;
-      transform: scale(1.25);
-      border-radius: 10px;
-    }
+<head>
+	<title>Hypsi {{.Version}}</title>
+	<style type="text/css">
+		body {
+			background-color: #232634;
+			color: #c6d0f5;
+			overflow: hidden;
+		}
 
-    button:hover {
-      background-color: #626880;
-    }
+		button {
+			background-color: #292c3c;
+			transform: scale(1.25);
+			border-radius: 10px;
+		}
 
-    .gallery {
-      width: 640px;
-      height: 360px;
-      margin: 3px;
-      background-color: #303446;
-      background-size: 640px 360px;
-    }
+		button:hover {
+			background-color: #626880;
+		}
 
-    .monitors {
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-    }
+		.gallery {
+			width: 640px;
+			height: 360px;
+			margin: 3px;
+			background-color: #303446;
+			background-size: 640px 360px;
+		}
 
-    .monitors.flip {
-      flex-flow: row-reverse;
-    }
+		.monitors {
+			display: flex;
+			justify-content: space-evenly;
+			align-items: center;
+		}
 
-    .desc {
-      text-align: center;
-      background-color: #000;
-    }
+		.monitors.flip {
+			flex-flow: row-reverse;
+		}
 
-    .rewind {
-      text-align: center;
-      height: 150px;
-      width: auto;
-    }
-    
-    @media only screen and (max-width: 1281px) {
-      .monitors {
-	flex-flow: column;
-      }
-      .monitors.flip {
-	flex-flow: column-reverse;
-      }
+		.desc {
+			text-align: center;
+			background-color: #000;
+		}
 
-    }
-    input[type="radio"],
-    input[type="checkbox"] {
-      height: 3rem;
-      accent-color: green;
-      transform:scale(2);
-    }
-    </style>
+		.rewind {
+			text-align: center;
+			height: 150px;
+			width: auto;
+		}
 
-    </style>
-  </head>
-  <body>
-    {{ if .Ivalue }}
-    <div class="formats">
-      <a href="/hyprpaper.conf">hyprpaper.conf</a>
-      <a href="/json">JSON</a>
-    </div>
-    {{ end }}
-    <div class="container">
-      <div class="monitors">	
-	{{ range .Monitors}}
-	<div class="{{.Monitor}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
-	  <div class="desc">
-	    {{.Monitor}}
-	  </div>
-	  <form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post" hidden>
-	    <input id="imageFile" type="file" name="imageFile" />
-	    <input type="text" name="monitor" value="{{.Monitor}}" />
-	    <input id="send_{{.Monitor}}" type="submit" value="upload" />
-	  </form>
-	</div>
-	<style>
-	.{{.Monitor}} {
-		background-image: url({{.Thumb64|safeURL}});
-	};
+		@media only screen and (max-width: 1281px) {
+			.monitors {
+				flex-flow: column;
+			}
+
+			.monitors.flip {
+				flex-flow: column-reverse;
+			}
+
+		}
+
+		input[type="radio"],
+		input[type="checkbox"] {
+			height: 3rem;
+			accent-color: green;
+			transform: scale(2);
+		}
 	</style>
-	{{end}}
-      </div>
+</head>
+
+<body>
 	{{ if .Ivalue }}
-
-
-	<div class="rewind">
-	
-	  {{ if .Rewind|plusOne|inHistory }}
-	    <button id="roll_back" title="previous" onclick="handleRewind(event, {{.Rewind|plusOne}})">
-	      <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 24 0)"/>
-	      </svg>
-	    </button>
-	  {{ else }}
-	    <button id="roll_back" disabled><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3" transform="matrix(-1 0 0 1 24 0)"/></button>
-	  {{ end }}
-	  <span id="rewindtext">	  
-	    <svg viewBox="0 0 60 30" width="60" xmlns="http://www.w3.org/2000/svg">
-
-	    <text id="svgtext" x="20" y="30" font-size="32" fill="#fff" font-family="monospace">{{.Rewind}}</text>
-	    
-	    </svg>
-	  </span>
-	  
-	  {{ if .Rewind|gtZero }}
- 	  <button id="roll_forth" title="next" onclick="handleRewind(event, {{.Rewind|lessOne}})" hint="roll forward">
-	    <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3"/></svg>
-	  </button>
-	  {{ else }}
-	  <button id="roll_forth" class="btnForward" disabled>
-	    <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3"/></svg>
-	  </button>
-	  {{ end }}
+	<div class="formats">
+		<a href="/hyprpaper.conf">hyprpaper.conf</a>
+		<a href="/json">JSON</a>
 	</div>
 	{{ end }}
-    </div>
-    <div class="about-text">hypsi-{{.Version}}: a simple hyprpaper management tool.</div>
-    <script type="text/javascript">
-      async function sendData(data, url) {
-	try {
-	  const response = await fetch(url, {
-	    method: "POST",
-	    body: data,
-	  });
-	  console.log(await response.statusText);
-	  location.reload();
-	} catch (e) {
-	  console.error(e);
-	}
-      }
-      function handleDrop(event) {
-	event.preventDefault();
-	if (event.dataTransfer.items) {
-	  let filecount = 0;
-	  const fileLimit = 1;
-	  [...event.dataTransfer.items].forEach((item, i) => {
-	    // If dropped items aren't files, reject them
-	    if (item.kind === "file" && filecount < fileLimit) {
-	      filecount++;
-	      const file = item.getAsFile();
-	      const firstClass = event.target.className.split(" ").shift();
-	      const sendTo = "/upload?monitor=" + firstClass;
-	      const formSelector = "#form_" + firstClass;
-	      const formElement = document.querySelector(formSelector);
+	<div class="container">
+		<div class="monitors">
+			{{ range .Monitors}}
+			<div class="{{.Monitor}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
+				<div class="desc">
+					{{.Monitor}}
+				</div>
+				<form id="form_{{.Monitor}}" enctype="multipart/form-data" action="/upload" method="post" hidden>
+					<input id="imageFile" type="file" name="imageFile" />
+					<input type="text" name="monitor" value="{{.Monitor}}" />
+					<input id="send_{{.Monitor}}" type="submit" value="upload" />
+				</form>
+			</div>
+			<style>
+				.{{.Monitor}} {
+					background-image: url({{.Thumb64|safeURL}});
+				};
+			</style>
+			{{end}}
+		</div>
+		{{ if .Ivalue }}
 
-	      // Take over form submission
-	      formElement.addEventListener(
-		"submit",
-		(event) => {
-		  event.preventDefault();
-		  // Associate the FormData object with the form element
-		  const formData = new FormData(formElement);
-		  formData.set("imageFile", file);
-		  //localStorage.setItem("rewind", 0);
-		  sendData(formData, sendTo);
-		},
-		false,
-	      );
 
-	      let sendBtnSelector = "#send_" + firstClass;
-	      document.querySelector(sendBtnSelector).click();
-	    }
-	  });
-	} else {
-	  [...event.dataTransfer.files].forEach((file, i) => {
-	    console.log("?", file, i);
-	  });
-	}
-      }
-      function allowDrop(event) {
-	event.preventDefault();
-      }
-      function handleRewind(event, idx) {
-	event.preventDefault();
-	if (idx < 0) {
-	  return;
-	}
-	const url = new URL(location);
-	url.pathname = "/rewind";
-	url.searchParams.set("t", String(idx));
-	history.pushState({}, "", url);
-	setTimeout(() => history.go(), 300);
-      }
-      function openFileChooser(monitor) {
-	let selector = "#imageFile_" + monitor;
-	document.querySelector(selector)?.click();
-      }
-    </script>
-  </body>
+		<div class="rewind">
+
+			{{ if .Rewind|plusOne|inHistory }}
+			<button id="roll_back" title="previous" onclick="handleRewind(event, {{.Rewind|plusOne}})">
+				<svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+					<path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3"
+						transform="matrix(-1 0 0 1 24 0)" />
+				</svg>
+			</button>
+			{{ else }}
+			<button id="roll_back" disabled>
+				<svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+					<path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3"
+						transform="matrix(-1 0 0 1 24 0)" />
+				</svg>
+			</button>
+			{{ end }}
+			<span id="rewindtext">
+				<svg viewBox="0 0 60 30" width="60" xmlns="http://www.w3.org/2000/svg">
+
+					<text id="svgtext" x="20" y="30" font-size="32" fill="#fff"
+						font-family="monospace">{{.Rewind}}</text>
+
+				</svg>
+			</span>
+
+			{{ if .Rewind|gtZero }}
+			<button id="roll_forth" title="next" onclick="handleRewind(event, {{.Rewind|lessOne}})" hint="roll forward">
+				<svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+					<path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3" />
+				</svg>
+			</button>
+			{{ else }}
+			<button id="roll_forth" class="btnForward" disabled>
+				<svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+					<path d="m7 2 10 10-10 10" fill="none" stroke="#fff" stroke-width="3" />
+				</svg>
+			</button>
+			{{ end }}
+		</div>
+		{{ end }}
+	</div>
+	<div class="about-text">hypsi-{{.Version}}: a simple hyprpaper management tool.</div>
+	<script type="text/javascript">
+		async function sendData(data, url) {
+			try {
+				const response = await fetch(url, {
+					method: "POST",
+					body: data,
+				});
+				console.log(await response.statusText);
+				location.reload();
+			} catch (e) {
+				console.error(e);
+			}
+		}
+		function handleDrop(event) {
+			event.preventDefault();
+			if (event.dataTransfer.items) {
+				let filecount = 0;
+				const fileLimit = 1;
+				[...event.dataTransfer.items].forEach((item, i) => {
+					// If dropped items aren't files, reject them
+					if (item.kind === "file" && filecount < fileLimit) {
+						filecount++;
+						const file = item.getAsFile();
+						const firstClass = event.target.className.split(" ").shift();
+						const sendTo = "/upload?monitor=" + firstClass;
+						const formSelector = "#form_" + firstClass;
+						const formElement = document.querySelector(formSelector);
+
+						// Take over form submission
+						formElement.addEventListener(
+							"submit",
+							(event) => {
+								event.preventDefault();
+								// Associate the FormData object with the form element
+								const formData = new FormData(formElement);
+								formData.set("imageFile", file);
+								//localStorage.setItem("rewind", 0);
+								sendData(formData, sendTo);
+							},
+							false,
+						);
+
+						let sendBtnSelector = "#send_" + firstClass;
+						document.querySelector(sendBtnSelector).click();
+					}
+				});
+			} else {
+				[...event.dataTransfer.files].forEach((file, i) => {
+					console.log("?", file, i);
+				});
+			}
+		}
+		function allowDrop(event) {
+			event.preventDefault();
+		}
+		function handleRewind(event, idx) {
+			event.preventDefault();
+			if (idx < 0) {
+				return;
+			}
+			const url = new URL(location);
+			url.pathname = "/rewind";
+			url.searchParams.set("t", String(idx));
+			history.pushState({}, "", url);
+			setTimeout(() => history.go(), 300);
+		}
+		function openFileChooser(monitor) {
+			let selector = "#imageFile_" + monitor;
+			document.querySelector(selector)?.click();
+		}
+	</script>
+</body>
+
 </html>
