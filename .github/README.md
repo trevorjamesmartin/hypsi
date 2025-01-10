@@ -29,7 +29,7 @@ you can
 
 If you have rofi istalled, try running
 
-- `PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs hypsi` from a
+- `Pictures PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs -I {} hypsi "{}"` from a
   folder containing images
 
 ![rofi integration](./assets/rofi-integration.jpg)
