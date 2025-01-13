@@ -5,7 +5,6 @@
   pcre2,
   webkitgtk,
   gtk3,
-  # imagemagick,
   wrapGAppsHook3,
   gobject-introspection,
 }: let
@@ -29,7 +28,6 @@ in
       pcre2
       webkitgtk
       gtk3
-      # imagemagick
       wrapGAppsHook3
       gobject-introspection
     ];

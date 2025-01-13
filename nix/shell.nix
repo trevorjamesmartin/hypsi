@@ -1,7 +1,6 @@
 {
   mkShell,
   pkg-config,
-  # imagemagick,
   gotools,
   gopls,
   go-outline,
@@ -21,7 +20,6 @@ mkShell {
   name = "hyprsi";
   nativeBuildInputs = [pkg-config];
   packages = [
-    # imagemagick
     gotools
     gopls
     go-outline
@@ -33,12 +31,10 @@ mkShell {
     pcre2
     webkitgtk
     gtk3
-
-    # imagemagick
     glib-networking # tls/ssl
     gsettings-desktop-schemas # viewport, fonts
   ];
-
+   
   shellHook = let
     # GTK app environment settings necessary for normal font rendering.
     #     note: at build time, this is covered by `wrapGApps` (see derivation.nix)
