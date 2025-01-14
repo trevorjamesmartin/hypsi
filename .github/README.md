@@ -3,7 +3,7 @@
 a simple [hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/)
 management tool, written in Go
 
-now with optional webview interface
+with optional webview interface
 
 This program started as a script to manage my desktop wallpaper between sway and
 hyprland. When I first started using [Hyprland](https://www.hyprland.org/), I
@@ -31,8 +31,7 @@ you can
 
 If you have rofi istalled, try running
 
-- `Pictures PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs -I {} hypsi "{}"` from a
-  folder containing images
+- `PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs -I {} hypsi "{}"` from a folder containing images
 
 ![rofi integration](./assets/rofi-integration.jpg)
 

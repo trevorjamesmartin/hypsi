@@ -95,11 +95,11 @@ func main() {
 		}
 	}()
 
-	argsWithoutProg := os.Args[1:]
+	args := os.Args[1:]
 
-	if len(argsWithoutProg) > 0 {
+	if len(args) > 0 {
 
-		switch argsWithoutProg[0] {
+		switch args[0] {
 
 		case "-unassigned":
 			if result, err := listUnassigned(); err != nil {
@@ -114,8 +114,8 @@ func main() {
 			fmt.Print(jsonText())
 
 		case "-rewind":
-			if len(argsWithoutProg) > 1 {
-				i, err := strconv.Atoi(argsWithoutProg[1])
+			if len(args) > 1 {
+				i, err := strconv.Atoi(args[1])
 				if err != nil {
 					fmt.Println("argument must be a number")
 					return
@@ -134,10 +134,10 @@ func main() {
 			gtkView(watcher)
 
 		case "-mode":
-			if len(argsWithoutProg) < 2 {
+			if len(args) < 2 {
 				setWallpaperMode(activeMonitor(), "cover")
 			} else {
-				setWallpaperMode(activeMonitor(), argsWithoutProg[1])
+				setWallpaperMode(activeMonitor(), args[1])
 			}
 
 		case "-develop":
@@ -160,8 +160,8 @@ func main() {
 		case "-watch":
 			var watchfolder string
 
-			if len(argsWithoutProg) > 1 {
-				watchfolder = argsWithoutProg[1]
+			if len(args) > 1 {
+				watchfolder = args[1]
 				if _, err := os.Stat(watchfolder); os.IsNotExist(err) {
 					log.Fatalf("Cannot watch %s, the path does not exist", watchfolder)
 				}
@@ -178,10 +178,10 @@ func main() {
 			gtkView(watcher)
 
 		default:
-			if argsWithoutProg[0][:4] == `http` {
-				downloadImage(argsWithoutProg[0])
+			if args[0][:4] == `http` {
+				downloadImage(args[0])
 			} else {
-				readFromCLI(argsWithoutProg)
+				readFromCLI(args)
 			}
 		}
 

@@ -14,6 +14,7 @@
   gtk3,
   glib-networking,
   gsettings-desktop-schemas,
+  libheif,
   ...
 }:
 mkShell {
@@ -33,6 +34,7 @@ mkShell {
     gtk3
     glib-networking # tls/ssl
     gsettings-desktop-schemas # viewport, fonts
+    libheif
   ];
    
   shellHook = let
@@ -46,6 +48,7 @@ mkShell {
     ${unwrappedGApp}
     export SHELL=zsh;
     export PS1="\[\e[01;36m\][dev🐚Go]\[\e[0m\] \[\e[01;37m\]\w\[\e[0m\] $ ";
+    export DEBUG=OK
     ${go_1_22}/bin/go version;
   '';
 }

@@ -10,11 +10,18 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
+
+	"github.com/MaestroError/go-libheif"
 )
 
 //go:embed web/*
 var WEBFOLDER embed.FS
+
+func newFile(fname string) (*os.File, error) {
+	// todo: configure this for customization
+	folderName := "wallpaper"
+	return os.Create(filepath.Join(fmt.Sprintf("%s/%s", os.Getenv("HOME"), folderName), fname))
+}
 
 func api() {
 	var port string
@@ -82,6 +89,7 @@ func api() {
 	}
 
 	uploadFile := func(w http.ResponseWriter, r *http.Request) {
+		var filename string
 		r.ParseMultipartForm(10 << 20)
 
 		monitor := r.FormValue("monitor")
@@ -111,32 +119,56 @@ func api() {
 			fmt.Println(err)
 		}
 
-		arr := strings.Split(handler.Filename, ".")
-		ext := arr[len(arr)-1]
-		fname := fmt.Sprintf("%x", bs)
+		ext := filepath.Ext(handler.Filename)
+		fname := fmt.Sprintf("%x%s", bs, ext)
 
-		if len(ext) > 0 {
-			fname += fmt.Sprintf(".%s", ext)
+		// convert unsupported file types
+		switch filepath.Ext(fname) {
+		case ".heic", ".heif":
+			// write 2 files
+			originalFile, err := newFile(fname)
+			filename = fmt.Sprintf("%s.jpg", originalFile.Name())
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			originalFile.Write(fileBytes)
+			originalFile.Close()
+
+			// convert to jpeg for hyprpaper
+			err = libheif.HeifToJpeg(originalFile.Name(), filename, 100)
+			if err != nil {
+				fmt.Println("ERROR")
+				fmt.Println(err)
+			} else {
+				fmt.Println(filename)
+				fmt.Fprintf(w, "Successfully Uploaded File\n")
+				defer readFromWeb(monitor, filename)
+			}
+
+		default:
+			tempFile, err := newFile(fname)
+			if err != nil {
+				log.Fatal(err)
+			}
+			filename = tempFile.Name()
+			fmt.Println(filename)
+
+			defer tempFile.Close()
+
+			if err != nil {
+				fmt.Println("ERROR")
+				fmt.Println(err)
+			} else {
+				// write this byte array to our temporary file
+				tempFile.Write(fileBytes)
+				// return that we have successfully uploaded our file!
+				fmt.Fprintf(w, "Successfully Uploaded File\n")
+				defer readFromWeb(monitor, filename)
+			}
 		}
 
-		tempFolder := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
-		tempFile, err := os.Create(filepath.Join(tempFolder, fname))
-
-		filename := tempFile.Name()
-		fmt.Println(filename)
-
-		defer tempFile.Close()
-
-		if err != nil {
-			fmt.Println("ERROR")
-			fmt.Println(err)
-		} else {
-			// write this byte array to our temporary file
-			tempFile.Write(fileBytes)
-			// return that we have successfully uploaded our file!
-			fmt.Fprintf(w, "Successfully Uploaded File\n")
-			defer readFromWeb(monitor, filename)
-		}
 	}
 	mux.HandleFunc("POST /upload", uploadFile)
 	mux.HandleFunc("GET /conf", handleConfig)

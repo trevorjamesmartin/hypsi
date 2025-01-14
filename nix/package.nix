@@ -7,6 +7,7 @@
   gtk3,
   wrapGAppsHook3,
   gobject-introspection,
+  libheif,
 }: let
   pname = "hypsi";
   version = "1.2";
@@ -20,7 +21,7 @@ in
       name = "${pname}-${version}";
     };
 
-    vendorHash = "sha256-gtH+RGM2CCKQO1Bz5M9twW+gIWCAmZ4gLDCq0KcQ7/I=";
+    vendorHash = "sha256-+ZmXuL1mo6tcdvJ1dRifga9FkY6B6q7il9ZqqQLbrGg=";
 
     strictDeps = true;
     nativeBuildInputs = [pkg-config];
@@ -30,6 +31,7 @@ in
       gtk3
       wrapGAppsHook3
       gobject-introspection
+      libheif
     ];
 
     # f around and find out

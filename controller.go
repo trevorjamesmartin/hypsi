@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/MaestroError/go-libheif"
 	"github.com/trevorjamesmartin/resize"
 )
 
@@ -46,7 +47,24 @@ func readFromCLI(argsWithoutProg []string) {
 		}
 
 		// file exists
-		nextImage := argsWithoutProg[0]
+		var nextImage string
+
+		switch filepath.Ext(fname) {
+		case ".heic", ".heif":
+			newfile := fmt.Sprintf("%s.jpg", fname)
+
+			err = libheif.HeifToJpeg(fname, newfile, 100)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+			nextImage = newfile
+
+		case ".bmp":
+			log.Fatal("Unsupported file type")
+		default:
+			nextImage = fname
+		}
 
 		monitor := activeMonitor()
 
@@ -61,7 +79,7 @@ func readFromCLI(argsWithoutProg []string) {
 
 		if prevImage != nextImage {
 			unloadWallpaper(prevImage)
-			preloadWallpaper(fname)
+			preloadWallpaper(nextImage)
 			setWallpaper(nextImage, monitor)
 			writeConfig(true)
 		}
