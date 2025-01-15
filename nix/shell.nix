@@ -15,10 +15,11 @@
   glib-networking,
   gsettings-desktop-schemas,
   libheif,
+  impl,
   ...
 }:
 mkShell {
-  name = "hyprsi";
+  name = "hypsi";
   nativeBuildInputs = [pkg-config];
   packages = [
     gotools
@@ -35,6 +36,7 @@ mkShell {
     glib-networking # tls/ssl
     gsettings-desktop-schemas # viewport, fonts
     libheif
+    impl # generates method stubs for implementing an interface.
   ];
    
   shellHook = let
