@@ -479,37 +479,6 @@ func makeThumbNail(inputPath, thumb string) {
 
 }
 
-// func makeThumbNail(image string, thumb string) {
-// 	cmd := exec.Command("magick", "-define", "jpeg:size=640x360",
-// 		image, "-thumbnail", "230400@", "-gravity", "center",
-// 		"-background", "black", "-extent", "640x360", thumb)
-
-// 	stdout, err := cmd.StdoutPipe()
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 		return
-// 	}
-
-// 	scanner := bufio.NewScanner(stdout)
-// 	err = cmd.Start()
-
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	for scanner.Scan() {
-// 		fmt.Println(scanner.Text())
-// 	}
-
-// 	if scanner.Err() != nil {
-// 		cmd.Process.Kill()
-// 		cmd.Wait()
-// 		log.Fatal(scanner.Err())
-// 		return
-// 	}
-// }
-
 type HyprCtlVersion struct {
 	Branch          string   `json:"branch"`
 	Commit          string   `json:"commit"`

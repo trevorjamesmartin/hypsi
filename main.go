@@ -39,19 +39,9 @@ func main() {
 	var port string
 	var watcher Publisher
 
-	var sf StateFactory
+	var factory StateFactory
 
-	HYPSI_STATE = sf.Create()
-
-	UPLOADS := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
-	// ensure the "upload" folder exists
-	if _, err := os.Stat(UPLOADS); os.IsNotExist(err) {
-		// create with 0755 permissions (read, write, and execute for owner, read and execute for group and others)
-		err := os.MkdirAll(UPLOADS, 0755)
-		if err != nil {
-			log.Fatal(err) // Handle the error appropriately
-		}
-	}
+	HYPSI_STATE = factory.Create()
 
 	port = os.Getenv("PORT")
 

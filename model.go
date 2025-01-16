@@ -16,15 +16,20 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type AppStateFactory interface {
-	Create() AppState
-}
-
 type StateFactory struct{}
 
 func (sf *StateFactory) Create() AppState {
+	var path string
+	var exists bool
 	// initialize application state
-	return &HypsiAppState{Rewind: 0}
+	has := HypsiAppState{}
+	has.SetRewind(0)
+	path, exists = os.LookupEnv("HYPSI_PATH")
+	if !exists {
+		path = fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+	}
+	has.SetStorePath(path)
+	return &has
 }
 
 type AppState interface {
@@ -36,58 +41,80 @@ type AppState interface {
 
 	Load()
 	Save()
+
+	GetStorePath() string
+	SetStorePath(string)
 }
 
 type HypsiAppState struct {
-	Rewind  int    `json:"rewind"`
-	Message string `json:"message,omitempty"`
+	Rewind    int    `json:"rewind"`
+	Message   string `json:"message,omitempty"`
+	StorePath string `json:""`
 }
 
-func (hs *HypsiAppState) GetRewind() int {
-	return hs.Rewind
+func (has *HypsiAppState) GetStorePath() string {
+	return has.StorePath
 }
 
-func (hs *HypsiAppState) GetMessage() string {
-	return hs.Message
+func (has *HypsiAppState) SetStorePath(path string) {
+	var err error
+
+	// create if needed
+	if _, err = os.Stat(path); os.IsNotExist(err) {
+		// create with 0755 permissions (read, write, and execute for owner, read and execute for group and others)
+		err := os.MkdirAll(path, 0755)
+		if err != nil {
+			log.Fatal(err) // Handle the error appropriately
+		}
+	}
+
+	has.StorePath = path
 }
 
-func (hs *HypsiAppState) SetRewind(value int) {
-	hs.Rewind = value
+func (has *HypsiAppState) GetRewind() int {
+	return has.Rewind
 }
 
-func (hs *HypsiAppState) SetMessage(value string) {
-	hs.Message = value
+func (has *HypsiAppState) GetMessage() string {
+	return has.Message
 }
 
-func (hs *HypsiAppState) Load() {
+func (has *HypsiAppState) SetRewind(value int) {
+	has.Rewind = value
+}
+
+func (has *HypsiAppState) SetMessage(value string) {
+	has.Message = value
+}
+
+func (has *HypsiAppState) Load() {
 	var id, rewind int
 	var message string
-	var appState HypsiAppState
+
 	sqlData := openDatabase()
 	defer sqlData.Close()
 	row := sqlData.QueryRow(`select * from state order by id desc limit 1`)
 
 	if row.Scan(&id, &rewind, &message) != nil {
-		appState.SetRewind(0)
+		has.SetRewind(0)
 	} else {
-		appState.SetRewind(rewind)
-		appState.SetMessage(message)
+		has.SetRewind(rewind)
+		has.SetMessage(message)
 	}
-	*hs = appState
 }
 
-func (hs *HypsiAppState) Save() {
+func (has *HypsiAppState) Save() {
 	var id, rewind int
 	var message, stmt string
-	//var appState APPLICATION_STATE
+
 	sqlData := openDatabase()
 	defer sqlData.Close()
 
 	row := sqlData.QueryRow(`select * from state order by id desc limit 1`)
 	if row.Scan(&id, &rewind, &message) != nil {
-		stmt = fmt.Sprintf(`insert into state(id, rewind, message) values(%d, %d, '%s');`, 0, hs.Rewind, hs.Message)
+		stmt = fmt.Sprintf(`insert into state(id, rewind, message) values(%d, %d, '%s');`, 0, has.Rewind, has.Message)
 	} else {
-		stmt = fmt.Sprintf(`update state set rewind=%d, message='%s' where id=%d;`, hs.Rewind, hs.Message, id)
+		stmt = fmt.Sprintf(`update state set rewind=%d, message='%s' where id=%d;`, has.Rewind, has.Message, id)
 	}
 	_, err := sqlData.Exec(stmt)
 	if err != nil {
@@ -225,7 +252,8 @@ func (h *History) unfold() []Plane {
 }
 
 func openDatabase() *sql.DB {
-	dbfile := filepath.Join(os.Getenv("HOME"), "wallpaper", "hypsi.db")
+	dbfile := filepath.Join(HYPSI_STATE.GetStorePath(), "hypsi.db")
+
 	sqlDB, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
 		log.Fatal(err)
