@@ -53,7 +53,7 @@ func api() {
 
 		t := r.URL.Query().Get("t")
 		if n, err := strconv.Atoi(t); err != nil {
-			page.Print(w, HYPSI_STATE.Rewind)
+			page.Print(w, HYPSI_STATE.GetRewind())
 		} else {
 			page.Print(w, n)
 		}
@@ -71,8 +71,8 @@ func api() {
 			default_template, _ := WEBFOLDER.ReadFile("web/webview.html.tmpl")
 			page.template = string(default_template)
 		}
-		page.data.Rewind = HYPSI_STATE.Rewind
-		page.Print(w, HYPSI_STATE.Rewind)
+		page.data.Rewind = HYPSI_STATE.GetRewind()
+		page.Print(w, HYPSI_STATE.GetRewind())
 	})
 
 	mux.HandleFunc("GET /static/{filename}", func(w http.ResponseWriter, r *http.Request) {

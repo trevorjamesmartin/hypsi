@@ -16,43 +16,84 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type APPLICATION_STATE struct {
+type AppStateFactory interface {
+	Create() AppState
+}
+
+type StateFactory struct{}
+
+func (sf *StateFactory) Create() AppState {
+	// initialize application state
+	return &HypsiAppState{Rewind: 0}
+}
+
+type AppState interface {
+	GetRewind() int
+	GetMessage() string
+
+	SetRewind(int)
+	SetMessage(string)
+
+	Load()
+	Save()
+}
+
+type HypsiAppState struct {
 	Rewind  int    `json:"rewind"`
 	Message string `json:"message,omitempty"`
 }
 
-func loadState() {
-	var id, rewind int
-	var message string
-
-	sqlData := openDatabase()
-	defer sqlData.Close()
-
-	row := sqlData.QueryRow(`select * from state order by id desc limit 1`)
-	if row.Scan(&id, &rewind, &message) != nil {
-		HYPSI_STATE.Rewind = 0
-	} else {
-		HYPSI_STATE.Rewind = rewind
-		HYPSI_STATE.Message = message
-	}
+func (hs *HypsiAppState) GetRewind() int {
+	return hs.Rewind
 }
 
-func saveState() {
+func (hs *HypsiAppState) GetMessage() string {
+	return hs.Message
+}
+
+func (hs *HypsiAppState) SetRewind(value int) {
+	hs.Rewind = value
+}
+
+func (hs *HypsiAppState) SetMessage(value string) {
+	hs.Message = value
+}
+
+func (hs *HypsiAppState) Load() {
+	var id, rewind int
+	var message string
+	var appState HypsiAppState
 	sqlData := openDatabase()
 	defer sqlData.Close()
+	row := sqlData.QueryRow(`select * from state order by id desc limit 1`)
+
+	if row.Scan(&id, &rewind, &message) != nil {
+		appState.SetRewind(0)
+	} else {
+		appState.SetRewind(rewind)
+		appState.SetMessage(message)
+	}
+	*hs = appState
+}
+
+func (hs *HypsiAppState) Save() {
 	var id, rewind int
 	var message, stmt string
+	//var appState APPLICATION_STATE
+	sqlData := openDatabase()
+	defer sqlData.Close()
 
 	row := sqlData.QueryRow(`select * from state order by id desc limit 1`)
 	if row.Scan(&id, &rewind, &message) != nil {
-		stmt = fmt.Sprintf(`insert into state(id, rewind, message) values(%d, %d, '%s');`, 0, HYPSI_STATE.Rewind, HYPSI_STATE.Message)
+		stmt = fmt.Sprintf(`insert into state(id, rewind, message) values(%d, %d, '%s');`, 0, hs.Rewind, hs.Message)
 	} else {
-		stmt = fmt.Sprintf(`update state set rewind=%d, message='%s' where id=%d;`, HYPSI_STATE.Rewind, HYPSI_STATE.Message, id)
+		stmt = fmt.Sprintf(`update state set rewind=%d, message='%s' where id=%d;`, hs.Rewind, hs.Message, id)
 	}
 	_, err := sqlData.Exec(stmt)
 	if err != nil {
 		fmt.Printf("%q: %s\n", err, stmt)
 	}
+
 }
 
 type HyprCtlActiveWorkspace struct {

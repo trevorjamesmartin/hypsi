@@ -159,11 +159,11 @@ func gtkView(pub Publisher) {
 			return eventResp{Message: "upper limit reached", Limit: limit}
 		}
 
-		HYPSI_STATE.Rewind = n
+		HYPSI_STATE.SetRewind(n)
 
 		monitors, errListing := listActive()
 		if errListing != nil {
-			HYPSI_STATE.Message = errListing.Error()
+			HYPSI_STATE.SetMessage(errListing.Error())
 			log.Fatal(errListing)
 		}
 

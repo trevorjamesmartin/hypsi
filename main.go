@@ -33,11 +33,15 @@ alternatively by sending <args>, you can:
 
 `
 
-var HYPSI_STATE APPLICATION_STATE
+var HYPSI_STATE AppState
 
 func main() {
 	var port string
 	var watcher Publisher
+
+	var sf StateFactory
+
+	HYPSI_STATE = sf.Create()
 
 	UPLOADS := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
 	// ensure the "upload" folder exists
@@ -64,7 +68,7 @@ func main() {
 		// probably not running
 	}
 
-	loadState() // last application state
+	HYPSI_STATE.Load()
 
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
@@ -73,13 +77,14 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 
 	defer func() {
-		saveState()        // save application state
+		HYPSI_STATE.Save() // save application state
 		writeConfig(false) // write config file
 		signal.Stop(c)     // stop the channel
 		cancel()           // cancel the context
-		if HYPSI_STATE.Message != "ok" {
+
+		if msg := HYPSI_STATE.GetMessage(); msg != "ok" {
 			// show any unexpected messages
-			fmt.Println(HYPSI_STATE.Message)
+			fmt.Println(msg)
 		}
 
 		time.Sleep(300 * time.Millisecond) // delay freeing memory
