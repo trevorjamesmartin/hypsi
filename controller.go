@@ -37,7 +37,7 @@ func readFromCLI(argsWithoutProg []string) {
 	// path to wallpaper ?
 	_, err := os.Stat(fname)
 	if os.IsNotExist(err) {
-		fmt.Println("not a valid background image")
+		fmt.Printf("not a valid background image: [ %s ]", fname)
 	} else {
 		activeplanes, err := listActive()
 
@@ -182,40 +182,6 @@ func listActive() ([]*Plane, error) {
 	}
 
 	return planes, nil
-}
-
-func listUnassigned() ([]*HyprMonitor, error) {
-	var m, result []*HyprMonitor
-
-	active, err := listActive()
-	available := make(map[string]*HyprMonitor)
-
-	if err != nil {
-		return m, err
-	}
-
-	m, err = listMonitors()
-
-	if err != nil {
-		return m, err
-	}
-
-	for _, m := range m {
-		available[m.Name] = m
-	}
-
-	for _, a := range active {
-		_, ok := available[a.Monitor]
-		if ok {
-			available[a.Monitor] = nil
-			delete(available, a.Monitor)
-		}
-	}
-
-	for k := range available {
-		result = append(result, available[k])
-	}
-	return result, nil
 }
 
 // unloadWallpaper Function

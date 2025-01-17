@@ -21,9 +21,7 @@ type Subscriber interface {
 
 type PathWatcher struct {
 	subscribers []*Subscriber
-	watcher     fsnotify.Watcher
 	rootPath    string
-	active      bool
 }
 
 func (pw *PathWatcher) register(subscriber *Subscriber) {
@@ -58,6 +56,7 @@ func (pw *PathWatcher) observe() {
 	if err := filepath.Walk(pw.rootPath,
 		func(path string, info os.FileInfo, err error) error {
 			if info.Mode().IsDir() {
+				fmt.Printf("\nwatching path: [%s]", path)
 				return watcher.Add(path)
 			}
 

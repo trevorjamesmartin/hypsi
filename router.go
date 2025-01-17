@@ -29,7 +29,11 @@ func api() {
 
 	user_template := os.Getenv("HYPSI_WEBVIEW")
 
+	fmt.Printf("\nWEBVIEW TEMPLATE: [%s]", user_template)
+
 	user_html_template := os.Getenv("HYPSI_WEBPAGE")
+
+	fmt.Printf("\nHTML TEMPLATE: [%s]", user_html_template)
 
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		if len(user_html_template) > 0 {

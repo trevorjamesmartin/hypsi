@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -18,18 +19,20 @@ hypsi %s
 
 usage: hypsi [ <file> | <args> ]
 
-   <file>	To set the desktop wallpaper of your focused monitor, simply provide the absolute path to your desired image file.
 
-alternatively by sending <args>, you can:
+   <file>		To set the desktop wallpaper of your focused monitor, simply provide the absolute path to your desired image file.
 
-   -json	Show the current configuration in JSON format
+				^ download the image file, when given a web link
 
-   -rewind  	rewind config via logfile
+* alternatively by sending <args>, you can:
+
+   -json		Show the current configuration in JSON format
+
+   -rewind		rewind to previously set wallpaper
    
-   -mode	set the hyprpaper display mode (cover, contain, ...) on your focused monitor
+   -mode		set the hyprpaper display mode (cover, contain, ...) on your focused monitor
 
-   -webview	open with webkitgtk
-
+   -webview		open with webkitgtk
 `
 
 var HYPSI_STATE AppState
@@ -78,16 +81,6 @@ func main() {
 	if len(args) > 0 {
 
 		switch args[0] {
-
-		case "-unassigned":
-			if result, err := listUnassigned(); err != nil {
-				log.Fatal(err)
-			} else {
-				for _, m := range result {
-					fmt.Println(m.Name)
-				}
-			}
-
 		case "-json":
 			fmt.Print(jsonText())
 
@@ -102,10 +95,6 @@ func main() {
 			} else {
 				rewind(1)
 			}
-		case "-write":
-			// log changes & write hyprpaper.config
-			// (undocumented dev feature atm)
-			writeConfig(true)
 
 		case "-webview":
 			go api()
@@ -144,7 +133,6 @@ func main() {
 					log.Fatalf("Cannot watch %s, the path does not exist", watchfolder)
 				}
 			} else {
-				fmt.Println("... no folder specified, watch working directory")
 				watchfolder, _ = os.Getwd()
 			}
 			os.Setenv("HYPSI_WEBVIEW", filepath.Join(watchfolder, "webview.html.tmpl"))
@@ -156,7 +144,8 @@ func main() {
 			gtkView(watcher)
 
 		default:
-			if args[0][:4] == `http` {
+			onWeb, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", args[0])
+			if onWeb {
 				downloadImage(args[0])
 			} else {
 				readFromCLI(args)
