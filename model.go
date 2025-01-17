@@ -124,6 +124,7 @@ func (has *HypsiAppState) Load() {
 
 	sqlData := openDatabase()
 	defer sqlData.Close()
+
 	row := sqlData.QueryRow(`select * from state order by id desc limit 1`)
 
 	if row.Scan(&id, &rewind, &message) != nil {
@@ -287,8 +288,8 @@ func openDatabase() *sql.DB {
 
 	sqlDB, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
-		log.Fatal(err)
 		defer sqlDB.Close()
+		log.Fatal(err)
 	}
 
 	sqlStmt := `
