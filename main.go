@@ -19,18 +19,17 @@ hypsi %s
 
 usage: hypsi [ <file> | <args> ]
 
-
    <file>		To set the desktop wallpaper of your focused monitor, simply provide the absolute path to your desired image file.
 
-				^ download the image file, when given a web link
+			^ download the image file, when given a web link
 
 * alternatively by sending <args>, you can:
 
    -json		Show the current configuration in JSON format
 
-   -rewind		rewind to previously set wallpaper
+   -rewind <N>	rewind to a previously set wallpaper, <N> (default: 1)
    
-   -mode		set the hyprpaper display mode (cover, contain, ...) on your focused monitor
+   -mode <mode>	set the hyprpaper <mode> (default: cover), of your focused monitor
 
    -webview		open with webkitgtk
 `
