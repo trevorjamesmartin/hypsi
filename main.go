@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -36,27 +35,11 @@ alternatively by sending <args>, you can:
 var HYPSI_STATE AppState
 
 func main() {
-	var port string
 	var watcher Publisher
 
 	var factory StateFactory
 
 	HYPSI_STATE = factory.Create()
-
-	port = os.Getenv("PORT")
-
-	if len(port) == 0 {
-		port = "3000"
-	}
-
-	iPort, _ := strconv.Atoi(port)
-
-	// interrupt if running already
-	_, _err := http.Get(fmt.Sprintf("http://localhost:%d/interrupt", iPort))
-
-	if _err != nil {
-		// probably not running
-	}
 
 	HYPSI_STATE.Load()
 

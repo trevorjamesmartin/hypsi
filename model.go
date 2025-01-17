@@ -19,16 +19,35 @@ import (
 type StateFactory struct{}
 
 func (sf *StateFactory) Create() AppState {
-	var path string
+	var path, port string
 	var exists bool
 	// initialize application state
 	has := HypsiAppState{}
 	has.SetRewind(0)
+
+	// store path
 	path, exists = os.LookupEnv("HYPSI_PATH")
 	if !exists {
 		path = fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
 	}
 	has.SetStorePath(path)
+
+	// port
+	port, exists = os.LookupEnv("PORT")
+	if !exists {
+		port = "3000"
+	}
+
+	if _, err := strconv.Atoi(port); err != nil {
+		fmt.Printf("PORT: (%s)", port)
+		log.Fatal(err)
+	}
+
+	has.SetPort(port)
+
+	// interrupt if running already
+	http.Get(fmt.Sprintf("http://localhost:%s/interrupt", port))
+
 	return &has
 }
 
@@ -44,12 +63,24 @@ type AppState interface {
 
 	GetStorePath() string
 	SetStorePath(string)
+
+	SetPort(string)
+	GetPort() string
 }
 
 type HypsiAppState struct {
 	Rewind    int    `json:"rewind"`
 	Message   string `json:"message,omitempty"`
 	StorePath string `json:""`
+	Port      string `json:""`
+}
+
+func (has *HypsiAppState) SetPort(value string) {
+	has.Port = value
+}
+
+func (has *HypsiAppState) GetPort() string {
+	return has.Port
 }
 
 func (has *HypsiAppState) GetStorePath() string {

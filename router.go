@@ -18,19 +18,11 @@ import (
 var WEBFOLDER embed.FS
 
 func newFile(fname string) (*os.File, error) {
-	// todo: configure this for customization
-	folderName := "wallpaper"
-	return os.Create(filepath.Join(fmt.Sprintf("%s/%s", os.Getenv("HOME"), folderName), fname))
+	return os.Create(filepath.Join(HYPSI_STATE.GetStorePath(), fname))
 }
 
 func api() {
-	var port string
-	port = os.Getenv("PORT")
-	if len(port) == 0 {
-		port = "3000"
-	}
-
-	serverAddress := fmt.Sprintf("0.0.0.0:%s", port)
+	serverAddress := fmt.Sprintf("0.0.0.0:%s", HYPSI_STATE.GetPort())
 
 	mux := http.NewServeMux()
 	page := webInit()
@@ -119,14 +111,11 @@ func api() {
 			fmt.Println(err)
 		}
 
-		ext := filepath.Ext(handler.Filename)
-		fname := fmt.Sprintf("%x%s", bs, ext)
-
 		// convert unsupported file types
-		switch filepath.Ext(fname) {
+		switch filepath.Ext(handler.Filename) {
 		case ".heic", ".heif":
 			// write 2 files
-			originalFile, err := newFile(fname)
+			originalFile, err := newFile(handler.Filename)
 			filename = fmt.Sprintf("%s.jpg", originalFile.Name())
 
 			if err != nil {
@@ -148,7 +137,7 @@ func api() {
 			}
 
 		default:
-			tempFile, err := newFile(fname)
+			tempFile, err := newFile(handler.Filename)
 			if err != nil {
 				log.Fatal(err)
 			}
