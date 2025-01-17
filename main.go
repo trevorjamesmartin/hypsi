@@ -27,9 +27,9 @@ usage: hypsi [ <file> | <args> ]
 
    -json		Show the current configuration in JSON format
 
-   -rewind <N>	rewind to a previously set wallpaper, <N> (default: 1)
+   -rewind <N>		rewind to a previously set wallpaper, <N> (default: 1)
    
-   -mode <mode>	set the hyprpaper <mode> (default: cover), of your focused monitor
+   -mode <mode>		set the hyprpaper <mode> (default: cover), of your focused monitor
 
    -webview		open with webkitgtk
 `
