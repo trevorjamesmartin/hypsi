@@ -54,18 +54,16 @@ func (sf *StateFactory) Create() AppState {
 type AppState interface {
 	GetRewind() int
 	GetMessage() string
+	GetStorePath() string
+	GetPort() string
 
 	SetRewind(int)
 	SetMessage(string)
+	SetStorePath(string)
+	SetPort(string)
 
 	Load()
 	Save()
-
-	GetStorePath() string
-	SetStorePath(string)
-
-	SetPort(string)
-	GetPort() string
 }
 
 type HypsiAppState struct {
