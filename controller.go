@@ -80,6 +80,7 @@ func readFromCLI(argsWithoutProg []string) {
 			unloadWallpaper(prevImage)
 			preloadWallpaper(nextImage)
 			setWallpaper(nextImage, monitor)
+			HYPSI_STATE.SetRewind(0)
 			writeConfig(true)
 		}
 	}
@@ -104,6 +105,7 @@ func readFromWeb(monitor, filename string) {
 			unloadWallpaper(prevImage)
 			preloadWallpaper(nextImage)
 			setWallpaper(nextImage, monitor)
+			HYPSI_STATE.SetRewind(0)
 			writeConfig(true)
 		}
 	}
