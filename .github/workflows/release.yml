@@ -17,6 +17,7 @@ permissions:
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    environment: hypsi
     steps:
       - name: Checkout
         uses: actions/checkout@v4
