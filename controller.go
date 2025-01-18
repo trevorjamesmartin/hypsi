@@ -13,7 +13,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -473,13 +472,6 @@ func hyprCtlVersion() (HyprCtlVersion, error) {
 	return hyprCtlVersiion, nil
 }
 
-func fileExtensionFromURL(validURL string) string {
-	u, _ := url.Parse(validURL)
-	_, fname := filepath.Split(u.Path)
-	arr := strings.Split(fname, ".")
-	return arr[len(arr)-1]
-}
-
 func downloadImage(validURL string) {
 	resp, err := http.Get(validURL)
 
@@ -487,7 +479,7 @@ func downloadImage(validURL string) {
 		log.Fatal(err)
 	}
 
-	ext := fileExtensionFromURL(validURL)
+	ext := filepath.Ext(validURL)
 
 	defer resp.Body.Close()
 	fileBytes, err := io.ReadAll(resp.Body)
