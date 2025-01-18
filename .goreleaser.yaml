@@ -40,7 +40,7 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
-      - "^nix"
+      - "^nix:"
 
 release:
   footer: >-
