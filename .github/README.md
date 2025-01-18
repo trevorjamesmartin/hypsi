@@ -1,9 +1,8 @@
 # hypsi
 
-a simple [hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/)
-management tool, written in Go
+a simple [hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) management tool with a highly customizable [GUI](#templating)
 
-with optional webview interface
+![](./assets/hypsi-webview.jpg)
 
 This program started as a script to manage my desktop wallpaper between sway and
 hyprland. When I first started using [Hyprland](https://www.hyprland.org/), I
@@ -35,12 +34,11 @@ If you have rofi istalled, try running
 
 ![rofi integration](./assets/rofi-integration.jpg)
 
-Now this little Go app provides a few additional crossover features for web devs
-to play with
+Now this little Go app provides a few additional crossover features for web devs to play with
 
 - `hypsi -json` to show your hyprpaper configuration in simple JSON format
-- `hypsi -rewind` reset to previous image(s)
-- `hypsi -webview` open the optional webview interface
+- `hypsi -rewind <index> `0 is your most recent change, hypsi keeps track
+- `hypsi -webview` open the optional webview interface (GUI)
 
 ![screenshot 3](./assets/screenshot3.jpg) your changes are automatically saved,
 rollback to a previously set wallpaper ![screenshot 2](./assets/screenshot2.jpg)
