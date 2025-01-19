@@ -30,7 +30,7 @@ jobs:
       # It all depends on your needs.
       - name: Install Dependencies
         run:  
-          sudo apt update
+          sudo apt update &&
           sudo apt install libgtk3-dev libheif-dev libwebkit2gtk-4.1-dev
       
       - name: Run GoReleaser
