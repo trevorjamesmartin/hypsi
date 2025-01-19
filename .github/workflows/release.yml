@@ -31,7 +31,7 @@ jobs:
       - name: Install Dependencies
         run:  
           sudo apt update &&
-          sudo apt install libgtk-3-dev libheif-dev webkit2gtk
+          sudo apt install libgtk-3-dev libheif-dev libwebkitgtk-dev
       
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
