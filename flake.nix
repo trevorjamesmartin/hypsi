@@ -4,17 +4,24 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     flake-compat.url = "github:edolstra/flake-compat";
+    systems.url = "github:nix-systems/default";
   };
 
   outputs = {
     self,
+    systems,
     nixpkgs,
     ...
   }: let
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${system};
+      eachSystem = nixpkgs.lib.genAttrs (import systems);
   in {
-    packages.${system}.default = pkgs.callPackage ./nix/package.nix {};
-    devShells.${system}.default = pkgs.callPackage ./nix/shell.nix {};
+    packages = eachSystem (system: {
+      default = nixpkgs.legacyPackages.${system}.callPackage ./nix/package.nix {};
+    });
+
+    devShells = eachSystem (system: {
+      default = nixpkgs.legacyPackages.${system}.callPackage ./nix/shell.nix {};
+    });
+
   };
 }
