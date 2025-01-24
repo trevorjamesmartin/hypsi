@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const VERSION = "1.2"
+const VERSION = "1.0.1"
 
 const MESSAGE = `
 hypsi %s
