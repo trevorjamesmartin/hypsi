@@ -4,6 +4,7 @@
   pkg-config,
   pcre2,
   webkitgtk,
+  webkitgtk_4_1,
   gtk3,
   wrapGAppsHook3,
   gobject-introspection,
@@ -21,13 +22,14 @@ in
       name = "${pname}-${version}";
     };
 
-    # vendorHash = "sha256-+ZmXuL1mo6tcdvJ1dRifga9FkY6B6q7il9ZqqQLbrGg=";
-    vendorHash = "sha256-MwLksZIT227HMIRr/MTyGbSrHSF0Ko5bX+anbWycHHE=";
+    #vendorHash = "sha256-+ZmXuL1mo6tcdvJ1dRifga9FkY6B6q7il9ZqqQLbrGg=";
+    vendorHash = "sha256-z3GnG9Oh4z76VC9D+dWS20ex7VafaAkKutSFPaMOhv8=";
     strictDeps = true;
     nativeBuildInputs = [pkg-config];
     buildInputs = [
       pcre2
       webkitgtk
+      webkitgtk_4_1
       gtk3
       wrapGAppsHook3
       gobject-introspection

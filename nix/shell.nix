@@ -11,6 +11,7 @@
   golint,
   pcre2,
   webkitgtk,
+  webkitgtk_4_1,
   gtk3,
   glib-networking,
   gsettings-desktop-schemas,
@@ -32,6 +33,7 @@ mkShell {
     golint
     pcre2
     webkitgtk
+    webkitgtk_4_1
     gtk3
     glib-networking # tls/ssl
     gsettings-desktop-schemas # viewport, fonts
