@@ -1,6 +1,6 @@
 Name:       hypsi
-Version:    1.0.1
-Release:    2%{?dist}
+Version:    1.0.2
+Release:    1%{?dist}
 Summary:    A hyprpaper management tool
 
 License:    BSD-3-Clause
@@ -8,12 +8,12 @@ Source0:    %{name}-%{version}.tar.gz
 
 BuildRequires: golang >= 1.22
 BuildRequires: libheif-devel >= 1.16
-BuildRequires: webkit2gtk4.0-devel >= 2.45
+BuildRequires: webkit2gtk4.1-devel
 BuildRequires: git
 BuildRequires: gcc-c++
 
 Requires: libheif-devel >= 1.16
-Requires: webkit2gtk4.0-devel
+Requires: webkit2gtk4.1-devel
 
 Provides: %{name} = %{version}
 
@@ -37,6 +37,8 @@ install -Dpm 0755 %{name} %{buildroot}%{_bindir}/%{name}
 %{_bindir}/%{name}
 
 %changelog
+* Wed Jan 29 2025 Trevor Martin - 1.0.2
+- Now building with webkit2gtk4.1
 * Thu Jan 23 2025 Trevor Martin - 1.0.1
 - First release%changelog
 

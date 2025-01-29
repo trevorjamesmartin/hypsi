@@ -6,7 +6,9 @@ import (
 	"log"
 	"os"
 
-	webview "github.com/webview/webview_go"
+	//webview "github.com/webview/webview_go"
+	// ^ waiting for version bump to webkit2gtk-4.1
+	webview "github.com/trevorjamesmartin/webview_go" // testing solution
 )
 
 func jsonText() string {
