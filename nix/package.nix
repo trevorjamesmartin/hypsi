@@ -3,7 +3,6 @@
   buildGoModule,
   pkg-config,
   pcre2,
-  webkitgtk,
   webkitgtk_4_1,
   gtk3,
   wrapGAppsHook3,
@@ -11,7 +10,7 @@
   libheif,
 }: let
   pname = "hypsi";
-  version = "1.2";
+  version = "1.0.2";
 in
   buildGoModule {
     inherit pname version;
@@ -28,7 +27,6 @@ in
     nativeBuildInputs = [pkg-config];
     buildInputs = [
       pcre2
-      webkitgtk
       webkitgtk_4_1
       gtk3
       wrapGAppsHook3

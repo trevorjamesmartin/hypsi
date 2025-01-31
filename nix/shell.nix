@@ -10,7 +10,6 @@
   godef,
   golint,
   pcre2,
-  webkitgtk,
   webkitgtk_4_1,
   gtk3,
   glib-networking,
@@ -32,7 +31,6 @@ mkShell {
     godef
     golint
     pcre2
-    webkitgtk
     webkitgtk_4_1
     gtk3
     glib-networking # tls/ssl
