@@ -37,7 +37,7 @@ install -Dpm 0755 %{name} %{buildroot}%{_bindir}/%{name}
 %{_bindir}/%{name}
 
 %changelog
-* Sat Fet 01 2025 Trevor Martin - 1.0.3
+* Sat Feb 01 2025 Trevor Martin - 1.0.3
 - breaking; storage honors XDG folder spec
 * Wed Jan 29 2025 Trevor Martin - 1.0.2
 - Now building with webkit2gtk4.1
