@@ -1,6 +1,6 @@
 Name:       hypsi
-Version:    1.0.2
-Release:    2%{?dist}
+Version:    1.0.3
+Release:    0%{?dist}
 Summary:    A hyprpaper management tool
 
 License:    BSD-3-Clause
@@ -37,6 +37,8 @@ install -Dpm 0755 %{name} %{buildroot}%{_bindir}/%{name}
 %{_bindir}/%{name}
 
 %changelog
+* Sat Fet 01 2025 Trevor Martin - 1.0.3
+- breaking; storage honors XDG folder spec
 * Wed Jan 29 2025 Trevor Martin - 1.0.2
 - Now building with webkit2gtk4.1
 * Thu Jan 23 2025 Trevor Martin - 1.0.1
