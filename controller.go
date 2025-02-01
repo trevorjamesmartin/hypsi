@@ -19,8 +19,29 @@ import (
 	"strings"
 
 	"github.com/MaestroError/go-libheif"
+	"github.com/adrg/xdg"
 	"github.com/trevorjamesmartin/resize"
 )
+
+func getContentType(fname string) (string, error) {
+	var contentType string
+
+	file, err := os.Open(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	buf := make([]byte, 512)
+
+	_, err = file.Read(buf)
+
+	if err != nil {
+		return contentType, err
+	}
+	contentType = http.DetectContentType(buf)
+	return contentType, nil
+}
 
 func readFromCLI(argsWithoutProg []string) {
 	// mode ?
@@ -33,11 +54,20 @@ func readFromCLI(argsWithoutProg []string) {
 		fname = argsWithoutProg[0]
 	}
 
-	// path to wallpaper ?
 	_, err := os.Stat(fname)
 	if os.IsNotExist(err) {
 		fmt.Printf("not a valid background image: [ %s ]", fname)
 	} else {
+		fname, _ = filepath.Abs(fname)
+
+		contentType, err := getContentType(fname)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(contentType)
+
 		activeplanes, err := listActive()
 
 		if err != nil {
@@ -62,7 +92,11 @@ func readFromCLI(argsWithoutProg []string) {
 		case ".bmp":
 			log.Fatal("Unsupported file type")
 		default:
-			nextImage = fname
+			if strings.HasPrefix(contentType, "image") {
+				nextImage = fname
+			} else {
+				log.Fatalf("Unsupported mime type %v\n", contentType)
+			}
 		}
 
 		monitor := activeMonitor()
@@ -314,9 +348,7 @@ func setWallpaperMode(monitor, mode string) {
 }
 
 func writeConfig(historical bool) {
-	base := os.Getenv("HOME")
-
-	configfile := fmt.Sprintf("%s/.config/hypr/hyprpaper.conf", base)
+	configfile := fmt.Sprintf("%s/hypr/hyprpaper.conf", xdg.ConfigHome)
 
 	// remove old file if it exists
 	if errRemoving := os.Remove(configfile); errRemoving != nil {
@@ -498,15 +530,13 @@ func downloadImage(validURL string) {
 	fmt.Println("Status Code: ", resp.StatusCode)
 	fmt.Println("Content Length: ", resp.ContentLength)
 
-	tempFolder := fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
-
 	fname := fmt.Sprintf("%x", bs)
 
 	if len(ext) > 0 {
 		fname += fmt.Sprintf(".%s", ext)
 	}
 
-	if tempFile, err := os.Create(filepath.Join(tempFolder, fname)); err != nil {
+	if tempFile, err := os.Create(filepath.Join(HYPSI_STATE.GetStorePath(), fname)); err != nil {
 		log.Fatal(err)
 	} else {
 		filename := tempFile.Name()

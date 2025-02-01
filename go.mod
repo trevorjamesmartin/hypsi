@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/adrg/xdg v0.5.3 // indirect
 	github.com/strukturag/libheif v1.16.2 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.26.0 // indirect
 )

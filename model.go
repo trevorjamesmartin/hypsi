@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/adrg/xdg"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -28,7 +29,7 @@ func (sf *StateFactory) Create() AppState {
 	// store path
 	path, exists = os.LookupEnv("HYPSI_PATH")
 	if !exists {
-		path = fmt.Sprintf("%s/wallpaper", os.Getenv("HOME"))
+		path = fmt.Sprintf("%s/hypsi", xdg.DataHome)
 	}
 	has.SetStorePath(path)
 
@@ -245,7 +246,7 @@ func (p *Plane) ToBase64() (string, error) {
 func (p *Plane) Thumb64() (string, error) {
 	fileName := filepath.Base(p.Paper)
 	thumbFile := fmt.Sprintf("thumb__%s", fileName)
-	thumbPath := filepath.Join(os.Getenv("HOME"), "wallpaper", thumbFile)
+	thumbPath := filepath.Join(HYPSI_STATE.GetStorePath(), thumbFile)
 
 	if _, err := os.Stat(thumbPath); os.IsNotExist(err) {
 		makeThumbNail(p.Paper, thumbPath)
