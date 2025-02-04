@@ -21,6 +21,7 @@ import (
 	"github.com/MaestroError/go-libheif"
 	"github.com/adrg/xdg"
 	"github.com/trevorjamesmartin/resize"
+	"golang.org/x/image/webp"
 )
 
 func getContentType(fname string) (string, error) {
@@ -449,6 +450,11 @@ func makeThumbNail(inputPath, thumb string) {
 		}
 	case ".gif":
 		img, err = gif.Decode(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case ".webp":
+		img, err = webp.Decode(file)
 		if err != nil {
 			log.Fatal(err)
 		}
