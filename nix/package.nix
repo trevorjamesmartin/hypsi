@@ -10,7 +10,7 @@
   libheif,
 }: let
   pname = "hypsi";
-  version = "1.0.3";
+  version = "1.0.4";
 in
   buildGoModule {
     inherit pname version;
@@ -21,7 +21,7 @@ in
       name = "${pname}-${version}";
     };
 
-    vendorHash = "sha256-45+pCxtcQmir/ZFtdpyQNsGUuSSJGsco8gJZWwv/V34=";
+    vendorHash = "sha256-yJaBmFTiQ/b78XaMtKL652Xp2bDHJwViW2yboN/HV8U=";
     strictDeps = true;
     nativeBuildInputs = [pkg-config];
     buildInputs = [

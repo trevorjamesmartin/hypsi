@@ -1,5 +1,5 @@
 Name:       hypsi
-Version:    1.0.3
+Version:    1.0.4
 Release:    0%{?dist}
 Summary:    A hyprpaper management tool
 
@@ -37,6 +37,8 @@ install -Dpm 0755 %{name} %{buildroot}%{_bindir}/%{name}
 %{_bindir}/%{name}
 
 %changelog
+* Tue Feb 04 2025 Trevor Martin - 1.0.4
+- added webp decoder for thumbnails
 * Sat Feb 01 2025 Trevor Martin - 1.0.3
 - breaking; storage honors XDG folder spec
 * Wed Jan 29 2025 Trevor Martin - 1.0.2
