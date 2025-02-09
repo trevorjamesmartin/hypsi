@@ -1,0 +1,20 @@
+[Desktop Entry]
+Type=Application
+Name=hypsi
+Comment=a simple hyprpaper management tool
+Exec=/usr/bin/hypsi -webview
+Icon=/usr/share/hypr/wall0.png
+Terminal=false
+Type=Application
+Categories=Graphics;Utility;
+StartupNotify=true
+NoDisplay=false
+Actions=OpenNewWindow;OpenExistingFile;
+
+[Desktop Action OpenNewWindow]
+Name=Open New Window
+Exec=/usr/bin/hypsi -webview
+
+[Desktop Action OpenExistingFile]
+Name=Open Existing File
+Exec=/usr/bin/hypsi %f
