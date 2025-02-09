@@ -23,18 +23,8 @@ you can
 
 - `hypsi "/path/to/Your Wallpaper Image.jpg"` set your wallpaper from the command line and
   have it persist
-- `echo %f | xargs -I {} hypsi "{}"` create a custom action in Thunar (enabling you to right-click an
-  image > Set Hyprpaper)
 
-![thunar custom action](./assets/thunar-custom-action.jpg)
-
-If you have rofi istalled, try running
-
-- `PREVIEW=true rofi -mode filebrowser -show filebrowser|xargs -I {} hypsi "{}"` from a folder containing images
-
-![rofi integration](./assets/rofi-integration.jpg)
-
-Now this little Go app provides a few additional crossover features for web devs to play with
+a few additional crossover features for web devs to play with
 
 - `hypsi -json` to show your hyprpaper configuration in simple JSON format
 - `hypsi -rewind <index> `0 is your most recent change, hypsi keeps track
