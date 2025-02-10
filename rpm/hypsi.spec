@@ -38,6 +38,8 @@ install -Dpm 0644 rpm/hypsi.desktop %{buildroot}%{_datadir}/applications/hypsi.d
 %{_datadir}/applications/hypsi.desktop
 
 %changelog
+* Sun Feb 10 2025 Trevor Martin - 1.0.4-2
+- fixed open-with .desktop item
 * Sun Feb 09 2025 Trevor Martin - 1.0.4-1
 - launch webview from menu
 * Tue Feb 04 2025 Trevor Martin - 1.0.4
