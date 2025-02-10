@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"time"
 )
@@ -78,8 +77,15 @@ func main() {
 	args := os.Args[1:]
 
 	if len(args) > 0 {
-
+		// nextCommand := args[0]
 		switch args[0] {
+		case "-webview":
+			if len(args) > 1 {
+				readInput(args[1:])
+			}
+			go api()
+			gtkView(watcher)
+
 		case "-json":
 			fmt.Print(jsonText())
 
@@ -95,9 +101,7 @@ func main() {
 				rewind(1)
 			}
 
-		case "-webview":
-			go api()
-			gtkView(watcher)
+
 
 		case "-mode":
 			if len(args) < 2 {
@@ -143,12 +147,7 @@ func main() {
 			gtkView(watcher)
 
 		default:
-			onWeb, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", args[0])
-			if onWeb {
-				downloadImage(args[0])
-			} else {
-				readFromCLI(args)
-			}
+			readInput(args)
 		}
 
 	} else {

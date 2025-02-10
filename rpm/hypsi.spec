@@ -1,11 +1,10 @@
 Name:       hypsi
 Version:    1.0.4
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    A hyprpaper management tool
 
 License:    BSD-3-Clause
 Source0:    %{name}-%{version}.tar.gz
-
 BuildRequires: golang >= 1.22
 BuildRequires: libheif-devel >= 1.16
 BuildRequires: webkit2gtk4.1-devel
@@ -32,7 +31,7 @@ go build -v -o %{name}
 
 %install
 install -Dpm 0755 %{name} %{buildroot}%{_bindir}/%{name}
-install -Dpm 0644 xdg/hypsi.desktop %{buildroot}%{_datadir}/applications/hypsi.desktop
+install -Dpm 0644 rpm/hypsi.desktop %{buildroot}%{_datadir}/applications/hypsi.desktop
 
 %files
 %{_bindir}/%{name}

@@ -17,12 +17,22 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"regexp"
 
 	"github.com/MaestroError/go-libheif"
 	"github.com/adrg/xdg"
 	"github.com/trevorjamesmartin/resize"
 	"golang.org/x/image/webp"
 )
+
+func readInput(args []string) {
+	onWeb, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", args[0])
+	if onWeb {
+		downloadImage(args[0])
+	} else {
+		readFromCLI(args)
+	}
+}
 
 func getContentType(fname string) (string, error) {
 	var contentType string
