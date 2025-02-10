@@ -1,5 +1,6 @@
 {
   lib,
+  makeDesktopItem,
   buildGoModule,
   pkg-config,
   pcre2,
@@ -9,8 +10,18 @@
   gobject-introspection,
   libheif,
 }: let
-  pname = "hypsi";
-  version = "1.0.4";
+  pname = "hypsi"; # program
+  mname = "Hypsi"; # menu
+  version = "1.0.4-1";
+  desktopItem = makeDesktopItem {
+      name = "${pname}";
+      comment = "a simple hyprpaper management tool";
+      exec = "${pname} -webview";
+      icon = "/run/current-system/sw/share/hypr/wall0.png";
+      desktopName = "${mname}";
+      genericName = "Hyprpaper Management";
+      categories = [ "Graphics" "Utility" ];
+  };
 in
   buildGoModule {
     inherit pname version;
@@ -38,6 +49,16 @@ in
       for f in $(find $out/bin/ -type f -executable); do
         wrapGApp $f
       done
+      mkdir -p "$out/share/applications"
+    '';
+
+    # TODO: create & install an icon file
+    # install -Dm444 -T icon.png $out/share/hicolor/512/hypsi
+    # mkdir -p "$out/share/icons/hicolor/128x128/apps";
+    # cp $src/xdg/icon.png "$out/share/icons/hicolor/128x128/apps/hypsi"
+    postInstall = ''
+      mkdir -p "$out/share/applications";
+      ln -s "${desktopItem}"/share/applications/* "$out/share/applications/";
     '';
 
     meta = {
