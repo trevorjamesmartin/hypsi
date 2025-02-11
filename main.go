@@ -75,7 +75,6 @@ func main() {
 	}()
 
 	args := os.Args[1:]
-	args = append(args, "-webview")
 
 	if len(args) > 0 {
 		// nextCommand := args[0]
