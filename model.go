@@ -214,9 +214,9 @@ func (hm *HyprMonitor) UnMarshallJSON(data []byte) error {
 }
 
 type Plane struct {
-	Monitor string `json:",omitempty"`
-	Paper   string `json:",omitempty"`
-	Mode    string `json:"Mode,omitempty"`
+	Monitor string `json:"Monitor"`
+	Paper   string `json:"Paper"`
+	Mode    string `json:"Mode"`
 }
 
 func (p Plane) MarshallJSON() ([]byte, error) {
@@ -302,6 +302,11 @@ func openDatabase() *sql.DB {
 	create table if not exists localstorage (
 	id integer not null primary key,
 	data jsonb);
+	create table if not exists modesetting (
+	id integer not null primary key,
+	fname text,
+	monitor text,
+	setting text);
 	`
 	_, err = sqlDB.Exec(sqlStmt)
 	if err != nil {
@@ -309,6 +314,42 @@ func openDatabase() *sql.DB {
 	}
 
 	return sqlDB
+}
+
+func getModeSetting(monitor, fname string) string {
+	sqlData := openDatabase()
+	defer sqlData.Close()
+	var setting string
+	row := sqlData.QueryRow(fmt.Sprintf(`SELECT setting FROM modesetting WHERE monitor=="%s" and fname=="%s" ORDER by id DESC LIMIT 1;`, monitor, fname))
+	err := row.Scan(&setting)
+
+	if err != nil {
+		// use default setting
+		setting = "cover"
+	}
+
+	return setting
+}
+
+func setModeSetting(monitor, fname, setting string) {
+	var id int
+	sqlData := openDatabase()
+	defer sqlData.Close()
+
+	row := sqlData.QueryRow(`select id from modesetting order by id desc limit 1`)
+
+	err := row.Scan(&id)
+
+	if err != nil {
+		id = -1
+	}
+
+	stmt := fmt.Sprintf(`INSERT into modesetting(id, monitor, fname, setting) values(%d, '%s', '%s', '%s');`, id+1, monitor, fname, setting)
+	_, err = sqlData.Exec(stmt)
+
+	if err != nil {
+		fmt.Printf("%q: %s\n", err, stmt)
+	}
 }
 
 func writeHistory() {

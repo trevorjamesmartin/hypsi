@@ -16,8 +16,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"regexp"
+	"strings"
 
 	"github.com/MaestroError/go-libheif"
 	"github.com/adrg/xdg"
@@ -124,7 +124,9 @@ func readFromCLI(argsWithoutProg []string) {
 		if prevImage != nextImage {
 			unloadWallpaper(prevImage)
 			preloadWallpaper(nextImage)
-			setWallpaper(nextImage, monitor)
+			fname := filepath.Base(nextImage)
+			mode := getModeSetting(monitor, fname)
+			setWallpaper(nextImage, monitor, mode)
 			HYPSI_STATE.SetRewind(0)
 			writeConfig(true)
 		}
@@ -149,7 +151,9 @@ func readFromWeb(monitor, filename string) {
 		if prevImage != nextImage {
 			unloadWallpaper(prevImage)
 			preloadWallpaper(nextImage)
-			setWallpaper(nextImage, monitor)
+			fname := filepath.Base(nextImage)
+			mode := getModeSetting(monitor, fname)
+			setWallpaper(nextImage, monitor, mode)
 			HYPSI_STATE.SetRewind(0)
 			writeConfig(true)
 		}
@@ -199,6 +203,8 @@ func listMonitors() ([]*HyprMonitor, error) {
 
 func listActive() ([]*Plane, error) {
 	cmd := exec.Command("hyprctl", "hyprpaper", "listactive")
+	// note: "mode" setting is not displayed by this command
+
 	stdout, err := cmd.StdoutPipe()
 
 	if err != nil {
@@ -302,10 +308,20 @@ func preloadWallpaper(image string) {
 
 // setWallpaper Function
 // $ hyprctrl hyprpaper wallpaper {monitor},{image}
-func setWallpaper(image, monitor string) {
-	fmt.Printf("set wallpaper: %s,%s\n", monitor, image)
+func setWallpaper(image, monitor, mode string) {
+	var cmd *exec.Cmd
 
-	cmd := exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s", monitor, image))
+	switch mode {
+	case "cover", "":
+		// "monitor,image"
+		fmt.Printf("set wallpaper: %s,%s\n", monitor, image)
+		cmd = exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s", monitor, image))
+	default:
+		// monitor,mode:image
+		fmt.Printf("set wallpaper: %s,%s:%s\n", monitor, mode, image)
+		cmd = exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s:%s\n", monitor, mode, image))
+	}
+
 	stdout, err := cmd.StdoutPipe()
 
 	if err != nil {
@@ -333,6 +349,24 @@ func setWallpaper(image, monitor string) {
 
 }
 
+func monitorFilename(monitor string) string {
+	var fname string
+	monitors, err := listActive()
+
+	if err != nil {
+		return err.Error()
+	}
+
+	for _, p := range monitors {
+		if p.Monitor == monitor {
+			fname = filepath.Base(p.Paper)
+			break
+		}
+	}
+
+	return fname
+}
+
 func setWallpaperMode(monitor, mode string) {
 	monitors, err := listActive()
 
@@ -343,16 +377,15 @@ func setWallpaperMode(monitor, mode string) {
 
 	for _, p := range monitors {
 		if p.Monitor == monitor && p.Mode != mode {
-			unloadWallpaper(p.Paper)
-
-			preloadWallpaper(p.Paper)
-			if mode == "cover" {
-				// default mode
-				setWallpaper(p.Paper, p.Monitor)
-			} else {
-				setWallpaper(fmt.Sprintf("%s:%s", mode, p.Paper), p.Monitor)
+			// save the mode adjustment
+			fname := filepath.Base(p.Paper)
+			if getModeSetting(monitor, fname) != mode {
+				unloadWallpaper(p.Paper)
+				preloadWallpaper(p.Paper)
+				setModeSetting(p.Monitor, fname, mode)
+				// update wallpaper
+				setWallpaper(p.Paper, p.Monitor, mode)
 			}
-
 			break
 		}
 	}
@@ -409,7 +442,9 @@ func rewind(n int) (bool, int) {
 
 	for _, v := range target.unfold() {
 		preloadWallpaper(v.Paper)
-		setWallpaper(v.Paper, v.Monitor)
+		fname := filepath.Base(v.Paper)
+		mode := getModeSetting(v.Monitor, fname)
+		setWallpaper(v.Paper, v.Monitor, mode)
 		// note, the config file isn't being written here
 	}
 	return true, len(past)

@@ -352,9 +352,20 @@
 				<script type="text/javascript">
 					document.addEventListener("DOMContentLoaded", () => {
 						document.querySelector("#form_{{.Name}} > #mode").addEventListener("change", (event) => {
-							if (event.target.value != "0") {
+							const mode = event.target.value;
+							const monitor = "{{.Name}}";
+							console.log(monitor, mode);
+							if (mode != "0") {
 								console.log(event.target);
-								SetWallpaperMode("{{.Name}}", event.target.value);
+								// monitor, mode
+								SetWallpaperMode(monitor, mode);
+								// filename
+								MonitorFileName(monitor).then((fname) => {
+									modeCache = JSON.parse(localStorage.getItem("modes")) || {};
+									modeCache[fname] = mode;
+									localStorage.setItem("modes", JSON.stringify(modeCache));
+									persistLocalStorage();
+								});
 								event.target.selectedIndex = 0;
 								event.target.blur();
 							}

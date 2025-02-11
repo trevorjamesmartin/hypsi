@@ -75,6 +75,7 @@ func main() {
 	}()
 
 	args := os.Args[1:]
+	args = append(args, "-webview")
 
 	if len(args) > 0 {
 		// nextCommand := args[0]
@@ -100,8 +101,6 @@ func main() {
 			} else {
 				rewind(1)
 			}
-
-
 
 		case "-mode":
 			if len(args) < 2 {

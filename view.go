@@ -40,10 +40,11 @@ func configText() string {
 	}
 
 	for _, p := range activeplanes {
-		if p.Mode == "cover" || p.Mode == "" {
-			text += fmt.Sprintf("wallpaper = %s,%s\n", p.Monitor, p.Paper)
-		} else {
+		switch p.Mode {
+		case "contain":
 			text += fmt.Sprintf("wallpaper = %s:%s,%s\n", p.Mode, p.Paper, p.Monitor)
+		default:
+			text += fmt.Sprintf("wallpaper = %s,%s\n", p.Monitor, p.Paper)
 		}
 	}
 	text += "splash = false\n"
@@ -152,6 +153,11 @@ func gtkView(pub Publisher) {
 	})
 
 	w.Bind("SetWallpaperMode", setWallpaperMode)
+
+	w.Bind("MonitorFileName", monitorFilename) // returns filename (string)
+
+	w.Bind("GetModeSetting", getModeSetting) // returns mode (string)
+	//	w.Bind("SetModeSetting", setModeSetting) // db storage
 
 	w.Bind("RollBack", func(n int) eventResp {
 
