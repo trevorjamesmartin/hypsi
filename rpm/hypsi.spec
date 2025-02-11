@@ -1,6 +1,6 @@
 Name:       hypsi
 Version:    1.0.4
-Release:    2%{?dist}
+Release:    3%{?dist}
 Summary:    A hyprpaper management tool
 
 License:    BSD-3-Clause
@@ -38,6 +38,8 @@ install -Dpm 0644 rpm/hypsi.desktop %{buildroot}%{_datadir}/applications/hypsi.d
 %{_datadir}/applications/hypsi.desktop
 
 %changelog
+* Mon Feb 10 2025 Trevor Martin - 1.0.4-3
+- fixed include mode in config
 * Mon Feb 10 2025 Trevor Martin - 1.0.4-2
 - fixed open-with .desktop item
 * Sun Feb 09 2025 Trevor Martin - 1.0.4-1
