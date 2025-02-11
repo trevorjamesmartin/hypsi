@@ -12,15 +12,16 @@
 }: let
   pname = "hypsi"; # program
   mname = "Hypsi"; # menu
-  version = "1.0.4-1";
+  version = "1.0.4-2";
   desktopItem = makeDesktopItem {
       name = "${pname}";
       comment = "a simple hyprpaper management tool";
-      exec = "${pname} -webview";
-      icon = "/run/current-system/sw/share/hypr/wall0.png";
+      exec = "${pname} -webview %f";
+      icon = "hypsi";
       desktopName = "${mname}";
       genericName = "Hyprpaper Management";
       categories = [ "Graphics" "Utility" ];
+      mimeTypes = ["image/gif" "image/heif" "image/jpeg" "image/png" "image/tiff" "image/x-webp" "image/webp" ];
   };
 in
   buildGoModule {
