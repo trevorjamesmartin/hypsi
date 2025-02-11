@@ -40,7 +40,11 @@ func configText() string {
 	}
 
 	for _, p := range activeplanes {
-		text += fmt.Sprintf("wallpaper = %s,%s\n", p.Monitor, p.Paper)
+		if p.Mode == "cover" || p.Mode == "" {
+			text += fmt.Sprintf("wallpaper = %s,%s\n", p.Monitor, p.Paper)
+		} else {
+			text += fmt.Sprintf("wallpaper = %s:%s,%s\n", p.Mode, p.Paper, p.Monitor)
+		}
 	}
 	text += "splash = false\n"
 	return text
