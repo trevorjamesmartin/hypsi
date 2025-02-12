@@ -12,7 +12,7 @@
 }: let
   pname = "hypsi"; # program
   mname = "Hypsi"; # menu entry / desktop file
-  version = "1.0.4-2";
+  version = "1.0.4-5";
   desktopItem = makeDesktopItem {
       name = "${pname}";
       comment = "a simple hyprpaper management tool";
@@ -61,13 +61,11 @@ in
       mkdir -p "$out/share/applications"
     '';
 
-    # TODO: create & install an icon file
-    # install -Dm444 -T icon.png $out/share/hicolor/512/hypsi
-    # mkdir -p "$out/share/icons/hicolor/128x128/apps";
-    # cp $src/xdg/icon.png "$out/share/icons/hicolor/128x128/apps/hypsi"
     postInstall = ''
       mkdir -p "$out/share/applications";
+      mkdir -p "$out/share/icons/hicolor/512x512/apps"
       ln -s "${desktopItem}"/share/applications/* "$out/share/applications/";
+      install -Dm444 -T rpm/icon.png "$out/share/icons/hicolor/512x512/apps/hypsi.png"
     '';
 
     meta = {

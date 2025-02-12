@@ -1,6 +1,6 @@
 Name:       hypsi
 Version:    1.0.4
-Release:    4%{?dist}
+Release:    5%{?dist}
 Summary:    A hyprpaper management tool
 
 License:    BSD-3-Clause
@@ -40,7 +40,9 @@ install -Dpm 0644 rpm/icon.png %{buildroot}%{_datadir}/icons/hicolor/512x512/app
 %{_datadir}/icons/hicolor/512x512/apps/hypsi.png
 
 %changelog
-* Mon Feb 11 2025 Trevor Martin - 1.0.4-4
+* Wed Feb 12 2025 Trevor Martin - 1.0.4-5
+- test release: install 512x512 icon
+* Tue Feb 11 2025 Trevor Martin - 1.0.4-4
 - test release: modesetting update
 * Mon Feb 10 2025 Trevor Martin - 1.0.4-3
 - fixed include mode in config
