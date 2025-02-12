@@ -32,10 +32,12 @@ go build -v -o %{name}
 %install
 install -Dpm 0755 %{name} %{buildroot}%{_bindir}/%{name}
 install -Dpm 0644 rpm/hypsi.desktop %{buildroot}%{_datadir}/applications/hypsi.desktop
+install -Dpm 0644 rpm/icon.png %{buildroot}%{_datadir}/icons/hicolor/512x512/apps/hypsi.png
 
 %files
 %{_bindir}/%{name}
 %{_datadir}/applications/hypsi.desktop
+%{_datadir}/icons/hicolor/512x512/apps/hypsi.png
 
 %changelog
 * Mon Feb 11 2025 Trevor Martin - 1.0.4-4
