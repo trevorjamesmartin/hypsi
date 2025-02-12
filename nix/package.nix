@@ -11,17 +11,25 @@
   libheif,
 }: let
   pname = "hypsi"; # program
-  mname = "Hypsi"; # menu
+  mname = "Hypsi"; # menu entry / desktop file
   version = "1.0.4-2";
   desktopItem = makeDesktopItem {
       name = "${pname}";
       comment = "a simple hyprpaper management tool";
       exec = "${pname} -webview %f";
       icon = "hypsi";
+      type = "Application";
+      terminal = false;
+      startupNotify = true;
+      noDisplay = false;
       desktopName = "${mname}";
       genericName = "Hyprpaper Management";
       categories = [ "Graphics" "Utility" ];
-      mimeTypes = ["image/gif" "image/heif" "image/jpeg" "image/png" "image/tiff" "image/x-webp" "image/webp" ];
+      mimeTypes = [ "image/heif" "image/jpeg" "image/png" "image/tiff" "image/x-webp" "image/webp" ];
+      actions = {
+        OpenExistingFile = { name = "Open Existing File"; exec = "/usr/bin/hypsi %f"; };
+        OpenNewWindow = { name = "Open New Window"; exec = "/usr/bin/hypsi -webview"; };
+      };
   };
 in
   buildGoModule {

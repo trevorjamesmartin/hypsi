@@ -12,7 +12,8 @@ NoDisplay=false
 DesktopName=Hypsi
 GenericName=Hyperpaper Management
 Actions=OpenNewWindow;OpenExistingFile;
-MimeType=image/gif;image/heif;image/jpeg;image/png;image/tiff;image/x-webp;image/webp;
+MimeType=image/heif;image/jpeg;image/png;image/tiff;image/x-webp;image/webp;
+
 [Desktop Action OpenNewWindow]
 Name=Open New Window
 Exec=/usr/bin/hypsi -webview
