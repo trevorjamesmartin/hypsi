@@ -1,6 +1,6 @@
 Name:       hypsi
 Version:    1.0.4
-Release:    5%{?dist}
+Release:    6%{?dist}
 Summary:    A hyprpaper management tool
 
 License:    BSD-3-Clause
