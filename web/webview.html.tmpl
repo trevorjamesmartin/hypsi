@@ -25,7 +25,7 @@
 				appearance: none;
 				background-origin: content-box;
 				background-repeat: no-repeat;
-				background-size: auto;
+				
 				box-sizing: border-box;
 				padding-right: 1.5em;
 				background-color: black;
@@ -52,8 +52,7 @@
 			width: 640px;
 			height: 360px;
 			margin: 3px;
-			background-color: #303446;
-			background-size: 640px 360px;
+			background-color: black;
 		}
 
 		.monitors {
@@ -213,7 +212,7 @@
 
 					result.monitors?.forEach(i => {
 						let styleElement = document.querySelector("#style_" + i.monitor);
-						styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); }";
+						styleElement.textContent = "." + i.monitor + " { background-color: black; background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; }";
 					});
 					const textElement = countElement();
 					const backbtn = rewindBtn();
