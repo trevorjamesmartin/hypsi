@@ -9,13 +9,16 @@
   gocode-gomod,
   godef,
   golint,
+
   pcre2,
   webkitgtk_4_1,
   gtk3,
+  wrapGAppsHook3,
+  gobject-introspection,
+
   glib-networking,
   gsettings-desktop-schemas,
   libheif,
-  impl,
   ...
 }:
 mkShell {
@@ -36,7 +39,6 @@ mkShell {
     glib-networking # tls/ssl
     gsettings-desktop-schemas # viewport, fonts
     libheif
-    impl # generates method stubs for implementing an interface.
   ];
    
   shellHook = let
