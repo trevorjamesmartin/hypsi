@@ -26,16 +26,38 @@ func (sf *StateFactory) Create() AppState {
 	has := HypsiAppState{}
 	has.SetRewind(0)
 
-	// store path
-	path, exists = os.LookupEnv("HYPSI_PATH")
-	if !exists {
-		path = fmt.Sprintf("%s/hypsi", xdg.DataHome)
+	configHome := filepath.Join(xdg.ConfigHome, "hypsi")
+
+	if checkForTemplates, _ := pathExists(configHome); checkForTemplates {
+		// check for template(s)
+		userWebview := filepath.Join(configHome, "webview.html.tmpl")
+		if exists, _ = pathExists(userWebview); exists {
+			os.Setenv("HYPSI_WEBVIEW", userWebview)
+		}
+		userPage := filepath.Join(configHome, "page.html.tmpl")
+		if exists, _ = pathExists(userPage); exists {
+			os.Setenv("HYPSI_WEBPAGE", userPage)
+		}
+
+		// allow user to set runtime environment variables,
+		//	helps with VM if mesa3d driver unavailable
+		userEnv  := filepath.Join(configHome, "env")
+		if exists, _ = pathExists(userEnv); exists {
+			readEnvFile(userEnv)
+		}
 	}
+
+	// check for required variables
+
+	if path, exists = os.LookupEnv("HYPSI_PATH"); !exists {
+		// location of thumbnails, downloaded images, and the sqlite database
+		path = filepath.Join(xdg.DataHome, "hypsi")
+	}
+
 	has.SetStorePath(path)
 
-	// port
-	port, exists = os.LookupEnv("PORT")
-	if !exists {
+	if port, exists = os.LookupEnv("PORT"); !exists {
+		// only relevant when running with "-webview"
 		port = "3000"
 	}
 

@@ -25,6 +25,46 @@ import (
 	"golang.org/x/image/webp"
 )
 
+func pathExists(path string) (bool, error) {
+	_, err := os.Stat(path);
+
+	if err == nil {
+		return true, nil
+	}
+
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	return false, err
+}
+
+func readEnvFile(path string) error {
+	file, err := os.Open(path)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	scanner := bufio.NewScanner(file)
+
+  	for scanner.Scan() {
+  		kv := strings.Split(scanner.Text(), "=")
+  		if len(kv) == 2 {
+			fmt.Printf("%s : %s\n", kv[0], kv[1])
+			os.Setenv(kv[0], kv[1])
+  		}
+  	}
+  
+	if scanner.Err() != nil {	
+		return scanner.Err()
+	}
+
+	return nil
+}
+
+
+
 func readInput(args []string) {
 	onWeb, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", args[0])
 	if onWeb {
