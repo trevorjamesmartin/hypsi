@@ -40,6 +40,8 @@ install -Dpm 0644 rpm/icon.png %{buildroot}%{_datadir}/icons/hicolor/512x512/app
 %{_datadir}/icons/hicolor/512x512/apps/hypsi.png
 
 %changelog
+* Wed Feb 12 2025 Trevor Martin - 1.0.4-6
+- test release: center thumbnails
 * Wed Feb 12 2025 Trevor Martin - 1.0.4-5
 - test release: install 512x512 icon
 * Tue Feb 11 2025 Trevor Martin - 1.0.4-4
