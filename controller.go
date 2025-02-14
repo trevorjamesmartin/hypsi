@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	"image/gif"
@@ -26,7 +27,7 @@ import (
 )
 
 func pathExists(path string) (bool, error) {
-	_, err := os.Stat(path);
+	_, err := os.Stat(path)
 
 	if err == nil {
 		return true, nil
@@ -48,22 +49,20 @@ func readEnvFile(path string) error {
 
 	scanner := bufio.NewScanner(file)
 
-  	for scanner.Scan() {
-  		kv := strings.Split(scanner.Text(), "=")
-  		if len(kv) == 2 {
+	for scanner.Scan() {
+		kv := strings.Split(scanner.Text(), "=")
+		if len(kv) == 2 {
 			fmt.Printf("%s : %s\n", kv[0], kv[1])
 			os.Setenv(kv[0], kv[1])
-  		}
-  	}
-  
-	if scanner.Err() != nil {	
+		}
+	}
+
+	if scanner.Err() != nil {
 		return scanner.Err()
 	}
 
 	return nil
 }
-
-
 
 func readInput(args []string) {
 	onWeb, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", args[0])
@@ -83,7 +82,7 @@ func getContentType(fname string) (string, error) {
 	}
 	defer file.Close()
 
-	buf := make([]byte, 512)
+	buf := make([]byte, 1024)
 
 	_, err = file.Read(buf)
 
@@ -91,6 +90,19 @@ func getContentType(fname string) (string, error) {
 		return contentType, err
 	}
 	contentType = http.DetectContentType(buf)
+
+	ext := filepath.Ext(fname)
+
+	if contentType == "application/octet-stream" {
+		// base content on file extension ?
+		switch ext {
+		case ".avif":
+			contentType = "image/avif"
+		default:
+			// do nothing
+		}
+	}
+
 	return contentType, nil
 }
 
@@ -166,9 +178,15 @@ func readFromCLI(argsWithoutProg []string) {
 			preloadWallpaper(nextImage)
 			fname := filepath.Base(nextImage)
 			mode := getModeSetting(monitor, fname)
-			setWallpaper(nextImage, monitor, mode)
+
+			if err = setWallpaper(nextImage, monitor, mode); err != nil {
+				log.Fatal(err)
+				return
+			}
+
 			HYPSI_STATE.SetRewind(0)
 			writeConfig(true)
+
 		}
 	}
 
@@ -193,7 +211,13 @@ func readFromWeb(monitor, filename string) {
 			preloadWallpaper(nextImage)
 			fname := filepath.Base(nextImage)
 			mode := getModeSetting(monitor, fname)
-			setWallpaper(nextImage, monitor, mode)
+
+			if err = setWallpaper(nextImage, monitor, mode); err != nil {
+				log.Fatal(err)
+				HYPSI_STATE.SetMessage(err.Error())
+				return
+			}
+
 			HYPSI_STATE.SetRewind(0)
 			writeConfig(true)
 		}
@@ -348,7 +372,7 @@ func preloadWallpaper(image string) {
 
 // setWallpaper Function
 // $ hyprctrl hyprpaper wallpaper {monitor},{image}
-func setWallpaper(image, monitor, mode string) {
+func setWallpaper(image, monitor, mode string) error {
 	var cmd *exec.Cmd
 
 	switch mode {
@@ -366,7 +390,7 @@ func setWallpaper(image, monitor, mode string) {
 
 	if err != nil {
 		log.Fatal(err)
-		return
+
 	}
 
 	scanner := bufio.NewScanner(stdout)
@@ -377,16 +401,24 @@ func setWallpaper(image, monitor, mode string) {
 	}
 
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+		text := strings.ToLower(scanner.Text())
+
+		if strings.HasPrefix(text, "wallpaper failed") {
+			err = errors.New(text)
+		}
+
+		if strings.HasPrefix(text, "couldn't connect to") {
+			err = errors.New(text)
+		}
 	}
 
 	if scanner.Err() != nil {
 		cmd.Process.Kill()
 		cmd.Wait()
-		log.Fatal(scanner.Err())
-		return
+		return scanner.Err()
 	}
 
+	return err
 }
 
 func monitorFilename(monitor string) string {
@@ -424,7 +456,10 @@ func setWallpaperMode(monitor, mode string) {
 				preloadWallpaper(p.Paper)
 				setModeSetting(p.Monitor, fname, mode)
 				// update wallpaper
-				setWallpaper(p.Paper, p.Monitor, mode)
+				if err = setWallpaper(p.Paper, p.Monitor, mode); err != nil {
+					HYPSI_STATE.SetMessage(err.Error())
+					return
+				}
 			}
 			break
 		}
@@ -484,7 +519,10 @@ func rewind(n int) (bool, int) {
 		preloadWallpaper(v.Paper)
 		fname := filepath.Base(v.Paper)
 		mode := getModeSetting(v.Monitor, fname)
-		setWallpaper(v.Paper, v.Monitor, mode)
+		// update wallpaper
+		if err := setWallpaper(v.Paper, v.Monitor, mode); err != nil {
+			log.Fatal(err)
+		}
 		// note, the config file isn't being written here
 	}
 	return true, len(past)
