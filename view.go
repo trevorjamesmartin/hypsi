@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	//webview "github.com/webview/webview_go"
 	// ^ waiting for version bump to webkit2gtk-4.1
@@ -156,8 +157,7 @@ func gtkView(pub Publisher) {
 
 	w.Bind("MonitorFileName", monitorFilename) // returns filename (string)
 
-	w.Bind("GetModeSetting", getModeSetting) // returns mode (string)
-	//	w.Bind("SetModeSetting", setModeSetting) // db storage
+	w.Bind("GetModeSetting", getModeSetting) // returns mode (string) cover|contain
 
 	w.Bind("RollBack", func(n int) eventResp {
 
@@ -183,7 +183,8 @@ func gtkView(pub Publisher) {
 
 		for _, mon := range monitors {
 			img, _ := mon.Thumb64()
-			thumbs = append(thumbs, thumbnail{Monitor: mon.Monitor, Image: img, Mode: mon.Mode})
+			mode := getModeSetting(mon.Monitor, filepath.Base(mon.Paper))
+			thumbs = append(thumbs, thumbnail{Monitor: mon.Monitor, Image: img, Mode: mode})
 		}
 
 		return eventResp{Rewind: n, Message: "ok", Monitors: thumbs, Limit: limit}

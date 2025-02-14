@@ -212,7 +212,7 @@
 
 					result.monitors?.forEach(i => {
 						let styleElement = document.querySelector("#style_" + i.monitor);
-						styleElement.textContent = "." + i.monitor + " { background-color: black; background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; }";
+						styleElement.textContent = "." + i.monitor + " { background-color: black; background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; background-size:" + i.mode + " }";
 					});
 					const textElement = countElement();
 					const backbtn = rewindBtn();
@@ -364,6 +364,12 @@
 									modeCache[fname] = mode;
 									localStorage.setItem("modes", JSON.stringify(modeCache));
 									persistLocalStorage();
+									const el = document.querySelector(".{{.Name}}");
+									let style = window.getComputedStyle(el);
+									let image = style.getPropertyValue("background-image");
+									if (image) {
+										document.querySelector("#style_{{.Name}}").textContent = ".{{.Name}} { background-color: black; background-image: " + image + "; background-position: center; background-repeat: no-repeat; background-size:" + mode + " }";
+									}
 								});
 								event.target.selectedIndex = 0;
 								event.target.blur();
@@ -378,14 +384,22 @@
 			{{range .Monitors}}
 			<style id="style_{{.Monitor}}" type="text/css">
 				.{{.Monitor}} {
-					background-image: url({{.Thumb64|safeURL}});
 					background-color: black; 
-					background-position: center; 
-					background-repeat: no-repeat; 
 				};
-
-				}
 			</style>
+			<script id="script_{{.Monitor}}" type="text/javascript">
+				const cached = JSON.parse(localStorage.getItem("modes"));
+				
+				let mode = "cover"; // default value
+				
+				fname = String("{{.Paper}}").split("/").pop();
+
+				if (fname in cached) {
+					mode = cached[fname];
+				}
+
+				document.querySelector("#style_{{.Monitor}}").textContent = ".{{.Monitor}} { background-color: black; background-image: url({{.Thumb64|safeURL}}); background-position: center; background-repeat: no-repeat; background-size:" + mode + " }";
+			</script>
 			{{end}}
 
 		</div>
