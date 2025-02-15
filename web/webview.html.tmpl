@@ -388,17 +388,11 @@
 				};
 			</style>
 			<script id="script_{{.Monitor}}" type="text/javascript">
-				const cached = JSON.parse(localStorage.getItem("modes"));
-				
-				let mode = "cover"; // default value
-				
-				fname = String("{{.Paper}}").split("/").pop();
-
-				if (fname in cached) {
-					mode = cached[fname];
+				if (String("{{.Paper}}").split("/").pop() in JSON.parse(localStorage.getItem("modes"))) {
+					document.querySelector("#style_{{.Monitor}}").textContent = ".{{.Monitor}} { background-color: black; background-image: url({{.Thumb64|safeURL}}); background-position: center; background-repeat: no-repeat; background-size:" + JSON.parse(localStorage.getItem("modes"))[String("{{.Paper}}").split("/").pop()] + "; }";
+				} else {
+					document.querySelector("#style_{{.Monitor}}").textContent = ".{{.Monitor}} { background-color: black; background-image: url({{.Thumb64|safeURL}}); background-position: center; background-repeat: no-repeat; background-size: cover; }";
 				}
-
-				document.querySelector("#style_{{.Monitor}}").textContent = ".{{.Monitor}} { background-color: black; background-image: url({{.Thumb64|safeURL}}); background-position: center; background-repeat: no-repeat; background-size:" + mode + " }";
 			</script>
 			{{end}}
 

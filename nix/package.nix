@@ -12,7 +12,7 @@
 }: let
   pname = "hypsi"; # program
   mname = "Hypsi"; # menu entry / desktop file
-  version = "1.0.4-9";
+  version = "1.0.5-0";
   desktopItem = makeDesktopItem {
       name = "${pname}";
       comment = "a simple hyprpaper management tool";
