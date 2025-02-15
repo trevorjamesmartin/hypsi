@@ -30,5 +30,5 @@ rpmbuild -bs $NAME.spec
 
 rpmbuild -ba $NAME.spec
 
-# copr-cli build $NAME ~/rpmbuild/SRPMS/$PREFIX-0.fc41.src.rpm
+# copr-cli build $NAME ~/rpmbuild/SRPMS/$PREFIX-1.fc41.src.rpm
 
