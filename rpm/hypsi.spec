@@ -1,10 +1,10 @@
 Name:       hypsi
 Version:    1.0.5
-Release:    2%{?dist}
+%define     build_timestamp %{lua: print(os.date("%Y%m%d%H%M"))}
+Release:    %{build_timestamp}
 Summary:    A hyprpaper management tool
-
 License:    BSD-3-Clause
-Source0:    %{name}-%{version}.tar.gz
+Source0:    https://github.com/trevorjamesmartin/hypsi/archive/main.tar.gz
 BuildRequires: golang >= 1.22
 BuildRequires: libheif-devel >= 1.16
 BuildRequires: webkit2gtk4.1-devel
@@ -24,7 +24,7 @@ Provides: %{name} = %{version}
 A simple hyprpaper management tool with highly configurable GUI
 
 %prep
-%autosetup
+%autosetup -n %{name}-main
 
 %build
 go build -v -o %{name}
