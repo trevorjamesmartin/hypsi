@@ -144,6 +144,9 @@ func main() {
 			go watcher.observe()
 			gtkView(watcher)
 
+		case "-destroy":
+			HYPSI_STATE.Destroy()
+
 		default:
 			readInput(args)
 		}

@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/adrg/xdg"
 	_ "github.com/mattn/go-sqlite3"
@@ -39,9 +40,15 @@ func (sf *StateFactory) Create() AppState {
 			os.Setenv("HYPSI_WEBPAGE", userPage)
 		}
 
-		// allow user to set runtime environment variables,
-		//	helps with VM if mesa3d driver unavailable
-		userEnv  := filepath.Join(configHome, "env")
+		// store runtime environment in $XDG_CONFIG_HOME/hypsi/env
+		//
+		//	# enable rb > "Inspect Element" within webview:
+		//	DEBUG=OK
+		//
+		//	# fix 'VMware webview crashes when mesa3d driver unavailable':
+		//	SVGA_VGPU10=0
+
+		userEnv := filepath.Join(configHome, "env")
 		if exists, _ = pathExists(userEnv); exists {
 			readEnvFile(userEnv)
 		}
@@ -87,6 +94,7 @@ type AppState interface {
 
 	Load()
 	Save()
+	Destroy()
 }
 
 type HypsiAppState struct {
@@ -174,6 +182,29 @@ func (has *HypsiAppState) Save() {
 		fmt.Printf("%q: %s\n", err, stmt)
 	}
 
+}
+
+func (has *HypsiAppState) Destroy() {
+	path := has.GetStorePath()
+
+	// warn if removing active wallpaper
+	active, err := listActive()
+	if err == nil {
+		for _, p := range active {
+			if strings.HasPrefix(p.Paper, path) {
+				fmt.Printf("\nwarning: (%s) currently sourcing %s", p.Monitor, p.Paper)
+				// this function wasnt named graceful-exit
+			}
+		}
+	}
+
+	// now remove the application data
+	err = os.RemoveAll(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("\nremoved %s", path)
+	os.Exit(0)
 }
 
 type HyprCtlActiveWorkspace struct {

@@ -5,7 +5,7 @@
 	<title>Hypsi {{.Version}}</title>
 	<style id="style" type="text/css">
 		body {
-			background-color: #232634;
+			background-color: #000;
 			color: #c6d0f5;
 			overflow: hidden;
 		}
@@ -53,6 +53,11 @@
 			height: 360px;
 			margin: 3px;
 			background-color: black;
+			border-radius: 5px;
+		}
+
+		.drop-target {
+			outline: 2px solid #27BAD1;
 		}
 
 		.monitors {
@@ -79,6 +84,16 @@
 			text-align: center;
 			height: 150px;
 			width: auto;
+		}
+
+		#roll_back,#roll_forth {
+			margin-top: 10px;
+			background-color: #000;
+			color: white;
+		}
+
+		#roll_back:hover,#roll_forth:hover {
+			outline: 1px solid #27BAD1;
 		}
 
 		#rewindtext {
@@ -128,6 +143,7 @@
 
 		function handleDrop(event) {
 			event.preventDefault();
+
 			if (event.dataTransfer.items) {
 				let filecount = 0;
 				const fileLimit = 1;
@@ -168,6 +184,14 @@
 
 		function allowDrop(event) {
 			event.preventDefault();
+		}
+
+		function tagDropTarget(event) {
+			event.target.classList.add("drop-target");
+		}
+
+		function untagDropTarget(event) {
+			event.target.classList.remove("drop-target");
 		}
 
 		function handleRewind(event, idx) {
@@ -212,7 +236,7 @@
 
 					result.monitors?.forEach(i => {
 						let styleElement = document.querySelector("#style_" + i.monitor);
-						styleElement.textContent = "." + i.monitor + " { background-color: black; background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; background-size:" + i.mode + " }";
+						styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; background-size:" + i.mode + " }";
 					});
 					const textElement = countElement();
 					const backbtn = rewindBtn();
@@ -336,7 +360,7 @@
 	<div class="container">
 		<div id="monitors" class="monitors">
 			{{range .Hardware}}
-			<div class="{{.Name}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)">
+			<div class="{{.Name}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)" ondragenter="tagDropTarget(event)" ondragleave="untagDropTarget(event)">
 				<div class="desc">{{.Name}}</div>
 				<form id="form_{{.Name}}" enctype="multipart/form-data" action="/upload" method="post">
 					<input id="imageFile" type="file" name="imageFile" hidden />
@@ -368,7 +392,7 @@
 									let style = window.getComputedStyle(el);
 									let image = style.getPropertyValue("background-image");
 									if (image) {
-										document.querySelector("#style_{{.Name}}").textContent = ".{{.Name}} { background-color: black; background-image: " + image + "; background-position: center; background-repeat: no-repeat; background-size:" + mode + " }";
+										document.querySelector("#style_{{.Name}}").textContent = ".{{.Name}} { background-image: " + image + "; background-position: center; background-repeat: no-repeat; background-size:" + mode + " }";
 									}
 								});
 								event.target.selectedIndex = 0;
@@ -384,7 +408,7 @@
 			{{range .Monitors}}
 			<style id="style_{{.Monitor}}" type="text/css">
 				.{{.Monitor}} {
-					background-color: black; 
+					// 
 				};
 			</style>
 			<script id="script_{{.Monitor}}" type="text/javascript">
@@ -397,35 +421,10 @@
 			{{end}}
 
 		</div>
-		<hr />
-		<div id="rewind" class="rewind" hidden>
-			{{ if .Rewind|plusOne|inHistory }}
-			<button id="roll_back" title="previous" tabindex="-1"><svg height="20" viewBox="0 0 20 20" width="18"
-					xmlns="http://www.w3.org/2000/svg">
-					<path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3"
-						transform="matrix(-1 0 0 1 20 0)" />
-				</svg></button>
-			{{ else }}
-			<button id="roll_back" title="previous" tabindex="-1" disabled><svg height="20" viewBox="0 0 20 20"
-					width="18" xmlns="http://www.w3.org/2000/svg">
-					<path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3"
-						transform="matrix(-1 0 0 1 20 0)" />
-				</svg></button>
-			{{ end }}
-
+		<div id="rewind" class="rewind" hidden >
+			<button id="roll_back" title="previous" tabindex="-1">⏮️</button>
 			<span id="rewindtext">{{.Rewind}}</span>
-
-			{{ if .Rewind|gtZero }}
-			<button id="roll_forth" title="next" tabindex="-1"><svg height="18" viewBox="0 0 20 20" width="20"
-					xmlns="http://www.w3.org/2000/svg">
-					<path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3" />
-				</svg></button>
-			{{ else }}
-			<button id="roll_forth" title="next" tabindex="-1" disabled><svg height="18" viewBox="0 0 20 20" width="20"
-					xmlns="http://www.w3.org/2000/svg">
-					<path d="m7 2 7 7-7 7" fill="none" stroke="#fff" stroke-width="3" />
-				</svg></button>
-			{{ end }}
+			<button id="roll_forth" title="next" tabindex="-1">⏭️</button>
 		</div>
 	</div>
 
