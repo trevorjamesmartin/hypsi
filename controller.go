@@ -497,6 +497,10 @@ func rewind(n int) (bool, int) {
 		return false, 0
 	}
 
+	if len(past) == 0 {
+		return false, 0
+	}
+
 	if grief != nil {
 		log.Fatal(grief)
 		return false, 0
@@ -506,13 +510,10 @@ func rewind(n int) (bool, int) {
 
 	var target History
 
-	if current >= 0 {
-		if len(past)-n > 0 {
-			target = past[current-n]
-
-		} else {
-			target = past[current]
-		}
+	if len(past)-n > 0 {
+		target = past[current-n]
+	} else {
+		target = past[current]
 	}
 
 	for _, v := range target.unfold() {
