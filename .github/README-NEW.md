@@ -9,25 +9,18 @@ a simple [hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) manage
 
 ## Installing / Getting started
 
-A quick introduction of the minimal setup you need to get Hypsi up & running.
+binary releases are made available for Fedora (40, 41, 42, rawhide) thanks to COPR
 
-Fedora (40, 41, 42, rawhide)
-1. enable the [copr repo](https://copr.fedorainfracloud.org/coprs/yoshizl/hypsi/)
-    ```shell
-    sudo dnf copr enable yoshizl/hypsi
-    ```
-2. install the package
-    ```shell
-    sudo dnf install hypsi
-    ```
 
-Debian/Ubuntu & derivatives
-- [download the equivalent RPM](https://copr.fedorainfracloud.org/coprs/yoshizl/hypsi/builds/) and convert into DEB with alien
-    ```shell
-    sudo apt-get install alien
-    sudo alien hypsi-release.OS-arch.rpm
-    sudo dpkg -i hypsi-release.OS-arch.rpm
-    ```
+to enable the [copr repo](https://copr.fedorainfracloud.org/coprs/yoshizl/hypsi/)
+```shell
+sudo dnf copr enable yoshizl/hypsi
+```
+install the package
+```shell
+sudo dnf install hypsi
+```
+
 
 ## Developing
 
@@ -48,49 +41,81 @@ Here's a brief intro about what a developer must do in order to start developing
 the project further:
 
 
-1. Clone this repo and enter the source folder
-    ```source
-    git clone https://github.com/trevorjamesmartin/hypsi
-    cd hypsi
-    ```
-2. Resolve dependencies
-    - (Nix) 
-        ```source
-        nix develop
-        ```
-    - (RPM)
-        ```source
-        cd rpm
-        dnf builddep hypsi.spec
-        ```
+Clone this repo and enter the source folder
+```shell
+git clone https://github.com/trevorjamesmartin/hypsi
+cd hypsi
+```
+
+Resolve dependencies
+```shell
+# install tooling
+yum install rpmdevtools rpm-build -y
+
+# satisfy build deps
+yum builddep rpm/hypsi.spec        
+```
 
 ### Building
 
-Once your build environment is ready to go:
-- Go
-    ```source
-    # build a single executable Go binary
-    go build
-    ```    
-- Nix
-    ```source
-    # build a NixOS compatible pkg
-    nix build
-    ```
-- RPM
-    ```source
-    # build RPM & testing locally, (send SRPM to COPR builder)
-    cd rpm
-    sh pkg.sh
-    ```
+Go
+```shell
+# build a single executable Go binary
+go build
+```
+
+Nix
+```shell
+# build a NixOS compatible pkg
+nix build
+```
+
+RPM
+```shell
+# build the RPM locally
+
+# 1. prepare the source
+spectool -g -R rpm/hypsi.spec
+    
+# 2. build the package
+rpmbuild -ba rpm/hypsi.spec
+```
 
 ## Versioning
 
-Use [SemVer](http://semver.org/) for versioning.
+Try to use [SemVer](http://semver.org/) for versioning.
++ RPM packages are stamped at build time, according to [(.spec)](../rpm/hypsi.spec)
++ Nix [(pkg)](../nix/package.nix) version should be kept in sync with (at least) `MAJOR.MINOR`
 
 ## Configuration
 
-Here you should write what are all of the configurations a user can enter when using the project.
+| name           | location              | contents |
+|----------------|----------------------|---------|
+|$XDG_CONFIG_HOME/hypsi/env | ~/.config/hypsi/env| runtime environment variables |
+
+Setup:
+```shell
+ # create the folder if it doesn't exist
+ mkdir -p ~/.config/hypsi
+```
+Example 1: <i>"Inspect Element"</i>
+ ```shell
+ # its helpful to allow "inspect element" in webview while working on templates (OFF by default)
+ echo "DEBUG=OK" >> ~/.config/hypsi/env
+ ```
+
+Example 2: <i>extract and customize the webview template</i>
+```shell
+# enter the config folder
+cd ~/.config/hypsi
+
+# extract the embedded templates
+hypsi -develop
+
+# apply the `-watch` flag for a responsive editing experience
+
+hypsi -watch
+```
 
 ## Tests
 
