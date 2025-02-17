@@ -1,6 +1,6 @@
 Name:       hypsi
 Version:    1.0.5
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    A hyprpaper management tool
 
 License:    BSD-3-Clause
@@ -40,6 +40,8 @@ install -Dpm 0644 rpm/icon.png %{buildroot}%{_datadir}/icons/hicolor/512x512/app
 %{_datadir}/icons/hicolor/512x512/apps/hypsi.png
 
 %changelog
+* Sun Feb 16 2025 Trevor Martin - 1.0.5-2
+- minor update to the webview template
 * Sat Feb 15 2025 Trevor Martin - 1.0.5-1
 - fixed: js error with empty db
 * Fri Feb 14 2025 Trevor Martin - 1.0.5-0
