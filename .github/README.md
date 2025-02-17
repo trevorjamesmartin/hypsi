@@ -1,76 +1,125 @@
-# hypsi
+# Hypsi &middot; ![rpmbuild](https://copr.fedorainfracloud.org/coprs/yoshizl/hypsi/package/hypsi/status_image/last_build.png) &middot; [![GitHub license](https://img.shields.io/badge/license-BSD_3_Clause-default.svg?style=flat-square)](https://github.com/trevorjamesmartin/hypsi/blob/master/LICENSE)
 
-a simple [hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) management tool with a highly customizable [GUI](#templating)
+<img src="./assets/hypsi-webview.jpg" alt="Screenshot of the project" align="top">
 
-![](./assets/hypsi-webview.jpg)
+> a simple [hyprpaper](https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/) management tool
 
-This program started as a script to manage my desktop wallpaper between sway and
-hyprland. When I first started using [Hyprland](https://www.hyprland.org/), I
-was also jumping in and out of sway and using
-[swww](https://github.com/LGFae/swww) to set the wallpaper on both.
+## Installing / Getting started
 
-When I found hypaper being developed by the author of Hyprland I had to give it
-a try... It lives up to it's claim of being 'blazing fast' perhaps in part by
-not overdoing it.
+<b>Fedora (40, 41, 42, rawhide)</b> binary releases are made available through COPR
 
-- You can read this
-  [important note to the inner workings (of hyprpaper)](https://github.com/hyprwm/hyprpaper#important-note-to-the-inner-workings)
-  to unpack that.
-- TLDR; hyprpaper gives you full control of wallpaper management
-
-Assuming you have Hyprland installed and you've enabled the hyprpaper plugin,
-you can
-
-- `hypsi "/path/to/Your Wallpaper Image.jpg"` set your wallpaper from the command line and
-  have it persist
-
-a few additional crossover features for web devs to play with
-
-- `hypsi -json` to show your hyprpaper configuration in simple JSON format
-- `hypsi -rewind <index> `0 is your most recent change, hypsi keeps track
-- `hypsi -webview` open the optional webview interface (GUI)
-
-![screenshot 3](./assets/screenshot3.jpg) your changes are automatically saved,
-rollback to a previously set wallpaper ![screenshot 2](./assets/screenshot2.jpg)
-take control of your hyprpaper ![screenshot 1](./assets/screenshot1.jpg)
-
-# templating
-
-![screenshot 4](./assets/screenshot4.jpg)
-
-```nix
-windowrulev2= [
-  # ...
-  "float,class:(hypsi)" # wallpaper history
-  "size 1305 435,class:(hypsi)" # (two monitors)
-  # ...
-];
+to enable the [copr repo](https://copr.fedorainfracloud.org/coprs/yoshizl/hypsi/)
+```shell
+sudo dnf copr enable yoshizl/hypsi
+```
+install the package
+```shell
+sudo dnf install hypsi
 ```
 
-The current default template, along with hyprland rulesv2 should provide a good
-starting point
+## Developing
 
-In spirit with Hyprland, hypsi strives to be highly configuable & you're
-encouraged to override the defaults
+### Built With
+- golang >= 1.22
+- libheif >= 1.16
+- webkit2gtk4.1
 
-To get started customizing the appearance,
+### Prerequisites
+- Hyprland
+- hyprpaper
+- gcc-c++
+- git
 
-- create & enter a work folder,
-  `mkdir -p /path/to/templates;cd /path/to/templates`
-- run `hypsi -develop` to write the base template files into your current
-  working directory (if they do not already exist)
-- to override a linked style or script file, remove the tag and replace it with
-  inline style or script
-- run `hypsi -watch` from your template folder or run
-  `hypsi -watch /path/to/templates`
+### Setting up
 
-[on my NixOS configuration](https://github.com/trevorjamesmartin/nixos-config) I
-install this
-[along with hyprpaper](https://github.com/trevorjamesmartin/nixos-config/tree/main/nixos/modules/home-manager/hyprpaper)
-using a module system. Your system integration may differ from mine, of course
-these are all just suggestions. You can even build the app in one command with
-`nix build github:trevorjamesmartin/hypsi`
+in order to start developing the project further:
 
-feel free to fork this and modify for your system or project
+Clone this repo and enter the source folder
+```shell
+git clone https://github.com/trevorjamesmartin/hypsi
+cd hypsi
+```
 
-template contributions are welcome, creativity is encouraged!
+Resolve dependencies
+```shell
+# install tooling
+yum install rpmdevtools rpm-build -y
+
+# check the deps
+yum builddep rpm/hypsi.spec        
+```
+
+### Building
+
+Go
+```shell
+# build a single executable Go binary
+go build
+```
+
+Nix
+```shell
+# build a NixOS compatible pkg
+nix build
+```
+
+RPM
+```shell
+# build the RPM locally
+
+# 1. prepare the source
+spectool -g -R rpm/hypsi.spec
+    
+# 2. build the package
+rpmbuild -ba rpm/hypsi.spec
+```
+
+## Versioning
+
+Try to use [SemVer](http://semver.org/) for versioning.
++ RPM packages are stamped at build time, according to [(.spec)](../rpm/hypsi.spec)
++ Nix [(pkg)](../nix/package.nix) version should be kept in sync with (at least) `MAJOR.MINOR`
+
+## Configuration
+
+| name           | location              | contents |
+|----------------|----------------------|---------|
+|$XDG_CONFIG_HOME/hypsi/env | ~/.config/hypsi/env| runtime environment variables |
+
+Setup:
+```shell
+ # create the folder if it doesn't exist
+ mkdir -p ~/.config/hypsi
+```
+Example 1: <i>"Inspect Element"</i>
+ ```shell
+ # its helpful to allow "inspect element" while working on the webview template (OFF by default)
+ echo "DEBUG=OK" >> ~/.config/hypsi/env
+ ```
+
+Example 2: <i>extract and customize the webview template</i>
+```shell
+# enter the config folder
+cd ~/.config/hypsi
+
+# extract the embedded templates
+hypsi -develop
+
+# apply the `-watch` flag for a responsive editing experience
+
+hypsi -watch
+```
+
+## Tests
+
+```shell
+fortune | cowsay
+```
+
+## Licensing
+
+This project uses the BSD-3-Clause [LICENSE](https://github.com/trevorjamesmartin/hypsi/blob/master/LICENSE)
+
+## Notes
+
+The initial README file has been repurposed as an extension to this project introduction. If you'd like to dig deeper, [README-NEXT](./README-NEXT.md)
