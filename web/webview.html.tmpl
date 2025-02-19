@@ -442,7 +442,38 @@
 			<div id="search-results">
 				<ul id="search-result-list"></ul>
 			</div>
-			
+
+			<style type="text/css">
+				#search-results {
+					display: inline-block;
+					vertical-align: top;
+				}
+
+				.haven-wall {
+					display: inline-block;
+					vertical-align: top;
+					background-color: black; 
+					background-position: center; 
+					background-repeat: no-repeat; 
+					background-size: cover; 
+					width: 300px;
+					height: 200px;
+					margin: 5px;
+
+					&:hover {
+						outline: 2px solid #27BAD1;
+						cursor: pointer;
+					}
+					
+				}
+
+				ul {
+					margin: 0 auto;
+					text-align: center;
+					padding: 20px;
+
+				}
+			</style>
 		</div>
 
 		<script id="script_wallhaven" type="text/javascript">
@@ -557,37 +588,6 @@
 				border-radius: 0px;
 				color: #27BAD1;
 			}
-
-			#search-results {
-				display: inline-block;
-				vertical-align: top;
-			}
-
-			.haven-wall {
-				display: inline-block;
-				vertical-align: top;
-				background-color: black; 
-				background-position: center; 
-				background-repeat: no-repeat; 
-				background-size: cover; 
-				width: 300px;
-				height: 200px;
-				margin: 5px;
-
-				&:hover {
-					outline: 2px solid #27BAD1;
-					cursor: pointer;
-				}
-				
-			}
-
-			ul {
-				margin: 0 auto;
-				text-align: center;
-				padding: 20px;
-
-			}
-
 		</style>
 		
 		<!-- (end) Example -->
