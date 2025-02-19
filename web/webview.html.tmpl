@@ -424,26 +424,41 @@
 
 		</div>
 		<div id="rewind" class="rewind" hidden >
-			<button id="roll_back" title="previous" tabindex="-1">⏮️</button>
+			<button id="roll_back" title="previous" tabindex="-1">⏮</button>
 			<span id="rewindtext">{{.Rewind}}</span>
-			<button id="roll_forth" title="next" tabindex="-1">⏭️</button>
+			<button id="roll_forth" title="next" tabindex="-1">⏭</button>
 		</div>
-
 {{/*
 		<!-- (begin) Example -->
-		
 		<div id="wallhaven" class="container-wallhaven">
+			<hr>
 			
 			<div class="search-bar">
 				<input id="search-query" type=text; placeholder="wallhaven.cc" />
 				<button aria-label="search" id="search-btn" onclick="handleWallhaven()">🔎</button>
-			</div>		
+			</div>
 
 			<div id="search-results">
 				<ul id="search-result-list"></ul>
 			</div>
 
+			<span class="whvn-pages">
+				<button id="whvn-prev" class="whvn-prev">⏮</button>
+				<button id="whvn-next" class="whvn-next">⏭</button>
+			</span>
+
 			<style type="text/css">
+				.whvn-pages {
+					display: flex;
+					align-items: space-around;
+					justify-content: center;
+				}
+				.whvn-prev,.whvn-next {
+					display: flex;
+					margin: 20px;
+					cursor: pointer;
+				}
+
 				#search-results {
 					display: inline-block;
 					vertical-align: top;
@@ -478,17 +493,54 @@
 
 		<script id="script_wallhaven" type="text/javascript">
 			var searchResults;
-
-			function handleWallhaven() {
-				const query = document.querySelector("#search-query").value;
-				let url = "https://wallhaven.cc/api/v1/search";
-				if (query.length > 0) {
-					url += "?q=";
-					url += query;
+			
+			document.querySelector("#whvn-prev").addEventListener("click", (event) => {
+				console.log(searchResults?.meta);
+				console.log('whvn-prev');
+				if (searchResults?.meta?.current_page > 1) {
+					let page = searchResults.meta.current_page - 1;
+					console.log("page ${page}");
+					handleWallhaven(page);
 				}
+			});
+
+			document.querySelector("#whvn-next").addEventListener("click", (event) => {
+				console.log(searchResults?.meta);
+				console.log('whvn-prev');
+				if (searchResults?.meta?.last_page > searchResults?.meta?.current_page) {
+					let page = searchResults.meta.current_page + 1;
+					console.log("page ${page}");
+					handleWallhaven(page);
+				}
+			});
+
+			function handleWallhaven(page) {
+				const paramsObj = {};
+				const query = document.querySelector("#search-query").value;
+
+				if (query.length > 0) {
+					paramsObj["q"] = query;
+				}
+				
+				if (page > 1) {
+					paramsObj["page"] = page;
+				}
+
+				const searchParams = new URLSearchParams(paramsObj);
+
+				let url = "https://wallhaven.cc/api/v1/search";
+
+				let srch = searchParams.toString();
+				console.log(srch);
+
+				if (srch?.length > 1) {
+					url += "?" + srch
+				}
+
 				Wetch(url)
 				.then((res) => { searchResults = res; })
 				.finally(() => updateResults("whvn"));
+
 			}
 
 			function updateResults(caller) {
@@ -553,7 +605,6 @@
 						if (next < 0) {
 							forthbtn.setAttribute("disabled", true);
 						}
-
 					});
 				} else {
 					console.error("missing RollBack() code");
@@ -565,7 +616,6 @@
 					e.target.click();
 				}
 			}
-
 		</script>
 
 		<style id="style_wallhaven" type="text/css">
@@ -592,7 +642,6 @@
 		
 		<!-- (end) Example -->
 */}}
-
 	</div>
 
 </body>
