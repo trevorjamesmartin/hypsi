@@ -108,6 +108,10 @@ func gtkView(pub Publisher) {
 		fmt.Print("\n[ 👀 webview ]\n")
 	}
 
+	w.Bind("Wetch", Wetch) // ryhmes with fetch
+
+	w.Bind("DownloadImage", DownloadImage)
+
 	w.Bind("SaveLocalJSON", func(localStorage json.RawMessage) {
 		var id int
 

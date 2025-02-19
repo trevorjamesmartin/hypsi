@@ -26,6 +26,31 @@ import (
 	"golang.org/x/image/webp"
 )
 
+func Wetch(url string) json.RawMessage {
+	valid, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", url)
+
+	if !valid {
+		return nil
+	}
+
+	fmt.Println(url)
+
+	response, err := http.Get(url)
+
+	if err != nil {
+		fmt.Print(err.Error())
+		os.Exit(1)
+	}
+
+	responseData, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return responseData
+}
+
 func pathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 
@@ -64,10 +89,10 @@ func readEnvFile(path string) error {
 	return nil
 }
 
-func readInput(args []string) {
+func ReadInput(args []string) {
 	onWeb, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", args[0])
 	if onWeb {
-		downloadImage(args[0])
+		DownloadImage(args[0])
 	} else {
 		readFromCLI(args)
 	}
@@ -636,7 +661,8 @@ func hyprCtlVersion() (HyprCtlVersion, error) {
 	return hyprCtlVersiion, nil
 }
 
-func downloadImage(validURL string) {
+// download image, then set wallpaper
+func DownloadImage(validURL string) {
 	resp, err := http.Get(validURL)
 
 	if err != nil {
@@ -663,7 +689,7 @@ func downloadImage(validURL string) {
 	fname := fmt.Sprintf("%x", bs)
 
 	if len(ext) > 0 {
-		fname += fmt.Sprintf(".%s", ext)
+		fname += ext
 	}
 
 	if tempFile, err := os.Create(filepath.Join(HYPSI_STATE.GetStorePath(), fname)); err != nil {

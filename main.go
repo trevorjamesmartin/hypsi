@@ -81,7 +81,7 @@ func main() {
 		switch args[0] {
 		case "-webview":
 			if len(args) > 1 {
-				readInput(args[1:])
+				ReadInput(args[1:])
 			}
 			go api()
 			gtkView(watcher)
@@ -148,7 +148,7 @@ func main() {
 			HYPSI_STATE.Destroy()
 
 		default:
-			readInput(args)
+			ReadInput(args)
 		}
 
 	} else {
