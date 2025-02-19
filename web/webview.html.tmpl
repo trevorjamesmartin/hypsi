@@ -7,7 +7,6 @@
 		body {
 			background-color: #000;
 			color: #c6d0f5;
-			overflow: hidden;
 		}
 
 		button {
@@ -318,6 +317,10 @@
 		}
 
 		document.addEventListener('keydown', function (event) {
+			if (event.target.type == "text") {
+				return
+			}
+
 			let selector;
 			switch (event.key) {
 				case "h":
@@ -358,6 +361,7 @@
 
 <body>
 	<div class="container">
+
 		<div id="monitors" class="monitors">
 			{{range .Hardware}}
 			<div class="{{.Name}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)" ondragenter="tagDropTarget(event)" ondragleave="untagDropTarget(event)">
@@ -377,9 +381,7 @@
 						document.querySelector("#form_{{.Name}} > #mode").addEventListener("change", (event) => {
 							const mode = event.target.value;
 							const monitor = "{{.Name}}";
-							console.log(monitor, mode);
 							if (mode != "0") {
-								console.log(event.target);
 								// monitor, mode
 								SetWallpaperMode(monitor, mode);
 								// filename
@@ -426,6 +428,171 @@
 			<span id="rewindtext">{{.Rewind}}</span>
 			<button id="roll_forth" title="next" tabindex="-1">⏭️</button>
 		</div>
+
+{{/*
+		<!-- (begin) Example -->
+		
+		<div id="wallhaven" class="container-wallhaven">
+			
+			<div class="search-bar">
+				<input id="search-query" type=text; placeholder="wallhaven.cc" />
+				<button aria-label="search" id="search-btn" onclick="handleWallhaven()">🔎</button>
+			</div>		
+
+			<div id="search-results">
+				<ul id="search-result-list"></ul>
+			</div>
+			
+		</div>
+
+		<script id="script_wallhaven" type="text/javascript">
+			var searchResults;
+
+			function handleWallhaven() {
+				const query = document.querySelector("#search-query").value;
+				let url = "https://wallhaven.cc/api/v1/search";
+				if (query.length > 0) {
+					url += "?q=";
+					url += query;
+				}
+				Wetch(url)
+				.then((res) => { searchResults = res; })
+				.finally(() => updateResults("whvn"));
+			}
+
+			function updateResults(caller) {
+				if (caller != "whvn") {
+					console.log("do not call this!");
+					return
+				}
+				const targetUnorderedList = document.querySelector("#search-result-list");
+
+				// clear the list
+				targetUnorderedList.replaceChildren([])
+
+				searchResults.data.forEach((item, idx) => {
+					const newLI = document.createElement("li");
+					newLI.id = "result-" + idx;
+					newLI.setAttribute("onkeyup", "onKeyUp(event)");
+					newLI.setAttribute("tabindex", "0");
+					newLI.classList.add("haven-wall");
+					newLI.setAttribute("style", "background-image: url('" + item.thumbs.small + "');");
+					const foo = "webImage('" + item.path + "')";
+					newLI.setAttribute("onclick", foo);
+					targetUnorderedList.appendChild(newLI);										
+				});
+			}
+
+			function webImage(url) {
+				DownloadImage(url)
+				.catch((err) => console.log("invalid", err))
+				.finally(() => setTimeout(catchUp, 300));
+			}
+
+			function catchUp() {
+				if (typeof RollBack == "function") {
+					RollBack(0).then((result) => {
+						const limit = Number(result.limit);
+
+						result.monitors?.forEach(i => {
+							let styleElement = document.querySelector("#style_" + i.monitor);
+							styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; background-size:" + i.mode + " }";
+						});
+						const textElement = countElement();
+						const backbtn = rewindBtn();
+						const forthbtn = forwardBtn();
+
+						backbtn?.removeAttribute("disabled");
+						forthbtn?.removeAttribute("disabled");
+
+						textElement.textContent = 0;
+
+						let curr = Number(result.rewind || 0);
+						let next = curr - 1;
+						let prev = curr + 1;
+
+						if (prev >= limit) {
+							prev = limit - 1;
+						}
+
+						if (prev - next === 1) {
+							backbtn.setAttribute("disabled", true);
+						}
+
+						if (next < 0) {
+							forthbtn.setAttribute("disabled", true);
+						}
+
+					});
+				} else {
+					console.error("missing RollBack() code");
+				}
+			}
+
+			function onKeyUp(e) {				
+				if (e.key === "Enter") {
+					e.target.click();
+				}
+			}
+
+		</script>
+
+		<style id="style_wallhaven" type="text/css">
+			.container-wallhaven {
+				text-align: center;
+				overflow: scroll;
+			}
+
+			.search-bar {
+				justify-content: space-around;
+				margin-top: 20px;
+			}
+
+			#search-query {
+				background-color: #01181F;
+				color: #27BAD1;
+			}
+
+			#search-btn {
+				border-radius: 0px;
+				color: #27BAD1;
+			}
+
+			#search-results {
+				display: inline-block;
+				vertical-align: top;
+			}
+
+			.haven-wall {
+				display: inline-block;
+				vertical-align: top;
+				background-color: black; 
+				background-position: center; 
+				background-repeat: no-repeat; 
+				background-size: cover; 
+				width: 300px;
+				height: 200px;
+				margin: 5px;
+
+				&:hover {
+					outline: 2px solid #27BAD1;
+					cursor: pointer;
+				}
+				
+			}
+
+			ul {
+				margin: 0 auto;
+				text-align: center;
+				padding: 20px;
+
+			}
+
+		</style>
+		
+		<!-- (end) Example -->
+*/}}
+
 	</div>
 
 </body>
