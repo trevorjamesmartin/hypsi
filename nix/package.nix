@@ -9,6 +9,7 @@
   wrapGAppsHook3,
   gobject-introspection,
   libheif,
+  glib-networking,
 }: let
   pname = "hypsi"; # program
   mname = "Hypsi"; # menu entry / desktop file
@@ -51,6 +52,7 @@ in
       wrapGAppsHook3
       gobject-introspection
       libheif
+      glib-networking # tls/ssl
     ];
 
     # f around and find out
