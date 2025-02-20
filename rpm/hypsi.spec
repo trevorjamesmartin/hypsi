@@ -1,5 +1,5 @@
 Name:       hypsi
-Version:    1.0.5
+Version:    1.0.6
 %define     build_timestamp %{lua: print(os.date("%Y%m%d%H%M"))}
 Release:    %{build_timestamp}
 Summary:    A hyprpaper management tool
