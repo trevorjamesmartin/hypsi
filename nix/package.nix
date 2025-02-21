@@ -2,15 +2,19 @@
   lib,
   makeDesktopItem,
   buildGoModule,
+  
   pkg-config,
+  
   pcre2,
-  webkitgtk_6_0,
   webkitgtk_4_1,
   gtk3,
-  wrapGAppsHook3,
+  wrapGAppsHook3,  
   gobject-introspection,
-  libheif,
+
   glib-networking,
+  gsettings-desktop-schemas,
+  libheif,
+  ...
 }: let
   pname = "hypsi"; # program
   mname = "Hypsi"; # menu entry / desktop file
@@ -48,13 +52,13 @@ in
     nativeBuildInputs = [pkg-config];
     buildInputs = [
       pcre2
-      webkitgtk_6_0
       webkitgtk_4_1
       gtk3
-      wrapGAppsHook3
-      gobject-introspection
-      libheif
       glib-networking # tls/ssl
+      gsettings-desktop-schemas # viewport, fonts
+      libheif
+      gobject-introspection
+      wrapGAppsHook3
     ];
 
     # f around and find out
