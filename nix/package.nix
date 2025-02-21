@@ -8,7 +8,7 @@
   pcre2,
   webkitgtk_4_1,
   gtk3,
-  wrapGAppsHook3,  
+  wrapGAppsHook,  
   gobject-introspection,
 
   glib-networking,
@@ -18,7 +18,7 @@
 }: let
   pname = "hypsi"; # program
   mname = "Hypsi"; # menu entry / desktop file
-  version = "1.0.6";
+  version = "1.0.6-1";
   desktopItem = makeDesktopItem {
       name = "${pname}";
       comment = "a simple hyprpaper management tool";
@@ -58,7 +58,7 @@ in
       gsettings-desktop-schemas # viewport, fonts
       libheif
       gobject-introspection
-      wrapGAppsHook3
+      wrapGAppsHook
     ];
 
     # f around and find out
