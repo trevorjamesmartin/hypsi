@@ -4,6 +4,7 @@
   buildGoModule,
   pkg-config,
   pcre2,
+  webkitgtk_6_0,
   webkitgtk_4_1,
   gtk3,
   wrapGAppsHook3,
@@ -47,6 +48,7 @@ in
     nativeBuildInputs = [pkg-config];
     buildInputs = [
       pcre2
+      webkitgtk_6_0
       webkitgtk_4_1
       gtk3
       wrapGAppsHook3
