@@ -28,25 +28,20 @@ func api() {
 	page := webInit()
 
 	user_template := os.Getenv("HYPSI_WEBVIEW")
-
-	fmt.Printf("\nWEBVIEW TEMPLATE: [%s]", user_template)
-
 	user_html_template := os.Getenv("HYPSI_WEBPAGE")
 
-	fmt.Printf("\nHTML TEMPLATE: [%s]", user_html_template)
+	if len(user_template) > 0 {
+		// override the webview template
+		fmt.Printf("\nWEBVIEW TEMPLATE: [%s]", user_template)
+		HYPSI_STATE.SetWebviewTemplate(user_template, false)
+	}
+
+	if len(user_html_template) > 0 {
+		fmt.Printf("\nHTML TEMPLATE: [%s]", user_html_template)
+	}
 
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		if len(user_html_template) > 0 {
-			f, err := os.ReadFile(user_html_template)
-			if err != nil {
-				log.Fatal(err)
-				return
-			}
-			page.template = string(f)
-		} else {
-			page.template = page._Template()
-		}
-
+		page.template = HYPSI_STATE.GetWebpageTemplate()
 		t := r.URL.Query().Get("t")
 		if n, err := strconv.Atoi(t); err != nil {
 			page.Print(w, HYPSI_STATE.GetRewind())
@@ -56,17 +51,7 @@ func api() {
 	})
 
 	mux.HandleFunc("GET /webview", func(w http.ResponseWriter, r *http.Request) {
-		if len(user_template) > 0 {
-			f, err := os.ReadFile(user_template)
-			if err != nil {
-				log.Fatal(err)
-				return
-			}
-			page.template = string(f)
-		} else {
-			default_template, _ := WEBFOLDER.ReadFile("web/webview.html.tmpl")
-			page.template = string(default_template)
-		}
+		page.template = HYPSI_STATE.GetWebviewTemplate()
 		page.data.Rewind = HYPSI_STATE.GetRewind()
 		page.Print(w, HYPSI_STATE.GetRewind())
 	})

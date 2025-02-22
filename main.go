@@ -125,6 +125,15 @@ func main() {
 				}
 			}
 
+		case "-whvn":
+			// example using the wallhaven apiv1 image search
+			HYPSI_STATE.SetWebviewTemplate("example.html.tmpl", true)
+			if len(args) > 1 {
+				ReadInput(args[1:])
+			}
+			go api()
+			gtkView(watcher)
+
 		case "-watch":
 			var watchfolder string
 

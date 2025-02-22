@@ -87,21 +87,90 @@ type AppState interface {
 	GetStorePath() string
 	GetPort() string
 
+	GetWebviewTemplate() string
+	GetWebpageTemplate() string
+
 	SetRewind(int)
 	SetMessage(string)
 	SetStorePath(string)
 	SetPort(string)
+
+	SetWebviewTemplate(string, bool)
+	SetWebpageTemplate(string, bool)
 
 	Load()
 	Save()
 	Destroy()
 }
 
+type HypsiTemplate struct {
+	Path     string
+	Internal bool
+}
+
 type HypsiAppState struct {
-	Rewind    int    `json:"rewind"`
-	Message   string `json:"message,omitempty"`
-	StorePath string `json:""`
-	Port      string `json:""`
+	Rewind    int           `json:"rewind"`
+	Message   string        `json:"message,omitempty"`
+	StorePath string        `json:""`
+	Port      string        `json:""`
+	Webview   HypsiTemplate `json:""`
+	Webpage   HypsiTemplate `json:""`
+}
+
+func (has *HypsiAppState) SetWebviewTemplate(value string, internal bool) {
+	has.Webview.Path = value
+	has.Webview.Internal = internal
+}
+
+func (has *HypsiAppState) GetWebviewTemplate() string {
+	if len(has.Webview.Path) == 0 {
+		// use the default
+		template, _ := WEBFOLDER.ReadFile("web/webview.html.tmpl")
+		return string(template)
+	}
+
+	if has.Webview.Internal {
+		// load from internal webfolder
+		template, _ := WEBFOLDER.ReadFile(fmt.Sprintf("web/%s", has.Webview.Path))
+		return string(template)
+	}
+
+	// load external template
+	template, err := os.ReadFile(has.Webview.Path)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(template)
+}
+
+func (has *HypsiAppState) SetWebpageTemplate(value string, internal bool) {
+	has.Webpage.Path = value
+	has.Webpage.Internal = internal
+}
+
+func (has *HypsiAppState) GetWebpageTemplate() string {
+	if len(has.Webpage.Path) == 0 {
+		// use the default
+		template, _ := WEBFOLDER.ReadFile("web/page.html.tmpl")
+		return string(template)
+	}
+
+	if has.Webpage.Internal {
+		// load from internal webfolder
+		template, _ := WEBFOLDER.ReadFile(fmt.Sprintf("web/%s", has.Webpage.Path))
+		return string(template)
+	}
+
+	// load external template
+	template, err := os.ReadFile(has.Webview.Path)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(template)
 }
 
 func (has *HypsiAppState) SetPort(value string) {

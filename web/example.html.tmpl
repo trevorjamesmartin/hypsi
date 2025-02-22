@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Hypsi {{.Version}}</title>
+	<style id="style" type="text/css">
+		body {
+			background-color: #000;
+			color: #c6d0f5;
+		}
+
+		button {
+			border: none;
+		}
+
+		select {
+			padding: 0.2em 0.5em;
+			margin-left: 0.5em;
+			position: relative;
+			top: -24px;
+			border: none;
+
+			&.different {
+				appearance: none;
+				background-origin: content-box;
+				background-repeat: no-repeat;
+				
+				box-sizing: border-box;
+				padding-right: 1.5em;
+				background-color: black;
+				color: #c6d0f5;
+			}
+
+			&.desc {
+				top: 0;
+			}
+
+		}
+
+		button {
+			background-color: #292c3c;
+			transform: scale(1.25);
+			border-radius: 10px;
+		}
+
+		button:hover {
+			background-color: #626880;
+		}
+
+		.gallery {
+			width: 640px;
+			height: 360px;
+			margin: 3px;
+			background-color: black;
+			border-radius: 5px;
+		}
+
+		.drop-target {
+			outline: 2px solid #27BAD1;
+		}
+
+		.monitors {
+			display: flex;
+			justify-content: space-evenly;
+			align-items: center;
+		}
+
+		.monitors.flip {
+			flex-flow: row-reverse;
+		}
+
+		.desc {
+			text-align: center;
+			background-color: #000;
+		}
+
+		.desc.hwflag {
+			text-decoration: line-through;
+			color: red;
+		}
+
+		.rewind {
+			text-align: center;
+			height: 150px;
+			width: auto;
+		}
+
+		#roll_back,#roll_forth {
+			margin-top: 10px;
+			background-color: #000;
+			color: white;
+		}
+
+		#roll_back:hover,#roll_forth:hover {
+			outline: 1px solid #27BAD1;
+		}
+
+		#rewindtext {
+			font-size: 1.5rem;
+			letter-spacing: 1px;
+			display: inline-block;
+			width: 64px;
+		}
+
+		@media only screen and (max-width: 1281px) {
+			.monitors {
+				flex-flow: column;
+			}
+
+			.monitors.flip {
+				flex-flow: column-reverse;
+			}
+
+			select {
+				position: relative;
+				top: -23px;
+				border: none;
+			}
+
+		}
+
+		input[type="radio"],
+		input[type="checkbox"] {
+			height: 3rem;
+			accent-color: green;
+			transform: scale(2);
+		}
+	</style>
+	<script type="text/javascript">
+		async function sendData(data, url) {
+			try {
+				const response = await fetch(url, {
+					method: "POST",
+					body: data,
+				});
+				console.log(await response.statusText);
+				location.reload();
+			} catch (e) {
+				console.error(e);
+			}
+		}
+
+		function handleDrop(event) {
+			event.preventDefault();
+
+			if (event.dataTransfer.items) {
+				let filecount = 0;
+				const fileLimit = 1;
+				[...event.dataTransfer.items].forEach((item, i) => {
+					// If dropped items aren't files, reject them
+					if (item.kind === "file" && filecount < fileLimit) {
+						filecount++;
+						const file = item.getAsFile();
+						const firstClass = event.target.className.split(" ").shift();
+						const sendTo = "/upload?monitor=" + firstClass;
+						const formSelector = "#form_" + firstClass;
+						const formElement = document.querySelector(formSelector);
+
+						// Take over form submission
+						formElement.addEventListener(
+							"submit",
+							(event) => {
+								event.preventDefault();
+								// Associate the FormData object with the form element
+								const formData = new FormData(formElement);
+								formData.set("imageFile", file);
+								//localStorage.setItem("rewind", 0);
+								sendData(formData, sendTo);
+							},
+							false,
+						);
+
+						let sendBtnSelector = "#send_" + firstClass;
+						document.querySelector(sendBtnSelector).click();
+					}
+				});
+			} else {
+				[...event.dataTransfer.files].forEach((file, i) => {
+					console.log("?", file, i);
+				});
+			}
+		}
+
+		function allowDrop(event) {
+			event.preventDefault();
+		}
+
+		function tagDropTarget(event) {
+			event.target.classList.add("drop-target");
+		}
+
+		function untagDropTarget(event) {
+			event.target.classList.remove("drop-target");
+		}
+
+		function handleRewind(event, idx) {
+			event.preventDefault();
+
+			if (idx < 0) {
+				return;
+			}
+
+			const url = new URL(location);
+			url.pathname = "/rewind";
+			url.searchParams.set("t", String(idx));
+			history.pushState({}, "", url);
+			setTimeout(() => history.go(), 300);
+		}
+
+
+		function openFileChooser(monitor) {
+			let selector = "#imageFile_" + monitor;
+			document.querySelector(selector)?.click();
+		}
+
+		const countElement = () => document.querySelector("#rewindtext");
+		const rewindBtn = () => document.querySelector("#roll_back");
+		const forwardBtn = () => document.querySelector("#roll_forth");
+
+		function handleGoRewind(event, idx) {
+			if (typeof event?.preventDefault != "function") {
+				console.error("don't call this function directly");
+				return
+			}
+			event.preventDefault();
+
+			if (idx < 0) {
+				return;
+			}
+
+			if (typeof RollBack == "function") {
+
+				RollBack(idx).then((result) => {
+					const limit = Number(result.limit);
+
+					result.monitors?.forEach(i => {
+						let styleElement = document.querySelector("#style_" + i.monitor);
+						styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; background-size:" + i.mode + " }";
+					});
+					const textElement = countElement();
+					const backbtn = rewindBtn();
+					const forthbtn = forwardBtn();
+
+					backbtn?.removeAttribute("disabled");
+					forthbtn?.removeAttribute("disabled");
+
+					if (idx >= 0) {
+						textElement.textContent = idx;
+					}
+
+					let curr = Number(result.rewind || idx);
+					let next = curr - 1;
+					let prev = curr + 1;
+
+					if (prev >= limit) {
+						prev = limit - 1;
+					}
+
+					if (prev - next === 1) {
+						backbtn.setAttribute("disabled", true);
+					}
+
+					if (next < 0) {
+						forthbtn.setAttribute("disabled", true);
+					}
+
+				});
+			} else {
+				console.error("missing RollBack() code");
+			}
+		}
+
+		document.addEventListener("DOMContentLoaded", () => {
+
+			rewindBtn().addEventListener("click", (event) => {
+				const idx = Number(countElement().innerHTML);
+				handleGoRewind(event, idx + 1);
+			});
+
+			forwardBtn().addEventListener("click", (event) => {
+				const idx = Number(countElement().innerHTML);
+				handleGoRewind(event, idx - 1);
+			});
+
+			// setup frontend persistence
+			GetLocalJSON().then((result) => {
+				localStorage.clear();
+				const value = JSON.parse(result)
+				for (let key of Object.keys(value || {})) {
+					// write to localStorage
+					localStorage.setItem(key, value[key]);
+				}
+			}).finally(() => {
+				const monitors = document.querySelector("#monitors");
+				// read from localStorage
+				const className = localStorage.getItem("monitors");
+				if (className?.length > 0) {
+					// then set classname to persisted value
+					monitors.setAttribute("class", className);
+				}
+			});
+		});
+
+		function toggleRewind() {
+			rw = document.querySelector("#rewind");
+			if (rw.getAttribute("hidden")) {
+				rw.removeAttribute("hidden");
+			} else {
+				rw.setAttribute("hidden", true);
+			}
+		}
+
+		function persistLocalStorage() {
+			setTimeout(() => {
+				SaveLocalJSON(localStorage);
+			}, 300)
+		}
+
+		document.addEventListener('keydown', function (event) {
+			if (event.target.type == "text") {
+				return
+			}
+
+			let selector;
+			switch (event.key) {
+				case "h":
+					selector = "#roll_back";
+					break;
+				case "ArrowLeft":
+					selector = "#roll_back";
+					break;
+				case "l":
+					selector = "#roll_forth";
+					break;
+				case "ArrowRight":
+					selector = "#roll_forth";
+					break;
+				case "=":
+					toggleRewind();
+					break;
+				case "j":
+				case "k":
+				case "ArrowUp":
+				case "ArrowDown":
+					const monitors = document.querySelector("#monitors");
+					const className = monitors?.getAttribute("class").includes("flip") ? "monitors" : "monitors flip";
+					monitors.setAttribute("class", className);
+					localStorage.setItem("monitors", className);
+					persistLocalStorage()
+					break;
+				default:
+					//console.log(event.key);
+					break;
+			}
+			if (selector) {
+				document.querySelector(selector).click();
+			}
+		});
+	</script>
+</head>
+
+<body>
+	<div class="container">
+
+		<div id="monitors" class="monitors">
+			{{range .Hardware}}
+			<div class="{{.Name}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)" ondragenter="tagDropTarget(event)" ondragleave="untagDropTarget(event)">
+				<div class="desc">{{.Name}}</div>
+				<form id="form_{{.Name}}" enctype="multipart/form-data" action="/upload" method="post">
+					<input id="imageFile" type="file" name="imageFile" hidden />
+					<input type="text" name="monitor" value="{{.Name}}" hidden />
+					<select id="mode" class="different" name="mode">
+						<option value="0">≡</option>
+						<option value="cover">cover</option>
+						<option value="contain">contain</option>
+					</select>
+					<input id="send_{{.Name}}" type="submit" value="upload" hidden />
+				</form>
+				<script type="text/javascript">
+					document.addEventListener("DOMContentLoaded", () => {
+						document.querySelector("#form_{{.Name}} > #mode").addEventListener("change", (event) => {
+							const mode = event.target.value;
+							const monitor = "{{.Name}}";
+							if (mode != "0") {
+								// monitor, mode
+								SetWallpaperMode(monitor, mode);
+								// filename
+								MonitorFileName(monitor).then((fname) => {
+									modeCache = JSON.parse(localStorage.getItem("modes")) || {};
+									modeCache[fname] = mode;
+									localStorage.setItem("modes", JSON.stringify(modeCache));
+									persistLocalStorage();
+									const el = document.querySelector(".{{.Name}}");
+									let style = window.getComputedStyle(el);
+									let image = style.getPropertyValue("background-image");
+									if (image) {
+										document.querySelector("#style_{{.Name}}").textContent = ".{{.Name}} { background-image: " + image + "; background-position: center; background-repeat: no-repeat; background-size:" + mode + " }";
+									}
+								});
+								event.target.selectedIndex = 0;
+								event.target.blur();
+							}
+						});
+
+					});
+				</script>
+			</div>
+			{{end}}
+
+			{{range .Monitors}}
+			<style id="style_{{.Monitor}}" type="text/css">
+				.{{.Monitor}} {
+					// 
+				};
+			</style>
+			<script id="script_{{.Monitor}}" type="text/javascript">
+				if (String("{{.Paper}}")?.split("/")?.pop() in JSON.parse(localStorage.getItem("modes") || "{}")) {
+					document.querySelector("#style_{{.Monitor}}").textContent = ".{{.Monitor}} { background-color: black; background-image: url({{.Thumb64|safeURL}}); background-position: center; background-repeat: no-repeat; background-size:" + JSON.parse(localStorage.getItem("modes"))[String("{{.Paper}}").split("/").pop()] + "; }";
+				} else {
+					document.querySelector("#style_{{.Monitor}}").textContent = ".{{.Monitor}} { background-color: black; background-image: url({{.Thumb64|safeURL}}); background-position: center; background-repeat: no-repeat; background-size: cover; }";
+				}
+			</script>
+			{{end}}
+
+		</div>
+		<div id="rewind" class="rewind" hidden >
+			<button id="roll_back" title="previous" tabindex="-1">⏮</button>
+			<span id="rewindtext">{{.Rewind}}</span>
+			<button id="roll_forth" title="next" tabindex="-1">⏭</button>
+		</div>
+
+		<!-- (begin) Example -->
+		<div id="wallhaven" class="container-wallhaven">
+			<hr>
+			
+			<div class="search-bar">
+				<input id="search-query" type=text; placeholder="wallhaven.cc" />
+				<button aria-label="search" id="search-btn" onclick="handleWallhaven()">🔎</button>
+			</div>
+
+			<div id="search-results">
+				<ul id="search-result-list"></ul>
+			</div>
+
+			<span class="whvn-pages">
+				<button id="whvn-prev" class="whvn-prev">⏮</button>
+				<button id="whvn-next" class="whvn-next">⏭</button>
+			</span>
+
+			<style type="text/css">
+				.whvn-pages {
+					display: flex;
+					align-items: space-around;
+					justify-content: center;
+				}
+				.whvn-prev,.whvn-next {
+					display: flex;
+					margin: 20px;
+					cursor: pointer;
+				}
+
+				#search-results {
+					display: inline-block;
+					vertical-align: top;
+				}
+
+				.haven-wall {
+					display: inline-block;
+					vertical-align: top;
+					background-color: black; 
+					background-position: center; 
+					background-repeat: no-repeat; 
+					background-size: cover; 
+					width: 300px;
+					height: 200px;
+					margin: 5px;
+
+					&:hover {
+						outline: 2px solid #27BAD1;
+						cursor: pointer;
+					}
+					
+				}
+
+				ul {
+					margin: 0 auto;
+					text-align: center;
+					padding: 20px;
+
+				}
+			</style>
+		</div>
+
+		<script id="script_wallhaven" type="text/javascript">
+			var searchResults;
+			
+			document.querySelector("#whvn-prev").addEventListener("click", (event) => {
+				console.log(searchResults?.meta);
+				console.log('whvn-prev');
+				if (searchResults?.meta?.current_page > 1) {
+					let page = searchResults.meta.current_page - 1;
+					console.log("page ${page}");
+					handleWallhaven(page);
+				}
+			});
+
+			document.querySelector("#whvn-next").addEventListener("click", (event) => {
+				console.log(searchResults?.meta);
+				console.log('whvn-prev');
+				if (searchResults?.meta?.last_page > searchResults?.meta?.current_page) {
+					let page = searchResults.meta.current_page + 1;
+					console.log("page ${page}");
+					handleWallhaven(page);
+				}
+			});
+
+			function handleWallhaven(page) {
+				const paramsObj = {};
+				const query = document.querySelector("#search-query").value;
+
+				if (query.length > 0) {
+					paramsObj["q"] = query;
+				}
+				
+				if (page > 1) {
+					paramsObj["page"] = page;
+				}
+
+				const searchParams = new URLSearchParams(paramsObj);
+
+				let url = "https://wallhaven.cc/api/v1/search";
+
+				let srch = searchParams.toString();
+				console.log(srch);
+
+				if (srch?.length > 1) {
+					url += "?" + srch
+				}
+
+				Wetch(url)
+				.then((res) => { searchResults = res; })
+				.finally(() => updateResults("whvn"));
+
+			}
+
+			function updateResults(caller) {
+				if (caller != "whvn") {
+					console.log("do not call this!");
+					return
+				}
+				const targetUnorderedList = document.querySelector("#search-result-list");
+
+				// clear the list
+				targetUnorderedList.replaceChildren([])
+
+				searchResults.data.forEach((item, idx) => {
+					const newLI = document.createElement("li");
+					newLI.id = "result-" + idx;
+					newLI.setAttribute("onkeyup", "onKeyUp(event)");
+					newLI.setAttribute("tabindex", "0");
+					newLI.classList.add("haven-wall");
+					newLI.setAttribute("style", "background-image: url('" + item.thumbs.small + "');");
+					const foo = "webImage('" + item.path + "')";
+					newLI.setAttribute("onclick", foo);
+					targetUnorderedList.appendChild(newLI);										
+				});
+			}
+
+			function webImage(url) {
+				DownloadImage(url)
+				.catch((err) => console.log("invalid", err))
+				.finally(() => setTimeout(catchUp, 300));
+			}
+
+			function catchUp() {
+				if (typeof RollBack == "function") {
+					RollBack(0).then((result) => {
+						const limit = Number(result.limit);
+
+						result.monitors?.forEach(i => {
+							let styleElement = document.querySelector("#style_" + i.monitor);
+							styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; background-size:" + i.mode + " }";
+						});
+						const textElement = countElement();
+						const backbtn = rewindBtn();
+						const forthbtn = forwardBtn();
+
+						backbtn?.removeAttribute("disabled");
+						forthbtn?.removeAttribute("disabled");
+
+						textElement.textContent = 0;
+
+						let curr = Number(result.rewind || 0);
+						let next = curr - 1;
+						let prev = curr + 1;
+
+						if (prev >= limit) {
+							prev = limit - 1;
+						}
+
+						if (prev - next === 1) {
+							backbtn.setAttribute("disabled", true);
+						}
+
+						if (next < 0) {
+							forthbtn.setAttribute("disabled", true);
+						}
+					});
+				} else {
+					console.error("missing RollBack() code");
+				}
+			}
+
+			function onKeyUp(e) {				
+				if (e.key === "Enter") {
+					e.target.click();
+				}
+			}
+		</script>
+
+		<style id="style_wallhaven" type="text/css">
+			.container-wallhaven {
+				text-align: center;
+				overflow: scroll;
+			}
+
+			.search-bar {
+				justify-content: space-around;
+				margin-top: 20px;
+			}
+
+			#search-query {
+				background-color: #01181F;
+				color: #27BAD1;
+			}
+
+			#search-btn {
+				border-radius: 0px;
+				color: #27BAD1;
+			}
+		</style>
+		
+		<!-- (end) Example -->
+	</div>
+
+</body>
+
+</html>
