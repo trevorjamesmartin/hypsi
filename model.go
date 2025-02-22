@@ -558,9 +558,8 @@ func (w Webpage) _Template() string {
 	}
 	return string(tmpl)
 }
-func webInit() Webpage {
-	page := Webpage{}
 
+func hyprWebInit(page Webpage) Webpage {
 	core, err := hyprCtlVersion()
 
 	if err != nil {
@@ -574,6 +573,20 @@ func webInit() Webpage {
 	} else {
 		// static value for now
 		page.data.Hardware = hw
+	}
+	return page
+}
+
+func webInit() Webpage {
+	page := Webpage{}
+
+	// # debug w/o Hyprland
+	// export HYPRSKIP=YES
+
+	// # blank window + Failed to get GBM device
+	// export WEBKIT_DISABLE_DMABUF_RENDERER=1
+	if _, skipHypr := os.LookupEnv("HYPRSKIP"); !skipHypr {
+		page = hyprWebInit(page)
 	}
 
 	hist, _ := readHistory()
