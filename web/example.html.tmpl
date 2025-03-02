@@ -537,7 +537,7 @@
 					url += "?" + srch
 				}
 
-				Wetch(url)
+				GoFetchJSON(url)
 				.then((res) => { searchResults = res; })
 				.finally(() => updateResults("whvn"));
 

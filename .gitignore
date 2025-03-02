@@ -2,3 +2,4 @@
 .vscode
 result# Added by goreleaser init:
 dist/
+result

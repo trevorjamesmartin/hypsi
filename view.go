@@ -108,7 +108,7 @@ func gtkView(pub Publisher) {
 		fmt.Print("\n[ 👀 webview ]\n")
 	}
 
-	w.Bind("Wetch", Wetch) // ryhmes with fetch
+	w.Bind("GoFetchJSON", FetchJSON)
 
 	w.Bind("DownloadImage", DownloadImage)
 

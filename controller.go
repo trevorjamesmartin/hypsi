@@ -26,7 +26,8 @@ import (
 	"golang.org/x/image/webp"
 )
 
-func Wetch(url string) json.RawMessage {
+// url should return JSON format
+func FetchJSON(url string) json.RawMessage {
 	valid, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", url)
 
 	if !valid {
@@ -219,18 +220,29 @@ func readFromCLI(argsWithoutProg []string) {
 
 // readFromWeb Function (webview) - read from webview
 func readFromWeb(monitor, filename string) {
-	if activeplanes, err := listActive(); err != nil {
-		log.Fatal(err)
-	} else {
-		var prevImage string
-		nextImage := filename
+	currentDesktop := os.Getenv("XDG_CURRENT_DESKTOP")
+	var prevImage string
+	nextImage := filename
+
+	switch currentDesktop {
+	case "KDE":
+		// set the wallpaper
+		//setWallpaperKDE(monitor, filename)
+		setWallpaper(filename, monitor, "")
+	default:
+		// Hyprland
+		activeplanes, err := listActive()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		for _, p := range activeplanes {
 			if p.Monitor == monitor {
 				prevImage = p.Paper
 				break
 			}
 		}
-
 		if prevImage != nextImage {
 			unloadWallpaper(prevImage)
 			preloadWallpaper(nextImage)
@@ -247,6 +259,7 @@ func readFromWeb(monitor, filename string) {
 			writeConfig(true)
 		}
 	}
+
 }
 
 func listMonitors() ([]*HyprMonitor, error) {
@@ -400,17 +413,21 @@ func preloadWallpaper(image string) {
 func setWallpaper(image, monitor, mode string) error {
 	var cmd *exec.Cmd
 
-	switch mode {
-	case "cover", "":
-		// "monitor,image"
-		fmt.Printf("set wallpaper: %s,%s\n", monitor, image)
-		cmd = exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s", monitor, image))
-	default:
-		// monitor,mode:image
-		fmt.Printf("set wallpaper: %s,%s:%s\n", monitor, mode, image)
-		cmd = exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s:%s\n", monitor, mode, image))
+	if session, _ := os.LookupEnv("DESKTOP_SESSION"); session == "plasma" {
+		fmt.Printf("apply wallpaper: %s\n", image)
+		cmd = exec.Command("/usr/bin/plasma-apply-wallpaperimage", image)
+	} else {
+		switch mode {
+		case "cover", "":
+			// "monitor,image"
+			fmt.Printf("set wallpaper: %s,%s\n", monitor, image)
+			cmd = exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s", monitor, image))
+		default:
+			// monitor,mode:image
+			fmt.Printf("set wallpaper: %s,%s:%s\n", monitor, mode, image)
+			cmd = exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s:%s\n", monitor, mode, image))
+		}
 	}
-
 	stdout, err := cmd.StdoutPipe()
 
 	if err != nil {
@@ -554,23 +571,75 @@ func rewind(n int) (bool, int) {
 	return true, len(past)
 }
 
-func activeMonitor() string {
-	buf, err := exec.Command("hyprctl", "activeworkspace", "-j").CombinedOutput()
+// uses xrandr output to identify monitor names
+func xrandrMonitors() ([]string, error) {
+	var result []string
+	cmd := exec.Command("xrandr", "--listactivemonitors")
+
+	stdout, _ := cmd.StdoutPipe()
+
+	err := cmd.Start()
 
 	if err != nil {
-		fmt.Println(err)
-		return ""
+		return result, err
+	}
+	scanner := bufio.NewScanner(stdout)
+
+	if scanner.Scan() {
+		// first line shows the number of active monitors,
+		// this number will equal the length of the return value
+		// ...
+		_ = scanner.Text() // redundant
 	}
 
-	var ws HyprCtlActiveWorkspace
-
-	if err = json.Unmarshal(buf, &ws); err != nil {
-		fmt.Println("ERROR:")
-		fmt.Println(buf)
-		log.Fatal(err)
+	for scanner.Scan() {
+		line := strings.Trim(scanner.Text(), " ")
+		spc := strings.Split(line, " ")
+		monitorName := spc[len(spc)-1]
+		result = append(result, monitorName)
 	}
 
-	return ws.Monitor
+	if scanner.Err() != nil {
+		return result, scanner.Err()
+	}
+
+	return result, nil
+}
+
+func activeMonitor() string {
+	currentDesktop := os.Getenv("XDG_CURRENT_DESKTOP")
+	var monitorName string
+
+	switch currentDesktop {
+	case "KDE":
+		monitors, err := xrandrMonitors()
+		if err != nil {
+			log.Fatal(err)
+		}
+		// for now,
+		// just return the first monitor listed
+		monitorName = monitors[0]
+
+	default:
+		// Hyprland's hyprctl
+		buf, err := exec.Command("hyprctl", "activeworkspace", "-j").CombinedOutput()
+
+		if err != nil {
+			fmt.Println(err)
+			return ""
+		}
+
+		var ws HyprCtlActiveWorkspace
+
+		if err = json.Unmarshal(buf, &ws); err != nil {
+			fmt.Println("ERROR:")
+			fmt.Println(buf)
+			log.Fatal(err)
+		}
+
+		monitorName = ws.Monitor
+	}
+	return monitorName
 }
 
 func makeThumbNail(inputPath, thumb string) {
