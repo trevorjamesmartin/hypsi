@@ -18,8 +18,6 @@ github.com/trevorjamesmartin/resize v0.0.0-20250109194826-22a07cf5d819 h1:ggmhzK
 github.com/trevorjamesmartin/resize v0.0.0-20250109194826-22a07cf5d819/go.mod h1:/oZEemfq4EqGgOPvtKDfphNR7iVatFfPnK2HuGltj1I=
 github.com/trevorjamesmartin/webview_go v0.0.0-20250129182324-a1d025b1985c h1:iVhDx5g6irOw/xlFjuw4LyXaMalrIYttdRpRM9vDsWo=
 github.com/trevorjamesmartin/webview_go v0.0.0-20250129182324-a1d025b1985c/go.mod h1:GgeOPFuZrW7r6BrGVlAzxuclHkFu9RHL2G8GiON5ieQ=
-golang.org/x/image v0.23.0 h1:HseQ7c2OpPKTPVzNjG5fwJsOTCiiwS4QdsYi5XU6H68=
-golang.org/x/image v0.23.0/go.mod h1:wJJBTdLfCCf3tiHa1fNxpZmUI4mmoZvwMCPP0ddoNKY=
 golang.org/x/sys v0.26.0 h1:KHjCJyddX0LoSTb3J+vWpupP9p0oznkqVk/IfjymZbo=
 golang.org/x/sys v0.26.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=

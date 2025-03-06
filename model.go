@@ -580,13 +580,19 @@ func hyprWebInit(page Webpage) Webpage {
 func webInit() Webpage {
 	page := Webpage{}
 
-	// # debug w/o Hyprland
-	// export HYPRSKIP=YES
+	switch os.Getenv("XDG_CURRENT_DESKTOP") {
+	case "KDE":
+		page = plasmaWebInit(page)
+	default:
+		// Hyprland
+		// # debug w/o Hyprland
+		// export HYPRSKIP=YES
 
-	// # blank window + Failed to get GBM device
-	// export WEBKIT_DISABLE_DMABUF_RENDERER=1
-	if _, skipHypr := os.LookupEnv("HYPRSKIP"); !skipHypr {
-		page = hyprWebInit(page)
+		// # blank window + Failed to get GBM device
+		// export WEBKIT_DISABLE_DMABUF_RENDERER=1
+		if _, skipHypr := os.LookupEnv("HYPRSKIP"); !skipHypr {
+			page = hyprWebInit(page)
+		}
 	}
 
 	hist, _ := readHistory()

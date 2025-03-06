@@ -7,10 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	"image/gif"
 	"image/jpeg"
-	"image/png"
 
+	//"image/png"
+	//"image/gif"
 	"io"
 	"log"
 	"net/http"
@@ -23,7 +23,7 @@ import (
 	"github.com/MaestroError/go-libheif"
 	"github.com/adrg/xdg"
 	"github.com/trevorjamesmartin/resize"
-	"golang.org/x/image/webp"
+	//"golang.org/x/image/webp"
 )
 
 // url should return JSON format
@@ -133,11 +133,15 @@ func getContentType(fname string) (string, error) {
 }
 
 func readFromCLI(argsWithoutProg []string) {
+	var mode string
+	currentDesktop := os.Getenv("XDG_CURRENT_DESKTOP")
+
 	// mode ?
 	var fname string
 	x := strings.Split(argsWithoutProg[0], `:`)
 
 	if len(x) == 2 {
+		mode = x[0]
 		fname = x[1]
 	} else {
 		fname = argsWithoutProg[0]
@@ -146,93 +150,120 @@ func readFromCLI(argsWithoutProg []string) {
 	_, err := os.Stat(fname)
 	if os.IsNotExist(err) {
 		fmt.Printf("not a valid background image: [ %s ]", fname)
-	} else {
-		fname, _ = filepath.Abs(fname)
+		return
+	}
 
-		contentType, err := getContentType(fname)
+	fname, _ = filepath.Abs(fname)
+
+	contentType, err := getContentType(fname)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(contentType)
+
+	var activeplanes []*Plane
+
+	switch currentDesktop {
+	case "KDE":
+		activeplanes, err = plasmaListActive()
+	default:
+		activeplanes, err = listActive()
+	}
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	// file exists
+	var nextImage string
+
+	// can Hyprland read this image file?
+	switch filepath.Ext(fname) {
+	case ".heic", ".heif":
+		newfile := fmt.Sprintf("%s.jpg", fname)
+
+		err = libheif.HeifToJpeg(fname, newfile, 100)
 
 		if err != nil {
 			log.Fatal(err)
 		}
+		nextImage = newfile
 
-		fmt.Println(contentType)
+	case ".bmp":
+		log.Fatal("Unsupported file type")
+	default:
+		if strings.HasPrefix(contentType, "image") {
+			nextImage = fname
+		} else {
+			log.Fatalf("Unsupported mime type %v\n", contentType)
+		}
+	}
 
-		activeplanes, err := listActive()
+	monitor := activeMonitor()
 
+	var prevImage string
+
+	for _, p := range activeplanes {
+		if p.Monitor == monitor {
+			prevImage = p.Paper
+			break
+		}
+	}
+
+	switch currentDesktop {
+	case "KDE":
+		fname := filepath.Base(nextImage)
+
+		if len(mode) == 0 {
+			mode = getModeSetting(monitor, fname)
+		}
+
+		err = plasmaWallpaperCommand(nextImage, monitor, mode)
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 			return
 		}
-
-		// file exists
-		var nextImage string
-
-		switch filepath.Ext(fname) {
-		case ".heic", ".heif":
-			newfile := fmt.Sprintf("%s.jpg", fname)
-
-			err = libheif.HeifToJpeg(fname, newfile, 100)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-			nextImage = newfile
-
-		case ".bmp":
-			log.Fatal("Unsupported file type")
-		default:
-			if strings.HasPrefix(contentType, "image") {
-				nextImage = fname
-			} else {
-				log.Fatalf("Unsupported mime type %v\n", contentType)
-			}
-		}
-
-		monitor := activeMonitor()
-
-		var prevImage string
-
-		for _, p := range activeplanes {
-			if p.Monitor == monitor {
-				prevImage = p.Paper
-				break
-			}
-		}
-
+	default:
 		if prevImage != nextImage {
 			unloadWallpaper(prevImage)
 			preloadWallpaper(nextImage)
 			fname := filepath.Base(nextImage)
-			mode := getModeSetting(monitor, fname)
+			mode = getModeSetting(monitor, fname)
 
 			if err = setWallpaper(nextImage, monitor, mode); err != nil {
 				log.Fatal(err)
 				return
 			}
 
-			HYPSI_STATE.SetRewind(0)
-			writeConfig(true)
-
 		}
 	}
+
+	HYPSI_STATE.SetRewind(0)
+	writeConfig(true)
 
 }
 
 // readFromWeb Function (webview) - read from webview
 func readFromWeb(monitor, filename string) {
 	currentDesktop := os.Getenv("XDG_CURRENT_DESKTOP")
-	var prevImage string
+	var prevImage, mode string
 	nextImage := filename
 
 	switch currentDesktop {
 	case "KDE":
-		// set the wallpaper
-		//setWallpaperKDE(monitor, filename)
-		setWallpaper(filename, monitor, "")
+		mode = getModeSetting(monitor, filename)
+		err := plasmaWallpaperCommand(filename, monitor, mode)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		// HYPSI_STATE.SetRewind(0)
 	default:
 		// Hyprland
 		activeplanes, err := listActive()
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -247,7 +278,7 @@ func readFromWeb(monitor, filename string) {
 			unloadWallpaper(prevImage)
 			preloadWallpaper(nextImage)
 			fname := filepath.Base(nextImage)
-			mode := getModeSetting(monitor, fname)
+			mode = getModeSetting(monitor, fname)
 
 			if err = setWallpaper(nextImage, monitor, mode); err != nil {
 				log.Fatal(err)
@@ -255,13 +286,14 @@ func readFromWeb(monitor, filename string) {
 				return
 			}
 
-			HYPSI_STATE.SetRewind(0)
-			writeConfig(true)
 		}
 	}
+	HYPSI_STATE.SetRewind(0)
+	writeConfig(true)
 
 }
 
+// $ hyprctl monitors -j
 func listMonitors() ([]*HyprMonitor, error) {
 
 	cmd := exec.Command("hyprctl", "monitors", "-j")
@@ -303,7 +335,13 @@ func listMonitors() ([]*HyprMonitor, error) {
 
 }
 
+// $ hyprctl hyprpaper listactive
 func listActive() ([]*Plane, error) {
+
+	if os.Getenv("XDG_CURRENT_DESKTOP") == "KDE" {
+		return plasmaListActive()
+	}
+
 	cmd := exec.Command("hyprctl", "hyprpaper", "listactive")
 	// note: "mode" setting is not displayed by this command
 
@@ -341,6 +379,9 @@ func listActive() ([]*Plane, error) {
 // unloadWallpaper Function
 // $ hyprctl hyprpaper unload {image}
 func unloadWallpaper(image string) {
+	if os.Getenv("XDG_CURRENT_DESKTOP") == "KDE" {
+		return
+	}
 	cmd := exec.Command("hyprctl", "hyprpaper", "unload", image)
 	stdout, err := cmd.StdoutPipe()
 
@@ -378,7 +419,19 @@ func unloadWallpaper(image string) {
 // preloadWallpaper Function
 // $ hyprctl hypaper preload {image}
 func preloadWallpaper(image string) {
-	fmt.Printf("preload: %s\n", image)
+	if os.Getenv("XDG_CURRENT_DESKTOP") == "KDE" {
+		return
+	}
+
+	extension := filepath.Ext(image)
+
+	switch extension {
+	case ".avif", ".heif":
+		fmt.Printf("Hyprland can't handle %s\n", extension)
+		return
+	default:
+		fmt.Printf("preload: %s\n", image)
+	}
 
 	cmd := exec.Command("hyprctl", "hyprpaper", "preload", image)
 	stdout, err := cmd.StdoutPipe()
@@ -412,11 +465,15 @@ func preloadWallpaper(image string) {
 // $ hyprctrl hyprpaper wallpaper {monitor},{image}
 func setWallpaper(image, monitor, mode string) error {
 	var cmd *exec.Cmd
+	var err error
 
-	if session, _ := os.LookupEnv("DESKTOP_SESSION"); session == "plasma" {
-		fmt.Printf("apply wallpaper: %s\n", image)
-		cmd = exec.Command("/usr/bin/plasma-apply-wallpaperimage", image)
-	} else {
+	extension := filepath.Ext(image)
+
+	switch extension {
+	case ".avif", ".heif":
+		fmt.Printf("Hyprland can't handle %s\n", extension)
+		return nil
+	default:
 		switch mode {
 		case "cover", "":
 			// "monitor,image"
@@ -428,6 +485,7 @@ func setWallpaper(image, monitor, mode string) error {
 			cmd = exec.Command("hyprctl", "hyprpaper", "wallpaper", fmt.Sprintf("%s,%s:%s\n", monitor, mode, image))
 		}
 	}
+
 	stdout, err := cmd.StdoutPipe()
 
 	if err != nil {
@@ -444,6 +502,7 @@ func setWallpaper(image, monitor, mode string) error {
 
 	for scanner.Scan() {
 		text := strings.ToLower(scanner.Text())
+		fmt.Println(text)
 
 		if strings.HasPrefix(text, "wallpaper failed") {
 			err = errors.New(text)
@@ -453,16 +512,17 @@ func setWallpaper(image, monitor, mode string) error {
 			err = errors.New(text)
 		}
 	}
+	cmd.Wait()
 
 	if scanner.Err() != nil {
 		cmd.Process.Kill()
-		cmd.Wait()
 		return scanner.Err()
 	}
 
 	return err
 }
 
+// => $ hyprctl hyprpaper listactive
 func monitorFilename(monitor string) string {
 	var fname string
 	monitors, err := listActive()
@@ -482,6 +542,13 @@ func monitorFilename(monitor string) string {
 }
 
 func setWallpaperMode(monitor, mode string) {
+	currentDesktop := os.Getenv("XDG_CURRENT_DESKTOP")
+
+	if currentDesktop == "KDE" {
+		plasmaSetWallpaperMode(monitor, mode)
+		return
+	}
+
 	monitors, err := listActive()
 
 	if err != nil {
@@ -508,6 +575,7 @@ func setWallpaperMode(monitor, mode string) {
 	}
 }
 
+// hyprpaper.conf
 func writeConfig(historical bool) {
 	configfile := fmt.Sprintf("%s/hypr/hyprpaper.conf", xdg.ConfigHome)
 
@@ -559,51 +627,23 @@ func rewind(n int) (bool, int) {
 	}
 
 	for _, v := range target.unfold() {
-		preloadWallpaper(v.Paper)
+
+		currentDesktop := os.Getenv("XDG_CURRENT_DESKTOP")
 		fname := filepath.Base(v.Paper)
 		mode := getModeSetting(v.Monitor, fname)
-		// update wallpaper
-		if err := setWallpaper(v.Paper, v.Monitor, mode); err != nil {
-			log.Fatal(err)
+		switch currentDesktop {
+		case "KDE":
+			plasmaWallpaperCommand(v.Paper, v.Monitor, mode)
+		default:
+			preloadWallpaper(v.Paper)
+			// update wallpaper
+			if err := setWallpaper(v.Paper, v.Monitor, mode); err != nil {
+				log.Fatal(err)
+			}
 		}
 		// note, the config file isn't being written here
 	}
 	return true, len(past)
-}
-
-// uses xrandr output to identify monitor names
-func xrandrMonitors() ([]string, error) {
-	var result []string
-	cmd := exec.Command("xrandr", "--listactivemonitors")
-
-	stdout, _ := cmd.StdoutPipe()
-
-	err := cmd.Start()
-
-	if err != nil {
-		return result, err
-	}
-	scanner := bufio.NewScanner(stdout)
-
-	if scanner.Scan() {
-		// first line shows the number of active monitors,
-		// this number will equal the length of the return value
-		// ...
-		_ = scanner.Text() // redundant
-	}
-
-	for scanner.Scan() {
-		line := strings.Trim(scanner.Text(), " ")
-		spc := strings.Split(line, " ")
-		monitorName := spc[len(spc)-1]
-		result = append(result, monitorName)
-	}
-
-	if scanner.Err() != nil {
-		return result, scanner.Err()
-	}
-
-	return result, nil
 }
 
 func activeMonitor() string {
@@ -616,6 +656,7 @@ func activeMonitor() string {
 		if err != nil {
 			log.Fatal(err)
 		}
+		// TODO: provide this information ?
 		// for now,
 		// just return the first monitor listed
 		monitorName = monitors[0]
@@ -654,35 +695,12 @@ func makeThumbNail(inputPath, thumb string) {
 	defer file.Close()
 
 	var img image.Image
+	var fmat string
+	img, fmat, err = image.Decode(file)
 
-	switch filepath.Ext(inputPath) {
-	case ".jpg", ".jpeg":
-		img, err = jpeg.Decode(file)
-		if err != nil {
-			log.Fatal(err)
-		}
-	case ".png":
-		img, err = png.Decode(file)
-		if err != nil {
-			log.Fatal(err)
-		}
-	case ".gif":
-		img, err = gif.Decode(file)
-		if err != nil {
-			log.Fatal(err)
-		}
-	case ".webp":
-		img, err = webp.Decode(file)
-		if err != nil {
-			log.Fatal(err)
-		}
-	case ".bmp":
-		// img, err := bmp.Decode(file)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-	default:
-		log.Fatal("Unsupported file type")
+	if err != nil {
+		fmt.Printf(`makeThumbNail ERROR [imagePath: "%s", decode: "%s"]\n`, inputPath, fmat)
+		log.Fatal(err)
 	}
 
 	m := resize.Thumbnail(640, 360, img, resize.Lanczos3)
@@ -699,7 +717,6 @@ func makeThumbNail(inputPath, thumb string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 type HyprCtlVersion struct {

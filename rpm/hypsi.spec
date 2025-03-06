@@ -1,5 +1,5 @@
 Name:       hypsi
-Version:    1.0.6
+Version:    1.0.7
 %define     build_timestamp %{lua: print(os.date("%Y%m%d%H%M"))}
 Release:    %{build_timestamp}
 Summary:    A hyprpaper management tool
@@ -10,9 +10,11 @@ BuildRequires: libheif-devel >= 1.16
 BuildRequires: webkit2gtk4.1-devel
 BuildRequires: git
 BuildRequires: gcc-c++
+BuildRequires: libaom-devel
 
 Requires: libheif-devel >= 1.16
 Requires: webkit2gtk4.1-devel
+Requires: libaom-devel
 
 Provides: %{name} = %{version}
 
@@ -40,6 +42,10 @@ install -Dpm 0644 rpm/icon.png %{buildroot}%{_datadir}/icons/hicolor/512x512/app
 %{_datadir}/icons/hicolor/512x512/apps/hypsi.png
 
 %changelog
+* Thu Mar 06 2025 Trevor Martin - 1.0.7-0
+- thumbnailer for image/avif
+* Mon Mar 03 2025 Trevor Martin - 1.0.6-0
+- hack for KDE plasma
 * Sun Feb 16 2025 Trevor Martin - 1.0.5-2
 - minor update to the webview template
 * Sat Feb 15 2025 Trevor Martin - 1.0.5-1
