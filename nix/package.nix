@@ -18,7 +18,7 @@
 }: let
   pname = "hypsi"; # program
   mname = "Hypsi"; # menu entry / desktop file
-  version = "1.0.6";
+  version = "1.0.7";
   desktopItem = makeDesktopItem {
       name = "${pname}";
       comment = "a simple hyprpaper management tool";
@@ -47,7 +47,8 @@ in
       name = "${pname}-${version}";
     };
 
-    vendorHash = "sha256-yJaBmFTiQ/b78XaMtKL652Xp2bDHJwViW2yboN/HV8U=";
+    vendorHash = "sha256-45+pCxtcQmir/ZFtdpyQNsGUuSSJGsco8gJZWwv/V34=";
+
     strictDeps = true;
     nativeBuildInputs = [pkg-config];
     buildInputs = [
