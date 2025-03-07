@@ -4,7 +4,7 @@
   gotools,
   gopls,
   go-outline,
-  go_1_22,
+  go_1_23,
   gopkgs,
   gocode-gomod,
   godef,
@@ -28,7 +28,7 @@ mkShell {
     gotools
     gopls
     go-outline
-    go_1_22
+    go_1_23
     gopkgs
     gocode-gomod
     godef
@@ -53,6 +53,6 @@ mkShell {
     export SHELL=zsh;
     export PS1="\[\e[01;36m\][dev🐚Go]\[\e[0m\] \[\e[01;37m\]\w\[\e[0m\] $ ";
     export DEBUG=OK
-    ${go_1_22}/bin/go version;
+    ${go_1_23}/bin/go version;
   '';
 }

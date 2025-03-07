@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 	<title>Hypsi {{.Version}}</title>
 	<style id="style" type="text/css">
@@ -53,6 +52,10 @@
 			margin: 3px;
 			background-color: black;
 			border-radius: 5px;
+		}
+
+		.selected {
+			outline: 2px solid #27BAD1;
 		}
 
 		.drop-target {
@@ -137,6 +140,15 @@
 				location.reload();
 			} catch (e) {
 				console.error(e);
+			}
+		}
+
+		function handleClick(event) {
+			// todo : maybe a filechooser here ?	
+			if (event.target.classList.contains("selected")) {
+				event.target.classList.remove("selected");
+			} else {
+				event.target.classList.add("selected");
 			}
 		}
 
@@ -358,13 +370,11 @@
 		});
 	</script>
 </head>
-
 <body>
 	<div class="container">
-
 		<div id="monitors" class="monitors">
 			{{range .Hardware}}
-			<div class="{{.Name}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)" ondragenter="tagDropTarget(event)" ondragleave="untagDropTarget(event)">
+			<div class="{{.Name}} gallery" onclick="handleClick(event)" ondrop="handleDrop(event)" ondragover="allowDrop(event)" ondragenter="tagDropTarget(event)" ondragleave="untagDropTarget(event)">
 				<div class="desc">{{.Name}}</div>
 				<form id="form_{{.Name}}" enctype="multipart/form-data" action="/upload" method="post">
 					<input id="imageFile" type="file" name="imageFile" hidden />
@@ -421,229 +431,12 @@
 				}
 			</script>
 			{{end}}
-
 		</div>
 		<div id="rewind" class="rewind" hidden >
 			<button id="roll_back" title="previous" tabindex="-1">⏮</button>
 			<span id="rewindtext">{{.Rewind}}</span>
 			<button id="roll_forth" title="next" tabindex="-1">⏭</button>
 		</div>
-{{/*
-		<!-- (begin) Example -->
-		<div id="wallhaven" class="container-wallhaven">
-			<hr>
-			
-			<div class="search-bar">
-				<input id="search-query" type=text; placeholder="wallhaven.cc" />
-				<button aria-label="search" id="search-btn" onclick="handleWallhaven()">🔎</button>
-			</div>
-
-			<div id="search-results">
-				<ul id="search-result-list"></ul>
-			</div>
-
-			<span class="whvn-pages">
-				<button id="whvn-prev" class="whvn-prev">⏮</button>
-				<button id="whvn-next" class="whvn-next">⏭</button>
-			</span>
-
-			<style type="text/css">
-				.whvn-pages {
-					display: flex;
-					align-items: space-around;
-					justify-content: center;
-				}
-				.whvn-prev,.whvn-next {
-					display: flex;
-					margin: 20px;
-					cursor: pointer;
-				}
-
-				#search-results {
-					display: inline-block;
-					vertical-align: top;
-				}
-
-				.haven-wall {
-					display: inline-block;
-					vertical-align: top;
-					background-color: black; 
-					background-position: center; 
-					background-repeat: no-repeat; 
-					background-size: cover; 
-					width: 300px;
-					height: 200px;
-					margin: 5px;
-
-					&:hover {
-						outline: 2px solid #27BAD1;
-						cursor: pointer;
-					}
-					
-				}
-
-				ul {
-					margin: 0 auto;
-					text-align: center;
-					padding: 20px;
-
-				}
-			</style>
-		</div>
-
-		<script id="script_wallhaven" type="text/javascript">
-			var searchResults;
-			
-			document.querySelector("#whvn-prev").addEventListener("click", (event) => {
-				console.log(searchResults?.meta);
-				console.log('whvn-prev');
-				if (searchResults?.meta?.current_page > 1) {
-					let page = searchResults.meta.current_page - 1;
-					console.log("page ${page}");
-					handleWallhaven(page);
-				}
-			});
-
-			document.querySelector("#whvn-next").addEventListener("click", (event) => {
-				console.log(searchResults?.meta);
-				console.log('whvn-prev');
-				if (searchResults?.meta?.last_page > searchResults?.meta?.current_page) {
-					let page = searchResults.meta.current_page + 1;
-					console.log("page ${page}");
-					handleWallhaven(page);
-				}
-			});
-
-			function handleWallhaven(page) {
-				const paramsObj = {};
-				const query = document.querySelector("#search-query").value;
-
-				if (query.length > 0) {
-					paramsObj["q"] = query;
-				}
-				
-				if (page > 1) {
-					paramsObj["page"] = page;
-				}
-
-				const searchParams = new URLSearchParams(paramsObj);
-
-				let url = "https://wallhaven.cc/api/v1/search";
-
-				let srch = searchParams.toString();
-				console.log(srch);
-
-				if (srch?.length > 1) {
-					url += "?" + srch
-				}
-
-				GoFetchJSON(url)
-				.then((res) => { searchResults = res; })
-				.finally(() => updateResults("whvn"));
-
-			}
-
-			function updateResults(caller) {
-				if (caller != "whvn") {
-					console.log("do not call this!");
-					return
-				}
-				const targetUnorderedList = document.querySelector("#search-result-list");
-
-				// clear the list
-				targetUnorderedList.replaceChildren([])
-
-				searchResults.data.forEach((item, idx) => {
-					const newLI = document.createElement("li");
-					newLI.id = "result-" + idx;
-					newLI.setAttribute("onkeyup", "onKeyUp(event)");
-					newLI.setAttribute("tabindex", "0");
-					newLI.classList.add("haven-wall");
-					newLI.setAttribute("style", "background-image: url('" + item.thumbs.small + "');");
-					const foo = "webImage('" + item.path + "')";
-					newLI.setAttribute("onclick", foo);
-					targetUnorderedList.appendChild(newLI);										
-				});
-			}
-
-			function webImage(url) {
-				DownloadImage(url)
-				.catch((err) => console.log("invalid", err))
-				.finally(() => setTimeout(catchUp, 300));
-			}
-
-			function catchUp() {
-				if (typeof RollBack == "function") {
-					RollBack(0).then((result) => {
-						const limit = Number(result.limit);
-
-						result.monitors?.forEach(i => {
-							let styleElement = document.querySelector("#style_" + i.monitor);
-							styleElement.textContent = "." + i.monitor + " { background-image: url(" + i.image + "); background-position: center; background-repeat: no-repeat; background-size:" + i.mode + " }";
-						});
-						const textElement = countElement();
-						const backbtn = rewindBtn();
-						const forthbtn = forwardBtn();
-
-						backbtn?.removeAttribute("disabled");
-						forthbtn?.removeAttribute("disabled");
-
-						textElement.textContent = 0;
-
-						let curr = Number(result.rewind || 0);
-						let next = curr - 1;
-						let prev = curr + 1;
-
-						if (prev >= limit) {
-							prev = limit - 1;
-						}
-
-						if (prev - next === 1) {
-							backbtn.setAttribute("disabled", true);
-						}
-
-						if (next < 0) {
-							forthbtn.setAttribute("disabled", true);
-						}
-					});
-				} else {
-					console.error("missing RollBack() code");
-				}
-			}
-
-			function onKeyUp(e) {				
-				if (e.key === "Enter") {
-					e.target.click();
-				}
-			}
-		</script>
-
-		<style id="style_wallhaven" type="text/css">
-			.container-wallhaven {
-				text-align: center;
-				overflow: scroll;
-			}
-
-			.search-bar {
-				justify-content: space-around;
-				margin-top: 20px;
-			}
-
-			#search-query {
-				background-color: #01181F;
-				color: #27BAD1;
-			}
-
-			#search-btn {
-				border-radius: 0px;
-				color: #27BAD1;
-			}
-		</style>
-		
-		<!-- (end) Example -->
-*/}}
 	</div>
-
 </body>
-
 </html>

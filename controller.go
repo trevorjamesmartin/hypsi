@@ -93,7 +93,8 @@ func readEnvFile(path string) error {
 func ReadInput(args []string) {
 	onWeb, _ := regexp.MatchString("(((https?)://)([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)", args[0])
 	if onWeb {
-		DownloadImage(args[0])
+		monitors := args[1:]
+		DownloadImage(args[0], monitors)
 	} else {
 		readFromCLI(args)
 	}
@@ -748,7 +749,7 @@ func hyprCtlVersion() (HyprCtlVersion, error) {
 }
 
 // download image, then set wallpaper
-func DownloadImage(validURL string) {
+func DownloadImage(validURL string, monitors []string) {
 	resp, err := http.Get(validURL)
 
 	if err != nil {
@@ -787,7 +788,15 @@ func DownloadImage(validURL string) {
 		defer tempFile.Close()
 		tempFile.Write(fileBytes)
 		fmt.Println("Successfully Downloaded File")
-		monitor := activeMonitor()
-		defer readFromWeb(monitor, filename)
+
+		if len(monitors) == 0 {
+			monitors = []string{activeMonitor()}
+		}
+
+		defer func() {
+			for _, monitor := range monitors {
+				readFromWeb(monitor, filename)
+			}
+		}()
 	}
 }

@@ -55,6 +55,10 @@
 			border-radius: 5px;
 		}
 
+		.selected {
+			outline: 2px solid #27BAD1;
+		}
+
 		.drop-target {
 			outline: 2px solid #27BAD1;
 		}
@@ -137,6 +141,14 @@
 				location.reload();
 			} catch (e) {
 				console.error(e);
+			}
+		}
+
+		function handleClick(event) {			
+			if (event.target.classList.contains("selected")) {
+				event.target.classList.remove("selected");
+			} else {
+				event.target.classList.add("selected");
 			}
 		}
 
@@ -364,7 +376,7 @@
 
 		<div id="monitors" class="monitors">
 			{{range .Hardware}}
-			<div class="{{.Name}} gallery" ondrop="handleDrop(event)" ondragover="allowDrop(event)" ondragenter="tagDropTarget(event)" ondragleave="untagDropTarget(event)">
+			<div id="{{.Name}}" class="{{.Name}} gallery" onclick="handleClick(event)" ondrop="handleDrop(event)" ondragover="allowDrop(event)" ondragenter="tagDropTarget(event)" ondragleave="untagDropTarget(event)">
 				<div class="desc">{{.Name}}</div>
 				<form id="form_{{.Name}}" enctype="multipart/form-data" action="/upload" method="post">
 					<input id="imageFile" type="file" name="imageFile" hidden />
@@ -567,7 +579,8 @@
 			}
 
 			function webImage(url) {
-				DownloadImage(url)
+				let selectedMonitors = Array.from(document.querySelectorAll(".selected")).map((i) => i.id);
+				DownloadImage(url, selectedMonitors)
 				.catch((err) => console.log("invalid", err))
 				.finally(() => setTimeout(catchUp, 300));
 			}
