@@ -360,6 +360,23 @@
 					localStorage.setItem("monitors", className);
 					persistLocalStorage()
 					break;
+				case "1":
+				case "2":
+				case "3":
+				case "4":
+				case "5":
+				case "6":
+				case "7":
+				case "8":
+				case "9":
+					const selectScreen = Number(event.key) - 1;
+					const elMonitors = Array.from(document.querySelectorAll(".gallery"));
+					if ((elMonitors.length - 1) < selectScreen) {
+						console.log("[select monitor]: I only detect", elMonitors.length)
+					} else {
+						elMonitors[selectScreen].click()
+					}				
+					break;
 				default:
 					//console.log(event.key);
 					break;
