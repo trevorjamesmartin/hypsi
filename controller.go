@@ -66,28 +66,30 @@ func pathExists(path string) (bool, error) {
 	return false, err
 }
 
-func readEnvFile(path string) error {
+func readEnvFile(path string) (string, error) {
 	file, err := os.Open(path)
-
+	var result string
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	scanner := bufio.NewScanner(file)
 
+	result += fmt.Sprintf("[environment: %s]", path)
+
 	for scanner.Scan() {
 		kv := strings.Split(scanner.Text(), "=")
 		if len(kv) == 2 {
-			fmt.Printf("%s : %s\n", kv[0], kv[1])
+			result += fmt.Sprintf("\n%s : %s", kv[0], kv[1])
 			os.Setenv(kv[0], kv[1])
 		}
 	}
 
 	if scanner.Err() != nil {
-		return scanner.Err()
+		return result, scanner.Err()
 	}
 
-	return nil
+	return result, nil
 }
 
 func ReadInput(args []string) {

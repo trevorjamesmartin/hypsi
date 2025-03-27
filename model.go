@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -20,7 +21,7 @@ import (
 
 type StateFactory struct{}
 
-func (sf *StateFactory) Create() AppState {
+func (sf *StateFactory) Create(args []string) AppState {
 	var path, port string
 	var exists bool
 	// initialize application state
@@ -50,8 +51,18 @@ func (sf *StateFactory) Create() AppState {
 
 		userEnv := filepath.Join(configHome, "env")
 		if exists, _ = pathExists(userEnv); exists {
-			readEnvFile(userEnv)
+			result, err := readEnvFile(userEnv)
+			if err != nil {
+				log.Println(err)
+			}
+			if slices.Contains(args, "-env") {
+				// print the environment and exit
+				log.Println(result)
+				os.Exit(0)
+			}
+
 		}
+
 	}
 
 	// check for required variables

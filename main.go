@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -24,7 +25,9 @@ usage: hypsi [ <file> | <args> ]
 
 * alternatively by sending <args>, you can:
 
-   -json		Show the current configuration in JSON format
+   -json		the current configuration in JSON format
+
+   -history		a history of desktop wallpaper configurations
 
    -rewind <N>		rewind to a previously set wallpaper, <N> (default: 1)
    
@@ -40,7 +43,9 @@ func main() {
 
 	var factory StateFactory
 
-	HYPSI_STATE = factory.Create()
+	args := os.Args[1:]
+
+	HYPSI_STATE = factory.Create(args)
 
 	HYPSI_STATE.Load()
 
@@ -74,11 +79,24 @@ func main() {
 		}
 	}()
 
-	args := os.Args[1:]
-
 	if len(args) > 0 {
 		// nextCommand := args[0]
 		switch args[0] {
+		case "-history":
+			hist, err := readHistory()
+			if err != nil {
+				log.Fatal(err)
+			}
+			var result []Plane
+			for _, moment := range hist {
+				result = append(result, moment.unfold()...)
+			}
+			x, err := json.Marshal(result)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Print(string(x))
+
 		case "-webview":
 			if len(args) > 1 {
 				ReadInput(args[1:])
