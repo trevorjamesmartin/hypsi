@@ -116,6 +116,10 @@ hypsi -watch
 fortune | cowsay
 ```
 
+## Workarounds
+
+[NVIDIA GPU](./README_NVIDIA.md)
+
 ## Licensing
 
 This project uses the BSD-3-Clause [LICENSE](https://github.com/trevorjamesmartin/hypsi/blob/master/LICENSE)
