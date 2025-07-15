@@ -1,0 +1,33 @@
+pkgname=hypsi
+pkgver=1.0.7
+pkgrel=1
+pkgdesc='a desktop background management utility'
+arch=('any')
+license=('BSD-3-Clause')
+makedepends=('git' 'go' 'qt5-tools' 'webkit2gtk-4.1')
+source=("git+https://github.com/trevorjamesmartin/hypsi")
+sha256sums=("SKIP")
+
+prepare(){
+  cd "$pkgname"
+  mkdir -p build/
+}
+
+build() {
+  cd "$pkgname"
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export GOFLAGS="-buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw"
+  go build -o build .
+}
+
+check() {
+  echo "no unit tests"
+}
+
+package() {
+  cd "$pkgname"
+  install -Dm755 build/$pkgname "$pkgdir"/usr/bin/$pkgname
+}

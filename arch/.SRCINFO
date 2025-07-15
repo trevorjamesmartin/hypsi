@@ -1,0 +1,14 @@
+pkgbase = hypsi
+	pkgdesc = a desktop background management utility
+	pkgver = 1.0.7
+	pkgrel = 1
+	arch = any
+	license = BSD-3-Clause
+	makedepends = git
+	makedepends = go
+	makedepends = qt5-tools
+	makedepends = webkit2gtk-4.1
+	source = git+https://github.com/trevorjamesmartin/hypsi
+	sha256sums = SKIP
+
+pkgname = hypsi
