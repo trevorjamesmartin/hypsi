@@ -594,6 +594,8 @@ func webInit() Webpage {
 	switch os.Getenv("XDG_CURRENT_DESKTOP") {
 	case "KDE":
 		page = plasmaWebInit(page)
+	case "XFCE":
+		page = xfce4WebInit(page)
 	default:
 		// Hyprland
 		// # debug w/o Hyprland

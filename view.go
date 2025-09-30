@@ -16,11 +16,7 @@ func jsonText() string {
 	var active []*Plane
 	var err error
 
-	if os.Getenv("XDG_CURRENT_DESKTOP") == "KDE" {
-		active, err = plasmaListActive()
-	} else {
-		active, err = listActive()
-	}
+	active, err = listActive()
 
 	if err != nil {
 		log.Fatal(err)
@@ -39,11 +35,8 @@ func configText() string {
 	var err error
 
 	sources := make(map[string]bool)
-	if os.Getenv("XDG_CURRENT_DESKTOP") == "KDE" {
-		activeplanes, err = plasmaListActive()
-	} else {
-		activeplanes, err = listActive()
-	}
+
+	activeplanes, err = listActive()
 
 	if err != nil {
 		log.Fatal(err)

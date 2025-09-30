@@ -263,7 +263,13 @@ func readFromWeb(monitor, filename string) {
 			log.Fatal(err)
 			return
 		}
-		// HYPSI_STATE.SetRewind(0)
+	case "XFCE":
+		mode = getModeSetting(monitor, filename)
+		err := xfce4WallpaperCommand(filename, monitor, mode)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 	default:
 		// Hyprland
 		activeplanes, err := listActive()
@@ -340,9 +346,13 @@ func listMonitors() ([]*HyprMonitor, error) {
 
 // $ hyprctl hyprpaper listactive
 func listActive() ([]*Plane, error) {
-
-	if os.Getenv("XDG_CURRENT_DESKTOP") == "KDE" {
+	switch os.Getenv("XDG_CURRENT_DESKTOP") {
+	case "KDE":
 		return plasmaListActive()
+	case "XFCE":
+		return xfce4ListActive()
+	default:
+		// continue
 	}
 
 	cmd := exec.Command("hyprctl", "hyprpaper", "listactive")
@@ -382,6 +392,10 @@ func listActive() ([]*Plane, error) {
 // unloadWallpaper Function
 // $ hyprctl hyprpaper unload {image}
 func unloadWallpaper(image string) {
+	if os.Getenv("XDG_CURRENT_DESKTOP") == "XFCE" {
+		return
+	}
+
 	if os.Getenv("XDG_CURRENT_DESKTOP") == "KDE" {
 		return
 	}
@@ -425,7 +439,9 @@ func preloadWallpaper(image string) {
 	if os.Getenv("XDG_CURRENT_DESKTOP") == "KDE" {
 		return
 	}
-
+	if os.Getenv("XDG_CURRENT_DESKTOP") == "XFCE" {
+		return
+	}
 	extension := filepath.Ext(image)
 
 	switch extension {
@@ -552,6 +568,11 @@ func setWallpaperMode(monitor, mode string) {
 		return
 	}
 
+	if currentDesktop == "XFCE" {
+		// todo
+		return
+	}
+
 	monitors, err := listActive()
 
 	if err != nil {
@@ -580,6 +601,12 @@ func setWallpaperMode(monitor, mode string) {
 
 // hyprpaper.conf
 func writeConfig(historical bool) {
+	if os.Getenv("XDG_CURRENT_DESKTOP") == "XFCE" {
+		if historical {
+			writeHistory()
+		}
+		return
+	}
 	configfile := fmt.Sprintf("%s/hypr/hyprpaper.conf", xdg.ConfigHome)
 
 	// remove old file if it exists
@@ -637,6 +664,8 @@ func rewind(n int) (bool, int) {
 		switch currentDesktop {
 		case "KDE":
 			plasmaWallpaperCommand(v.Paper, v.Monitor, mode)
+		case "XFCE":
+			xfce4WallpaperCommand(v.Paper, v.Monitor, mode)
 		default:
 			preloadWallpaper(v.Paper)
 			// update wallpaper
@@ -662,6 +691,12 @@ func activeMonitor() string {
 		// TODO: provide this information ?
 		// for now,
 		// just return the first monitor listed
+		monitorName = monitors[0]
+	case "XFCE":
+		monitors, err := xrandrMonitors()
+		if err != nil {
+			log.Fatal(err)
+		}
 		monitorName = monitors[0]
 
 	default:
